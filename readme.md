@@ -1,6 +1,6 @@
 # Axels Cronwrapper
 
-Unix shell scripts to make it easier handling the status of cronjobs.
+Unix shell scripts to make it easier to handle the status of cronjobs.
 
 GNU GPL 3.0
 
@@ -48,12 +48,13 @@ The cronjob above needs to be rewritten like that:
 
 ### Advantages
 
-Just using a wrapper breaks tons of limits!
+Just using a wrapper breaks tons of limits! Suddenly you can do so many things.
+What my wrapper does:
 
 * The wrapper fetches any output and creates a log file with the name of the started script 
   (remark: you can override the naming with the 3rd parameter).
   Do not try to keep silent anymore: write as many output as you want, write the output that you can understand the execution!
-* The wrapper logs by itself a few things: 
+* The wrapper logs  a few things by itself: 
   * the started command
   * starting time
   * ending time
@@ -68,4 +69,4 @@ Just using a wrapper breaks tons of limits!
   * The TTL value (parameter 2) generates a file with a timestamp. The check 
     script detects with it if a cronjob log is outdated
 
-  
+TO BE CONTINUED
