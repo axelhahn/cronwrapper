@@ -24,10 +24,11 @@ email. So if you generate the output and have many cronjobs then you need a
 convention how to name your log files.
 
 Questions:
-* How do you check if a job was successful? Watching each log? On each System? Just trust?
+* How do you check if a job was successful? Just trust them? Watching each log? On each of your systems?
 * How do you detect if the last job execution was successful but does not run anymore?
 
-My simple approach: Just using a wrapper in front of your command breaks tons of limits! Suddenly you can do so many things.
+My simple approach: By simüly adding a wrapper in front of your current command 
+breaks tons of limits! Suddenly a simple action opens so many posibilities.
 
 # Requirements
 
@@ -36,7 +37,7 @@ Tested on CentOS, Debian, Ubuntu.
 
 # Installation
 
-Copy all shellscript files somewhere. I suggest 
+Copy all shellscript files somewhere. I make my examples with
 ```bash
 /usr/local/bin/
 ```
@@ -50,7 +51,7 @@ your systems into the same directory.
 As an example ... if you have a daily cronjob like this starting at 3:12 am:
 
 ```bash
-12 3 * * * root /usr/local/bin/my-database-dumper.sh
+12 3 * * * root /usr/local/bin/my-database-dumper.sh >/tmp/dump.log 2>&1
 ```
 
 To use my wrappper 
@@ -58,6 +59,7 @@ To use my wrappper
 * add a TTL (in minutes) as first param. It defines how often this job is called. This will let us detect if a job is out of date.
 * add the command as third param - if you use arguments, then you need to quote it
 * optional: add a label for the output file (it overrides the default naming convention of the log)
+* remove the output redirections
 
 The cronjob above needs to be rewritten like that:
 ```bash
@@ -65,7 +67,7 @@ The cronjob above needs to be rewritten like that:
 ```
 
 
-To test it immediatly run con command line:
+To test it immediately run con command line:
 ```bash
 /usr/local/bin/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
 ```
@@ -76,13 +78,13 @@ First: your task does the same thing(s) like before.
 But what the additional wrapper does:
 
 * The wrapper fetches any output of stdout + stderr and creates a log file with a name based on the started script 
-  (remark: you can override the naming with the 3rd parameter).
-  Do not try to keep silent anymore: write as many output as you want, write the output that you can understand the execution!
+  (remark: you can override the naming with a 3rd parameter).
+  Do not try to keep silent anymore: write as many output as you want! Write the output that you can understand the execution!
 * The wrapper logs  a few things by itself: 
   * the started command
   * starting time
   * ending time
-  * ... and having these: the execution time
+  * ... and if having them: the execution time
   * the exitcode of the command/ script;
     This means: be strinct like all commands do! Write your cronjob script that
 	ends with exitcode 0 if it is successful and quit with non-zero if any
@@ -90,7 +92,7 @@ But what the additional wrapper does:
   * The TTL value (parameter 2) generates a file with a timestamp. The check 
     script detects with it if a cronjob log is outdated
 * all metadata and the output will be written in a log file with parsable
-syntax! Just using grep and cut you could verify all your jobs. But there is
+syntax! That's the key. Just using grep and cut you could verify all your jobs. But there is
 an additional check script too: run cronstatus.sh
 
 ## Output
@@ -103,7 +105,7 @@ Have look into the directory after your first job was run.
 The wrapper stores 3 information in different files
 
 * The output of the last execution of a job
-* a flagfile with a timestamp in it
+* a flagfile with a timestamp in it (0 byte)
 * a daily log file with all executions of all jobs and thheir returncodes
 
 ### logfile
