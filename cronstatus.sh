@@ -105,4 +105,5 @@ do
 done
 
 echo
-echo TOTALSTATUS: $iErrJobs cronjobs have an error
+# TODO: $iErrJobs is in a while loop ... what is a subshell
+# echo TOTALSTATUS: $iErrJobs cronjobs have an error
