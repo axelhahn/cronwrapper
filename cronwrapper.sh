@@ -44,7 +44,60 @@
 # 2013-07-xx  axel.hahn@iml.unibe.ch  TTL ist max 1h TTL-Parameter-Wert
 # 2013-08-07  axel.hahn@iml.unibe.ch  Strip html in der Ausgabe
 # 2017-10-13  axel.hahn@iml.unibe.ch  use eval to execute multiple commands
+# 2021-02-23  ahahn  add help and parameter detection
 # ------------------------------------------------------------
+
+# show help
+# param  string  info or error message
+function showhelp(){
+echo "
+$line1
+
+AXELS CRONWRAPPER
+Puts control and comfort to cronjobs.
+
+source: https://github.com/axelhahn/cronwrapper
+license: GNU GPL 3.0
+
+$line1
+
+$1
+
+
+SYNTAX: $0 TTL COMMAND [LABEL]
+
+PARAMETERS:
+    TTL       integer value in [min]
+              This value how often your cronjob runs. It is used to verify
+              if a cronjob is out of date / does not run anymore.
+
+    COMMAND   command to execute
+              When using spaces or parameters then quote it.
+              Be strict: if your job is ok then exit wit returncode 0.
+              If an error occurs exit with returncode <> 0.
+
+    LABEL     optional: label to be used as output filename
+              If not set it will be detected from basename of executed command.
+              When you start a script with different parameters it is highly
+              recommended to set the label.
+
+REMARK:
+You don't need to redirect the output in a cron config file. STDOUT and
+STDERR will be fetched automaticly. 
+It also means: Generate as much output as you want and want to have to debug a
+job in error cases.
+
+OUTPUT:
+The output directory of all jobs executed by $0 is
+${LOGDIR}.
+The output logs are parseble with simple grep command.
+
+MONITORING:
+You can run `dirname $0`/cronstatus.sh to get a list of all cronjobs and its
+status. Check its source. Based on its logic you can a check script for your 
+server monitoring.
+"
+}
 
 # helper function - writes everything to file
 function w() {
@@ -58,7 +111,7 @@ function w() {
 # . `dirname $0`/config_allgemein.sh
 line1="--------------------------------------------------------------------------------"
 
-typeset -i TTL=$1
+typeset -i TTL=$1 2>/dev/null
 CALLSCRIPT=$2
 LABELSTR=$3
 LOGFILE=/tmp/call_any_script_$$.log
@@ -82,6 +135,21 @@ JOBLOG="$LOGDIR/${JOBBLOGBASE}`date +%a`.done"
 OUTFILE="$FINALOUTFILE.running"
 typeset -i iStart=`date +%s`
 
+# ------------------------------------------------------------
+# CHECK PARAMS
+# ------------------------------------------------------------
+if [ "$1" = "-?" -o "$1" = "-h" -o "$1" = "--help" ]; then
+	showhelp "Showing help ..."
+	exit 1
+fi
+if [ $# -lt 2 ]; then
+	showhelp "ERROR: missing parameters."
+	exit 1
+fi
+if [ $TTL -eq 0 ]; then
+	showhelp "ERROR: TTL must be integer and greater zero."
+	exit 1
+fi
 
 # ------------------------------------------------------------
 # WRITE HEADER
