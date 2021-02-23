@@ -94,8 +94,8 @@ The output logs are parseble with simple grep command.
 
 MONITORING:
 You can run `dirname $0`/cronstatus.sh to get a list of all cronjobs and its
-status. Check its source. Based on its logic you can a check script for your 
-server monitoring.
+status. Check its source. Based on its logic you can create a check script for
+your server monitoring.
 "
 }
 
