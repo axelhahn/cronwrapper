@@ -45,6 +45,7 @@
 # 2013-08-07  axel.hahn@iml.unibe.ch  Strip html in der Ausgabe
 # 2017-10-13  axel.hahn@iml.unibe.ch  use eval to execute multiple commands
 # 2021-02-23  ahahn  add help and parameter detection
+# 2021-10-07  ahahn  use hostname with param -f
 # ------------------------------------------------------------
 
 # show help
@@ -129,7 +130,7 @@ JOBBLOGBASE=`hostname`_joblog_
 
 # . $0.cfg
 
-FINALOUTFILE="$LOGDIR/`hostname`_${LABELSTR}.log"
+FINALOUTFILE="$LOGDIR/`hostname -f`_${LABELSTR}.log"
 JOBLOG="$LOGDIR/${JOBBLOGBASE}`date +%a`.done"
 # OUTFILE="$LOGDIR/`hostname`_${LABELSTR}.log"
 OUTFILE="$FINALOUTFILE.running"
