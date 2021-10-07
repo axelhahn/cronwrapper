@@ -126,7 +126,7 @@ TOUCHPART="_flag-${LABELSTR}_expire_"
 
 LOGDIR="/var/tmp/cronlogs"
 # WHATAMI=/data/srdrs/admin/bin/what_am_i
-JOBBLOGBASE=`hostname`_joblog_
+JOBBLOGBASE=`hostname -f`_joblog_
 
 # . $0.cfg
 
