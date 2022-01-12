@@ -1,6 +1,6 @@
-Axels
+# Introduction
 
-```
+```text
  ______                        ________                                    
 |      |.----.-----.-----.    |  |  |  |.----.---.-.-----.-----.-----.----.
 |   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
@@ -12,9 +12,10 @@ Unix shell scripts for easier handling of cronjobs.
 A little idea that offers more possibilities.
 
 Free software and Open source.
+
 GNU GPL 3.0
 
-# Introduction
+---
 
 Default Unix and linux cronjobs are quite basic stuff. Mostly you create
 "simple, stupid" jobs without output ... that just run. Or should.
@@ -28,14 +29,10 @@ Questions:
 * How do you check if a job was successful? Just trust them? Watching each log? On each of your systems?
 * How do you detect if the last job execution was successful but does not run anymore?
 
-My simple approach: By simüly adding a wrapper in front of your current command 
+My simple approach: By simüly adding a wrapper in front of your current command
 breaks tons of limits! Suddenly a simple action opens so many posibilities.
 
 # Requirements
 
 Linux system with installed bash.
 Tested on CentOS, Debian, Manjaro, Ubuntu.
-
----
-
-[Installation](docs/10_Installation.md) | [Usage](docs/20_Usage/10_Cronwrapper.md)

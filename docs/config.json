@@ -1,0 +1,17 @@
+{
+    "title": "Axels Cronwrapper",
+    "author": "Axel Hahn",
+    "tagline": "Puts control and comfort to cronjobs.",
+
+    "html": {
+        "auto_toc": true,
+        "auto_landing": false,
+        "date_modified": true,
+        "jump_buttons": true,
+        "links": {
+            "GitHub Repo": "https://github.com/axelhahn/cronwrapper"
+        },
+        "theme": "daux-blue",
+        "search": false
+    }
+}

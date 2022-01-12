@@ -1,0 +1,165 @@
+/*
+
+    patch css elements of daux.io blue theme
+
+*/
+
+
+/* ---------- vars ---------- */
+
+:root{
+
+    /* background colors */
+    --bg:none;
+    --bg-body: #fff;
+    --bg-navlinkactive:#f4f4f4;
+    --bg-navlinkactive: linear-gradient(-90deg,rgba(0,0,0,0), rgba(40,60,80,0.05) 30%);
+    --bg-pre:#f8f8f8;
+    --bg-toc: #fff;
+
+    /* foreground colors */
+    --color: #234;
+    --navlinkactive:#f33;
+    --title: #aaa;
+
+    --link:#12a;
+    --toclink:rgba(40,60,80,0.8);
+
+    --h1: rgba(40,60,80,0.8);
+    --h1-bottom: 1px solid rgba(40,60,80,0.1);
+    --h2: rgba(40,60,80,0.5);
+    --h3: rgba(40,60,80,0.3);
+
+}
+
+/* ---------- tags ---------- */
+
+body, *{color: var(--color); }
+body{background: var(--bg-body);}
+
+
+a{color: var(--link);}
+a:hover{opacity: 0.7;}
+
+h1>a{ color:var(--title);}
+_h1:nth-child(1){position: fixed; background: var(--bg); box-shadow: 0 0 1em #ccc; padding: 0 1em}
+h1:nth-child(1)>a{ color:var(--navlinkactive); }
+
+.s-content h1{color: var(--h1); font-size: 200%; font-weight:bold; margin-top: 2em; border-bottom: var(--h1-bottom);}
+.s-content h2{color: var(--h2); font-size: 160%; }
+.s-content h3{color: var(--h3); font-size: 140%; }
+.s-content h4{margin: 0; font-size: 100%; text-align: center; background-color: rgba(0,0,0,0.05);padding: 0.3em;}
+
+.s-content pre{
+    background: var(--bg-pre);
+}
+
+/* ---------- classes ---------- */
+
+.required{color:#a42;}
+.optional{color:#888;}
+
+
+/* ----- top left */
+.Brand,
+.Columns__left {
+	background: var(--bg);
+	border-right: 0px solid #e7e7e9;
+    color: var(--color);
+}
+.Brand{font-size: 200%;
+    background_: linear-gradient(-10deg,#fff 50%, #ddd);
+    background: var(--bg);
+}
+.Columns__right__content {
+	background: var(--bg);
+}
+
+/* ----- Navi left */
+
+.Nav a:hover{
+    background: none;
+    color: var(--navlinkactive) !important;
+}
+
+.Nav__item--active {
+    border-right_: 0.3em solid var(--navlinkactive);
+}
+.Nav__item--active > a{
+	background: var(--bg-navlinkactive);
+    color: var(--navlinkactive);
+}
+.Nav .Nav .Nav__item--active a {
+    color: var(--navlinkactive);
+}
+.Nav .Nav .Nav__item a {
+	opacity: 1;
+}
+.Nav__item--open > a {
+	background-color: var(--bg);
+}
+
+.Nav a[href*="__Welcome"]{
+    background: url("/icons/house.png") no-repeat 10px 4px ;
+    padding-left: 40px;
+}
+.Nav a[href*="__How_does_it_work"]{
+    background: url("/icons/light-bulb.png") no-repeat 10px 4px ;
+    padding-left: 40px;
+}
+
+
+
+
+/* ---------- classes ---------- */
+
+/* FIX smaller fnt size in tables */
+.s-content table {
+	font-size: 1em;
+}
+
+
+/* TOC */
+@media(min-width:1700px){
+    .TableOfContentsContainer{
+        position: fixed;
+        right: 2em;
+        top: 1em;
+    }
+}
+
+.TableOfContentsContainer{
+    border-top-left-radius: 1em;
+    background-color: var(--bg-toc);
+	border-left: 2px solid rgba(0,0,0,0.05);
+    padding: 0em;
+}
+.TableOfContentsContainer__content {
+
+	border: none;
+	font-size: 0.5em;
+
+}
+ul.TableOfContents ul{
+	list-style-type: none;
+    padding-left: 1em;
+}
+.TableOfContentsContainer a{ color:var(--toclink);}
+
+.TableOfContentsContainer__content > .TableOfContents > li + li {
+	border-top: none;
+}
+.TableOfContentsContainer__content > .TableOfContents > li {
+	border-bottom: 1px dashed #ddd;
+}
+
+/* pager - prev .. next */
+.s-content{
+    margin-bottom: 6em;
+}
+.Pager{
+    border-top: 1px dashed #aaa; margin: 0; padding: 1em;
+}
+.Pager a{
+    color:var(--navlinkactive);
+}
