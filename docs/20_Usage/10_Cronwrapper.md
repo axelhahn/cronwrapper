@@ -60,7 +60,8 @@ As an example ... if you have a daily cronjob like this starting at 3:12 am:
 12 3 * * * root /usr/local/bin/my-database-dumper.sh >/tmp/dump.log 2>&1
 ```
 
-To use my wrappper 
+To use my wrappper
+
 * you add the wrapper in front
 * add a TTL (in minutes) as first param. It defines how often this job is called. This will let us detect if a job is out of date.
 * add the command as third param - if you use arguments, then you need to quote it
@@ -68,12 +69,13 @@ To use my wrappper
 * remove the output redirections
 
 The cronjob above needs to be rewritten like that:
+
 ```bash
 12 3 * * * root /usr/local/bin/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
 ```
 
-
 To test it immediately run con command line:
+
 ```bash
 /usr/local/bin/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
 ```
@@ -93,9 +95,9 @@ But what the additional wrapper does:
   * ... and if having them: the execution time
   * the exitcode of the command/ script;
     This means: be strinct like all commands do! Write your cronjob script that
-	ends with exitcode 0 if it is successful and quit with non-zero if any
-	error occurs. Be strict!
-  * The TTL value (parameter 2) generates a file with a timestamp. The check 
+    ends with exitcode 0 if it is successful and quit with non-zero if any
+    error occurs. Be strict!
+  * The TTL value (parameter 2) generates a file with a timestamp. The check
     script detects with it if a cronjob log is outdated
 * all metadata and the output will be written in a log file with parsable
 syntax! That's the key. Just using grep and cut you could verify all your jobs. But there is

@@ -1,5 +1,6 @@
 
 Have look into the directory after your first job was run.
+
 ```bash
 /var/tmp/cronlogs/
 ```
@@ -13,6 +14,7 @@ The wrapper stores 3 information in different files
 ### logfile
 
 Show the created output of a cronjob:
+
 ```bash
 cat /var/tmp/cronlogs/[your-logfile]*.log
 ```
@@ -29,6 +31,7 @@ To search for a specific information, i.e. the return code (SCRIPTRC) of your sc
 ```bash
 grep "^SCRIPTRC" /var/tmp/cronlogs/[your-logfile]*.log
 ```
+
 ... or all last execution resultcode of each job on the machine:
 
 ```bash

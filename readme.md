@@ -38,4 +38,4 @@ Tested on CentOS, Debian, Manjaro, Ubuntu.
 
 ---
 
-[Installation](docs/10_Installation.md) | [Usage](docs/20_Usage/10_Cronwrapper.md)
+[Installation](docs/10_Installation.md) | [Usage](docs/20_Usage/10_Cronwrapper.md) | [more](docs/)

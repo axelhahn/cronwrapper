@@ -48,4 +48,3 @@ We need `0644` permission (readable for all) on the file that will be sourced:
 ```text
 inc_cronfunctions.sh
 ```
-
