@@ -25,7 +25,7 @@
 # 2002-02-06  ahahn  V1.0
 # 2002-07-15         Stderr wird auch ins Logfile geschrieben
 # 2002-09-17  ahahn  Email wird versendet, wenn Skript nicht
-#                    ausführbar ist.
+#                    ausfï¿½hrbar ist.
 # 2003-04-05  ahahn  show output of executed script
 # 2004-03-26  ahahn  added output with labels 2 grab infos from output
 # 2006-01-01  ahahn  disabled email
@@ -45,7 +45,7 @@
 # 2013-08-07  axel.hahn@iml.unibe.ch  Strip html in der Ausgabe
 # 2017-10-13  axel.hahn@iml.unibe.ch  use eval to execute multiple commands
 # 2021-02-23  ahahn  add help and parameter detection
-# 2021-10-07  ahahn  use hostname with param -f
+# 2022-01-12  ahahn  fixes based on shellcheck
 # ------------------------------------------------------------
 
 # show help
@@ -94,7 +94,7 @@ ${LOGDIR}.
 The output logs are parseble with simple grep command.
 
 MONITORING:
-You can run `dirname $0`/cronstatus.sh to get a list of all cronjobs and its
+You can run $(dirname $0)/cronstatus.sh to get a list of all cronjobs and its
 status. Check its source. Based on its logic you can create a check script for
 your server monitoring.
 "
@@ -102,7 +102,7 @@ your server monitoring.
 
 # helper function - writes everything to file
 function w() {
-        echo $* >>$OUTFILE
+        echo "$*" >>"$OUTFILE"
 }
 
 # ------------------------------------------------------------
@@ -118,28 +118,31 @@ LABELSTR=$3
 LOGFILE=/tmp/call_any_script_$$.log
 
 if [ "${LABELSTR}" = "" ]; then
-        LABELSTR=`basename "${CALLSCRIPT}" | cut -f 1 -d " " `
+        LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
 fi
 # Label darf keine Unterstriche enthalten
-LABELSTR=`echo ${LABELSTR} | sed "s#_#-#g"`
+LABELSTR=$(echo ${LABELSTR} | sed "s#_#-#g")
 TOUCHPART="_flag-${LABELSTR}_expire_"
 
 LOGDIR="/var/tmp/cronlogs"
+MYHOST=$( hostname -f )
+
 # WHATAMI=/data/srdrs/admin/bin/what_am_i
-JOBBLOGBASE=`hostname -f`_joblog_
+JOBBLOGBASE=${MYHOST}_joblog_
 
 # . $0.cfg
 
-FINALOUTFILE="$LOGDIR/`hostname -f`_${LABELSTR}.log"
-JOBLOG="$LOGDIR/${JOBBLOGBASE}`date +%a`.done"
+FINALOUTFILE="$LOGDIR/${MYHOST}_${LABELSTR}.log"
+JOBLOG="$LOGDIR/${JOBBLOGBASE}$(date +%a).done"
 # OUTFILE="$LOGDIR/`hostname`_${LABELSTR}.log"
 OUTFILE="$FINALOUTFILE.running"
-typeset -i iStart=`date +%s`
+typeset -i iStart
+iStart=$(date +%s)
 
 # ------------------------------------------------------------
 # CHECK PARAMS
 # ------------------------------------------------------------
-if [ "$1" = "-?" -o "$1" = "-h" -o "$1" = "--help" ]; then
+if [ "$1" = "-?" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 	showhelp "Showing help ..."
 	exit 1
 fi
@@ -157,20 +160,19 @@ fi
 # ------------------------------------------------------------
 mkdir $LOGDIR 2>/dev/null
 chmod 777 $LOGDIR 2>/dev/null
-rm -f $OUTFILE 2>/dev/null
-touch $OUTFILE
-w REM $line1
-w REM CRON WRAPPER - `hostname`
-# w REM `$WHATAMI`
-w REM $line1
+rm -f "$OUTFILE" 2>/dev/null
+touch "$OUTFILE"
+w "REM $line1"
+w "REM CRON WRAPPER - $MYHOST"
+w "REM $line1"
 
 w "SCRIPTNAME=${CALLSCRIPT}"
 w "SCRIPTTTL=${TTL}"
-w "SCRIPTSTARTTIME=`date \"+%Y-%m-%d %H:%M:%S\"`, $iStart"
+w "SCRIPTSTARTTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iStart"
 w "SCRIPTLABEL=${LABELSTR}"
 
 if [ -z "${CALLSCRIPT}" ]; then
-        w REM STOP: no script was found. check syntax for `basename $0`
+        w "REM STOP: no script was found. check syntax for $(basename $0)"
         exit 1
 fi
 # ------------------------------------------------------------
@@ -191,34 +193,36 @@ fi
 # ------------------------------------------------------------
 w REM $line1
 # w REM check: runs this job on another machine?
-typeset -i iExpire=`date +%s`
-typeset -i iExpDelta=$TTL*3/2
+typeset -i iExpire
+iExpire=$(date +%s)
+typeset -i iExpDelta=$(( TTL*3/2 ))
 if [ $iExpDelta -gt 60 ]; then
         iExpDelta=60
 fi
 
 # let iExpire=$iExpire+$TTL*60*3/2
-let iExpire=$iExpire+$TTL*60+$iExpDelta*60
+iExpire=$(( iExpire+TTL*60 + iExpDelta*60 ))
 if [ $TTL -eq 0 ]; then
         iExpire=0
 fi
 
-lastfile=${LOGDIR}/*${TOUCHPART}*
-ls $lastfile>/dev/null 2>&1
-if [ $? -eq 0 ]; then
-        TOUCHFILE=`basename $lastfile`
-        typeset -i expdate=`echo $TOUCHFILE| cut -f 4 -d "_"` 2>/dev/null
-        runserver=`echo $TOUCHFILE| cut -f 5 -d "_"`
+aLastfiles=( "${LOGDIR}"/*"${TOUCHPART}"* )
+lastfile=${aLastfiles[0]}
 
-        w REM INFO: expires $expdate - `date -d @$expdate`
+if ls "${lastfile}" >/dev/null 2>&1; then
+        TOUCHFILE=$(basename "$lastfile")
+        typeset -i expdate
+        expdate=$(echo "$TOUCHFILE"| cut -f 4 -d "_") 2>/dev/null
+        runserver=$(echo "$TOUCHFILE" | cut -f 5 -d "_")
+
+        w "REM INFO: expires $expdate - $(date -d @$expdate)"
         typeset -i timeleft=$expdate-$iStart
-        w REM INFO: job is locked for other servers for $timeleft more seconds
-        hostname | fgrep $runserver >/dev/null
-        if [ $? -ne 0 ]; then
-                w REM INFO: it locked up to $expdate by $runserver
+        w "REM INFO: job is locked for other servers for $timeleft more seconds"
+        if ! hostname | grep -F "$runserver" >/dev/null; then
+                w "REM INFO: it locked up to $expdate by $runserver"
                 if [ $timeleft -gt 0 ]; then
                         w REM STOP: job is locked.
-            mv $OUTFILE ${FINALOUTFILE}
+                        mv "$OUTFILE" "${FINALOUTFILE}"
                         exit 2
                 else
                         w REM INFO: OK, job is expired
@@ -231,10 +235,10 @@ else
 fi
 
 # -- delete all touchfiles of this job
-rm -f ${LOGDIR}/*${TOUCHPART}* 2>/dev/null
+rm -f "${LOGDIR}"/*"${TOUCHPART}"* 2>/dev/null
 
 # -- create touchfile for this server
-touch "${LOGDIR}/${TOUCHPART}${iExpire}_`hostname`"
+touch "${LOGDIR}/${TOUCHPART}${iExpire}_${MYHOST}"
 w JOBEXPIRE=${iExpire}
 # w REM INFO: created touchfile ${TOUCHPART}${iExpire}_`hostname`
 w REM $line1
@@ -243,40 +247,41 @@ w REM $line1
 # MAIN
 # ------------------------------------------------------------
 rc=none
-RETSTATUS="OK"
-eval ${CALLSCRIPT} >"${LOGFILE}" 2>&1
+# RETSTATUS="OK"
+eval "${CALLSCRIPT}" >"${LOGFILE}" 2>&1
 rc=$?
-if [ $rc -ne 0 ]; then
-        RETSTATUS="WARNING !!!"
-fi
+# if [ $rc -ne 0 ]; then
+#         RETSTATUS="WARNING !!!"
+# fi
+# w "sending email..."
+# cat "${LOGFILE}" | mail -s"${EMAIL_SUBJECT} - ${LABELSTR} - $RETSTATUS" "${EMAIL_TO}"
+# w "   rc=$?"
 
-
-typeset -i iEnd=`date +%s`
-w "SCRIPTENDTIME=`date \"+%Y-%m-%d %H:%M:%S\"`, $iEnd"
-let iExectime=$iEnd-$iStart
+typeset -i iEnd
+iEnd=$(date +%s)
+w "SCRIPTENDTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iEnd"
+iExectime=$(( iEnd-iStart ))
 w SCRIPTEXECTIME=$iExectime s
 
 w SCRIPTRC=$rc
 
-# w "sending email..."
-# cat "${LOGFILE}" | mail -s"${EMAIL_SUBJECT} - ${LABELSTR} - $RETSTATUS" "${EMAIL_TO}"
-# w "   rc=$?"
+
 w "REM $line1"
 
-cat "${LOGFILE}" | sed -e 's/<[^>]*>//g' | sed "s#^#SCRIPTOUT=#g" >>$OUTFILE
+sed -e 's/<[^>]*>//g' "${LOGFILE}" | sed "s#^#SCRIPTOUT=#g" >>"$OUTFILE"
 w "REM $line1"
 
 # write a log for execution of a cronjob
-echo "job=${LABELSTR}:host=`hostname`:start=$iStart:end=$iEnd:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>$JOBLOG
-chmod 777 $JOBLOG 2>/dev/null
+echo "job=${LABELSTR}:host=$MYHOST:start=$iStart:end=$iEnd:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$JOBLOG"
+chmod 777 "$JOBLOG" 2>/dev/null
 find $LOGDIR -name "${JOBBLOGBASE}*" -type f -mtime +4 -exec rm -f {} \;
 
 # ------------------------------------------------------------
 # CLEANUP UND ENDE
 # ------------------------------------------------------------
 rm -f "${LOGFILE}"
-w "REM $0 finished at `date`"
-mv $OUTFILE ${FINALOUTFILE}
+w "REM $0 finished at $(date)"
+mv "${OUTFILE}" "${FINALOUTFILE}"
 
 # ------------------------------------------------------------
 # EOF
