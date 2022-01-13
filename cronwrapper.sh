@@ -1,31 +1,21 @@
 #!/bin/bash
 # ------------------------------------------------------------
 #
-# CRONWRAPPER
+# AXELS CRONWRAPPER
 #
 # ------------------------------------------------------------
-# Was ist das hier?
-# Es wird ein beliebiges Skript aufgerufen. Anhand des
-# Die gesamte Ausgabe erfolgt in einer vorgegebenen Syntax,
-# was das Parsen der Ausgabe vereinfacht
 #
-# Fuer MPC:
-# 1) die gesamte Ausgabe wird aut. in ein Logfile geschrieben
-#    (s. $OUTFILE).
-# 2) Cron soll immer nur auf einem Server laufen - ttl eingefuegt
-#    Es wird ein Lockfile mit expire-Zeit geschrieben
+# Call any command in a cronjob and write a parsable log.
 #
-# Aufruf:
-# {Skriptname} [ttl] [aufzurufendes Skript] [Bezeichner]
-#   ttl: aufruf-Rhytmus dieses Skripts im Cron - in Minuten
-#   Skript: Skript mit komplettem Pfad
-#   Bezeichner: optional
+# SYNTAX: SYNTAX: $0 TTL COMMAND [LABEL]
+# Start script without parameters to see the help or have a
+# to the ./docs/ directory.
 #
 # ------------------------------------------------------------
 # 2002-02-06  ahahn  V1.0
 # 2002-07-15         Stderr wird auch ins Logfile geschrieben
 # 2002-09-17  ahahn  Email wird versendet, wenn Skript nicht
-#                    ausf�hrbar ist.
+#                    ausfuehrbar ist.
 # 2003-04-05  ahahn  show output of executed script
 # 2004-03-26  ahahn  added output with labels 2 grab infos from output
 # 2006-01-01  ahahn  disabled email
@@ -100,7 +90,7 @@ your server monitoring.
 "
 }
 
-# helper function - writes everything to file
+# helper function - append to file
 function w() {
         echo "$*" >>"$OUTFILE"
 }
@@ -108,7 +98,6 @@ function w() {
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
-# allg. Konfiguration laden
 # . `dirname $0`/config_allgemein.sh
 line1="--------------------------------------------------------------------------------"
 
@@ -154,6 +143,10 @@ if [ $TTL -eq 0 ]; then
 	showhelp "ERROR: TTL must be integer and greater zero."
 	exit 1
 fi
+if [ -z "${MYHOST}" ]; then
+	showhelp "ERROR: hostname -f did not return any hostname."
+	exit 1
+fi
 
 # ------------------------------------------------------------
 # WRITE HEADER
@@ -175,24 +168,12 @@ if [ -z "${CALLSCRIPT}" ]; then
         w "REM STOP: no script was found. check syntax for $(basename $0)"
         exit 1
 fi
-# ------------------------------------------------------------
-# entspr. Nummer im Service warten;
-# z.B. author-01 wartet 0 sec; author-02 wartet 1 sec
-# ------------------------------------------------------------
-# typeset -i sleep=`$WHATAMI | head -1 | sed "s#[a-zA-Z :]##g" | sed "s#--##g" | cut -f 2 -d "-"`-1
-# if [ $sleep -lt 0 ]; then
-#         sleep=0
-# fi
-#
-# w REM sleep $sleep sec
-# sleep $sleep
 
 
 # ------------------------------------------------------------
 # CHECK: runs this job on another machine?
 # ------------------------------------------------------------
 w REM $line1
-# w REM check: runs this job on another machine?
 typeset -i iExpire
 iExpire=$(date +%s)
 typeset -i iExpDelta=$(( TTL*3/2 ))
