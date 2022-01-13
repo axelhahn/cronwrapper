@@ -34,16 +34,6 @@ In this example I have 2 cronjobs using the cronwrapper and both are OK. In that
     
 > echo $?
 0
-
 ```
 
-If there is a problem with a cronjob
-
-* its exit status was not zero
-* the job did not run (expired)
-
-... then the jobs in trouble will be shown on top of those with status OK.
-
-The exit status of the cronstatus is non zero.
-
-Hint: You can use the cronstatus.sh for monitoring too.
+The exit status of the cronstatus is always zero.

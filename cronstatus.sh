@@ -23,6 +23,31 @@ typeset -i iErrJobs=0
 # FUNCTIONS
 # ----------------------------------------------------------------------
 
+# set a terminal color by a keyword
+# param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
+function color(){
+        local sColorcode=""
+        case $1 in
+                "reset") sColorcode="0"
+                        ;;
+                "head")  sColorcode="33" # yellow
+                        ;;
+                "cmd")   sColorcode="94" # light blue
+                        ;;
+                "input") sColorcode="92" # green
+                        ;;
+                "ok") sColorcode="92" # green
+                        ;;
+                "warning") sColorcode="33" # yellow
+                        ;;
+                "error") sColorcode="91" # red
+                        ;;
+        esac
+        if [ -n "${sColorcode}" ]; then
+                echo -ne "\e[${sColorcode}m"
+        fi    
+}
+
 # get a value from logfile (everything behind "="
 # param: label
 # global: $logfile
@@ -42,7 +67,6 @@ do
 
         # server=$(basename "$logfile" | cut -f 1 -d "_")
         # jobname=$(basename "$logfile" | cut -f 2 -d "_" | sed "s#\.log##")
-
 
         sPre="    "
         sCmd=$(getLogValue SCRIPTNAME)
@@ -101,7 +125,9 @@ do
 
         # ----- OUTPUT
         echo
+        color "head"
         echo "--- $logfile"
+        color "reset"
 
         echo "${sPre}${sCmd}"
         echo "${sPre}last start: ${sLastStart}"
@@ -111,9 +137,14 @@ do
         echo "${sPre}expires: ${iJobExpire} ${statusExpire}"
 
         if [ $iErr -gt 0 ]; then
+                color "error"
                 echo "${sPre}CHECK FAILED"
                 iErrJobs=$iErrJobs+1
+        else
+                color "ok"
+                echo "${sPre}CHECK OK"
         fi
+        color "reset"
 
 done
 
