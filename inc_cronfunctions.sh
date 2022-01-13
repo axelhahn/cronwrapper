@@ -29,13 +29,13 @@ function getRemoteFiles(){
 
         dirlist=$*
 
-        echo --- ${srvSource} - to $targetDir
-        mkdir -p ${targetDir}
+        echo "--- ${srvSource} - to $targetDir"
+        mkdir -p "${targetDir}"
 
         for mydir in $dirlist
         do
                 echo -n "${mydir} "
-                rsync -a ${srvSource}:${mydir} ${targetDir}
+                rsync -a "${srvSource}:${mydir}" "${targetDir}"
                 fetchRc
         done
         echo
@@ -44,6 +44,6 @@ function getRemoteFiles(){
 
 function quit(){
         echo
-        echo beende mit Returncode $rcAll
+        echo "beende mit Returncode $rcAll"
         exit $rcAll
 }
