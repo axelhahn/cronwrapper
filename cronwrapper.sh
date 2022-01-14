@@ -36,6 +36,7 @@
 # 2017-10-13  axel.hahn@iml.unibe.ch  use eval to execute multiple commands
 # 2021-02-23  ahahn  add help and parameter detection
 # 2022-01-12  ahahn  fixes based on shellcheck
+# 2022-01-14  ahahn  fix runserver check
 # ------------------------------------------------------------
 
 # show help
@@ -199,7 +200,7 @@ if ls "${lastfile}" >/dev/null 2>&1; then
         w "REM INFO: expires $expdate - $(date -d @$expdate)"
         typeset -i timeleft=$expdate-$iStart
         w "REM INFO: job is locked for other servers for $timeleft more seconds"
-        if ! hostname | grep -F "$runserver" >/dev/null; then
+        if ! echo "${MYHOST}" | grep -F "$runserver" >/dev/null; then
                 w "REM INFO: it locked up to $expdate by $runserver"
                 if [ $timeleft -gt 0 ]; then
                         w REM STOP: job is locked.
