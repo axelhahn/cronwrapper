@@ -20,7 +20,7 @@ After sourcing inc_cronfunctions.sh you get a list of available function with `c
 
 ```txt
 HELP FOR CRONWRAPPER FUNCTIONS
-auto generated list of implemented cw.\* functions
+auto generated list of implemented cw.* functions
 
 cw.cecho
     colored echo output using color and reset color afterwards
@@ -58,6 +58,14 @@ cw.lockstatus
 cw.quit
     quit script with showing the total exitcode.
     no parameter is required
+
+cw.randomsleep
+    sleep for a random time
+    param  integer  time to randomize in sec
+    param  integer  optional: minimal time to sleep in sec; default: 0
+    Example: 
+    cw.randomsleep 60     sleeps for a random time 0..60 sec
+    cw.randomsleep 60 30  sleeps for a random time 30..90 sec
 
 cw.timer
     get time in sec and milliseconds since start

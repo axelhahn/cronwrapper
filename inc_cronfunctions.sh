@@ -102,7 +102,7 @@ function cw.help(){
                 cw.cecho cmd $fktname
                 typeset -i local _linestart
                 _linestart=$( grep -En "function\ $fktname\ *\(" "$_self" | cut -f 1 -d ':' )
-                typeset -i local _print_start=$_linestart-5
+                typeset -i local _print_start=$_linestart-6
 
                 sed -n ${_print_start},${_linestart}p $_self | grep '^#' | grep -v "\-\-\-\-\-" | cut -c 3- | sed "s#^#    #g"
                 echo
@@ -136,6 +136,20 @@ function cw.exec() {
 
 }
 
+# sleep for a random time
+# param  integer  time to randomize in sec
+# param  integer  optional: minimal time to sleep in sec; default: 0
+# Example: 
+# cw.randomsleep 60     sleeps for a random time 0..60 sec
+# cw.randomsleep 60 30  sleeps for a random time 30..90 sec
+function cw.randomsleep(){
+        typeset -i local _iRnd=$1
+        typeset -i local _iMintime=$2
+        typeset -i local _iSleep=$(($RANDOM%$_iRnd+$_iMintime))
+        echo Sleeping for $_iSleep sec ...
+        sleep $_iSleep
+}
+
 # get time in sec and milliseconds since start
 # no parameter is required
 function cw.timer(){
@@ -164,9 +178,7 @@ function cw.quit(){
         exit $rcAll
 }
 
-# ----------------------------------------------------------------------
-# coloring
-# ----------------------------------------------------------------------
+# ----- coloring -------------------------------------------------------
 
 # set a terminal color by a keyword
 # param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
@@ -201,9 +213,7 @@ function cw.cecho (){
         cw.color "$_color"; echo -n "$*"; cw.color reset; echo
 }
 
-# ----------------------------------------------------------------------
-# locking
-# ----------------------------------------------------------------------
+# ----- locking --------------------------------------------------------
 
 # helper function: generate a filename for locking
 function cw._getlockfilename(){
