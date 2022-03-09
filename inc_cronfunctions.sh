@@ -1,6 +1,8 @@
 # ======================================================================
 # 
 # INCLUDE file with shared functions
+#
+# source the script and call cw.help
 # 
 # 2022-03-09  ahahn  added cw.* functions; others marked as deprecated
 # ======================================================================
@@ -11,8 +13,10 @@ typeset -i rc=0     # the last detected exitcode of a command
 typeset -i rcAll=0  # sum of all collected exitcodes
 
 # set a start time
-export CW_timer_start=$( date +%s.%N )
+export CW_timer_start
 
+
+export CW_lockfile
 
 
 
@@ -20,6 +24,9 @@ export CW_timer_start=$( date +%s.%N )
 # deprecated functions witout "cw." prefix
 # ----------------------------------------------------------------------
 
+# draw a message for deprecated warning
+# param  string  name of deprecated function
+# param  string  text for replacement
 function cw._isDeprecated(){
         local _fkt
         _fkt=$1
@@ -27,6 +34,7 @@ function cw._isDeprecated(){
         cw.cecho warning "WARNING: function $_fkt() is DEPRECATED. Replace it with <$*>."
 }
 
+# DEPRECATED
 # vom Remoteserver eine Liste von Verzeichnissen holen
 # Params: Server  Zielverzeichnis lokal  Liste der Verzeichnisse (remote)
 function getRemoteFiles(){
@@ -52,26 +60,29 @@ function getRemoteFiles(){
 
 }
 
+# DEPRECATED
 function color(){
         cw.color $*
         cw._isDeprecated "${FUNCNAME[0]}" "cw.color"
 }
+# DEPRECATED
 function cecho(){
         cw.cecho $*
         cw._isDeprecated "${FUNCNAME[0]}" "cw.cecho"
 }
+# DEPRECATED
 # ein Kommando ausfuehren und returncode ausgeben und auf rcAll aufsummieren
 function exec2() {
         cw._isDeprecated "${FUNCNAME[0]}" "cw.exec"
         cw.exec $*
 }
-
+# DEPRECATED
 # get last exitcode and store it in global var $rc
 function fetchRc(){
         cw.fetchRc
         cw._isDeprecated "${FUNCNAME[0]}" "cw.fetchRc"
 }
-
+# DEPRECATED
 function quit(){
         cw._isDeprecated "${FUNCNAME[0]}" "cw.quit"
         cw.quit $*
@@ -90,7 +101,8 @@ function cw.help(){
         grep "^function\ cw\.[a-z][a-z]*" "$_self" | cut -f 2 -d " " | cut -f 1 -d '(' | sort | while read -r fktname
         do 
                 cw.cecho cmd $fktname
-                typeset -i local _linestart=$( grep -n "function\ $fktname" "$_self" | cut -f 1 -d ':' )
+                typeset -i local _linestart
+                _linestart=$( grep -En "function\ $fktname\ *\(" "$_self" | cut -f 1 -d ':' )
                 typeset -i local _print_start=$_linestart-5
 
                 sed -n ${_print_start},${_linestart}p $_self | grep '^#' | grep -v "\-\-\-\-\-" | cut -c 3- | sed "s#^#    #g"
@@ -184,7 +196,7 @@ function cw.color(){
 }
 
 # colored echo output using color and reset color afterwards
-# param  string  color code ... se cw.color
+# param  string  color code ... see cw.color
 # param  string  text to display
 function cw.cecho (){
         local _color=$1; shift 1
@@ -201,10 +213,10 @@ function cw._getlockfilename(){
 }
 
 # verify locking and create one if no active lock was found
-# param  string  optional: string to create sonething uniq if your script can be started with multiple parameters
+# param  string  optional: string to create sonething uniq if your script can 
+#                be started with multiple parameters
+# see cw.lockstatus, cw.unlock
 function cw.lock(){
-        export CW_lockfile
-        CW_lockfile=$( cw._getlockfilename "$0 $*" )
 
         local _cw_label
         _cw_label=$( echo "$0 $*" | sed "s#[^a-zA-Z0-9]#_#g" )
@@ -214,16 +226,16 @@ function cw.lock(){
                 local _cw_lockpid
                 _cw_lockpid=$( cut -f 2 -d " " "${CW_lockfile}" | grep "[0-9]")
                 if [ -z "$_cw_lockpid" ]; then
-                        cecho error "ERROR: process pid was not fetched from lock file. Check the transfer processes manually, please."
+                        cw.cecho error "ERROR: process pid was not fetched from lock file. Check the transfer processes manually, please."
                         exit 1
                 fi
 
                 if ps -ef | grep "$_cw_lockpid" | grep "$_cw_label"
                 then
-                        cecho error "ERROR: The transfer with pid $_cw_lockpid seems to be still active. Aborting."
+                        cw.cecho error "ERROR: The process pid $_cw_lockpid seems to be still active. Aborting."
                         exit 1
                 fi
-                cecho warning "INFO: Lock file $CW_lockfile was found but process $_cw_lockpid is not active anymore."
+                cw.cecho warning "INFO: Lock file $CW_lockfile was found but process $_cw_lockpid is not active anymore."
                 cw.color reset
         fi
 
@@ -234,12 +246,26 @@ function cw.lock(){
         fi
 }
 
+# check status of locking
+# exit code is 0 if locking is active
+# Example: if cw.lockstatus; then echo Lock is ACTIVE; else echo NO LOCKING; fi
+# see cw.lock, cw.unlock
+function cw.lockstatus(){
+        test -f "${CW_lockfile}"
+}
 # remove an existing locking
 # no parameter is required
+# see cw.lock, cw.lockstatus
 function cw.unlock(){
         test -n "${CW_lockfile}"
         rm -f "$CW_lockfile" || cecho error "ERROR: lock file ${CW_lockfile} was not removed"
 }
 
+
+# ----------------------------------------------------------------------
+
+# INIT:
+CW_timer_start=$( date +%s.%N )
+CW_lockfile=$( cw._getlockfilename "$0 $*" )
 
 # ----------------------------------------------------------------------

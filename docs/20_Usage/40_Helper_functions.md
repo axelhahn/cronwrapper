@@ -19,9 +19,12 @@ This adds a variable rcAll and a few functions.
 After sourcing inc_cronfunctions.sh you get a list of available function with `cw.help`.
 
 ```txt
+HELP FOR CRONWRAPPER FUNCTIONS
+auto generated list of implemented cw.\* functions
+
 cw.cecho
     colored echo output using color and reset color afterwards
-    param  string  color code ... se cw.color
+    param  string  color code ... see cw.color
     param  string  text to display
 
 cw.color
@@ -42,7 +45,15 @@ cw.help
 
 cw.lock
     verify locking and create one if no active lock was found
-    param  string  optional: string to create sonething uniq if your script can be started with multiple parameters
+    param  string  optional: string to create sonething uniq if your script can 
+                   be started with multiple parameters
+    see cw.lockstatus, cw.unlock
+
+cw.lockstatus
+    check status of locking
+    exit code is 0 if locking is active
+    Example: if cw.lockstatus; then echo Lock is ACTIVE; else echo NO LOCKING; fi
+    see cw.lock, cw.unlock
 
 cw.quit
     quit script with showing the total exitcode.
@@ -55,6 +66,7 @@ cw.timer
 cw.unlock
     remove an existing locking
     no parameter is required
+    see cw.lock, cw.lockstatus
 ```
 
 ## example script
