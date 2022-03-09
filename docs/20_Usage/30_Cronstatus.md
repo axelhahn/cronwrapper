@@ -23,6 +23,7 @@ In this example I have 2 cronjobs using the cronwrapper and both are OK. In that
     duration: 0 s
     ttl: 5 min OK
     expires: 1641985021 2022-01-12 11:57:01 OK
+    CHECK OK
 
 --- /var/tmp/cronlogs/www.example.com_imlpgcleanup.log
     /opt/imlpgcleanup/walarchivecleanup.sh -p /tmp -a 10
@@ -31,9 +32,11 @@ In this example I have 2 cronjobs using the cronwrapper and both are OK. In that
     duration: 0 s
     ttl: 1440 - 24 h OK
     expires: 1642047121 2022-01-13 05:12:01 OK
+    CHECK OK
     
 > echo $?
 0
 ```
 
 The exit status of the cronstatus is always zero.
+You can grep for "CHECK FAILED" to detect if any of the cronjobs failed.

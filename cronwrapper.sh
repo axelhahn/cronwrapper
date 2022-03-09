@@ -37,6 +37,7 @@
 # 2021-02-23  ahahn  add help and parameter detection
 # 2022-01-12  ahahn  fixes based on shellcheck
 # 2022-01-14  ahahn  fix runserver check
+# 2022-03-09  ahahn  small changes
 # ------------------------------------------------------------
 
 # show help
@@ -99,28 +100,31 @@ function w() {
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
-# . `dirname $0`/config_allgemein.sh
+
 line1="--------------------------------------------------------------------------------"
 
+# --- set vars with required cli params
 typeset -i TTL=$1 2>/dev/null
 CALLSCRIPT=$2
 LABELSTR=$3
 LOGFILE=/tmp/call_any_script_$$.log
 
-if [ "${LABELSTR}" = "" ]; then
-        LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
-fi
-# Label darf keine Unterstriche enthalten
-LABELSTR=$(echo ${LABELSTR} | sed "s#_#-#g")
+test -z "${LABELSTR}" && LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
+
+# replace underscore (because it is used as a delimiter)
+# LABELSTR=$(echo ${LABELSTR} | sed "s#_#-#g")
+LABELSTR=${LABELSTR//_/-}
 TOUCHPART="_flag-${LABELSTR}_expire_"
 
 LOGDIR="/var/tmp/cronlogs"
 MYHOST=$( hostname -f )
 
-# WHATAMI=/data/srdrs/admin/bin/what_am_i
+# --- log executions of the whole day
 JOBBLOGBASE=${MYHOST}_joblog_
 
-# . $0.cfg
+test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
+. $( dirname $0)/inc_cronfunctions.sh
+
 
 FINALOUTFILE="$LOGDIR/${MYHOST}_${LABELSTR}.log"
 JOBLOG="$LOGDIR/${JOBBLOGBASE}$(date +%a).done"
@@ -199,7 +203,7 @@ if ls "${lastfile}" >/dev/null 2>&1; then
 
         w "REM INFO: expires $expdate - $(date -d @$expdate)"
         typeset -i timeleft=$expdate-$iStart
-        w "REM INFO: job is locked for other servers for $timeleft more seconds"
+        # w "REM INFO: job is locked for other servers for $timeleft more seconds"
         if ! echo "${MYHOST}" | grep -F "$runserver" >/dev/null; then
                 w "REM INFO: it locked up to $expdate by $runserver"
                 if [ $timeleft -gt 0 ]; then
@@ -209,8 +213,8 @@ if ls "${lastfile}" >/dev/null 2>&1; then
                 else
                         w REM INFO: OK, job is expired
                 fi
-        else
-                w REM INFO: job was executed on the same machine and can be executed here again.
+        # else
+        #        w REM INFO: job was executed on the same machine before.
         fi
 else
         w REM OK, executing job the first time

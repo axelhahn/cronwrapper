@@ -7,12 +7,16 @@
 #
 # ------------------------------------------------------------
 # 2022-01-12  ahahn  fixes based on shellcheck
+# 2022-03-09  ahahn  added cw.* functions
 # ------------------------------------------------------------
 
 
 LOGDIR=/var/tmp/cronlogs
 # outfile=/tmp/cronjob_status.$$.tmp
 # outfile=/tmp/cronjob_status.tmp
+
+test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
+. $( dirname $0)/inc_cronfunctions.sh
 
 typeset -i iMaxAge
 iMaxAge=$(date +%s)
@@ -22,31 +26,6 @@ typeset -i iErrJobs=0
 # ----------------------------------------------------------------------
 # FUNCTIONS
 # ----------------------------------------------------------------------
-
-# set a terminal color by a keyword
-# param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
-function color(){
-        local sColorcode=""
-        case $1 in
-                "reset") sColorcode="0"
-                        ;;
-                "head")  sColorcode="33" # yellow
-                        ;;
-                "cmd")   sColorcode="94" # light blue
-                        ;;
-                "input") sColorcode="92" # green
-                        ;;
-                "ok") sColorcode="92" # green
-                        ;;
-                "warning") sColorcode="33" # yellow
-                        ;;
-                "error") sColorcode="91" # red
-                        ;;
-        esac
-        if [ -n "${sColorcode}" ]; then
-                echo -ne "\e[${sColorcode}m"
-        fi    
-}
 
 # get a value from logfile (everything behind "="
 # param: label
@@ -71,7 +50,7 @@ do
         sPre="    "
         sCmd=$(getLogValue SCRIPTNAME)
         sLastStart=$(getLogValue SCRIPTSTARTTIME)
-        typeset -i iJobExpire=
+        typeset -i iJobExpire
         iJobExpire=$(getLogValue JOBEXPIRE)
         typeset -i rc
         rc=$(getLogValue 'SCRIPTRC' | head -1)
@@ -125,9 +104,7 @@ do
 
         # ----- OUTPUT
         echo
-        color "head"
-        echo "--- $logfile"
-        color "reset"
+        cw.cecho "head" "--- $logfile"
 
         echo "${sPre}${sCmd}"
         echo "${sPre}last start: ${sLastStart}"
@@ -137,15 +114,11 @@ do
         echo "${sPre}expires: ${iJobExpire} ${statusExpire}"
 
         if [ $iErr -gt 0 ]; then
-                color "error"
-                echo "${sPre}CHECK FAILED"
+                cw.cecho "error" "${sPre}CHECK FAILED"
                 iErrJobs=$iErrJobs+1
         else
-                color "ok"
-                echo "${sPre}CHECK OK"
+                cw.cecho "ok" "${sPre}CHECK OK"
         fi
-        color "reset"
-
 done
 
 echo

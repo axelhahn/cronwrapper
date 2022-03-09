@@ -16,19 +16,46 @@ This adds a variable rcAll and a few functions.
 
 # functions
 
-## exec2
+After sourcing inc_cronfunctions.sh you get a list of available function with `cw.help`.
 
-It is a replacement for exec. It shows the executed command and executes it. Finally it calls fetchRc to save the return code.
+```txt
+cw.cecho
+    colored echo output using color and reset color afterwards
+    param  string  color code ... se cw.color
+    param  string  text to display
 
-## fetchRc
+cw.color
+    set a terminal color by a keyword
+    param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
 
-This function fetches the returncode from \$?, shows it on stdout and incremets \$rcAll with it.
-At the end of the script (or at any point) you have a \$rcAll = 0 if every command was successful. And \$rcAll <> 0 if any of it failed.
+cw.exec
+    execute a given command, show return code (and add it to final exit code)
+    param  string(s)  command line to execute 
 
-## quit
+cw.fetchRc
+    get last exitcode and store it in global var $rc
+    no parameter is required
 
-Exit the scipt with the value of \$rcAll.
-So your scscript exits with exitcode = 0 if every command was successful. And exitcode <> 0 if any of it failed.
+cw.help
+    show help for available cw.* functions
+    no parameter required
+
+cw.lock
+    verify locking and create one if no active lock was found
+    param  string  optional: string to create sonething uniq if your script can be started with multiple parameters
+
+cw.quit
+    quit script with showing the total exitcode.
+    no parameter is required
+
+cw.timer
+    get time in sec and milliseconds since start
+    no parameter is required
+
+cw.unlock
+    remove an existing locking
+    no parameter is required
+```
 
 ## example script
 
@@ -36,15 +63,15 @@ So your scscript exits with exitcode = 0 if every command was successful. And ex
 #!/bin/bash
 . /usr/local/bin/inc_cronfunctions.sh
 
-exec2 rsync -rav /my/source/dir/ /my/target/dir/
+cw.exec rsync -rav /my/source/dir/ /my/target/dir/
 
 # ... add command 2 here ...
-fetchRc
+# cw.fetchRc
 
 # ... add command 3 here ...
-fetchRc
+# cw.fetchRc
 
 # 
-quit
+cw.quit
 
 ```
