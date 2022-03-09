@@ -1,4 +1,27 @@
-# Help
+# Introduction
+
+The cronwrapper.sh is a script to wrap your cronjob. 
+
+It does a few small and helpful things:
+
+* The wrapper fetches any output of stdout + stderr and creates a log file with a name based on the started script 
+  (remark: you can override the naming with a 3rd parameter).
+  Do not try to keep silent anymore: write as many output as you want! 
+  And some more good news: Write the output in your cronscripts that you can understand the execution!
+* The wrapper logs a few things by itself: 
+  * the started command
+  * starting time
+  * ending time
+  * ... and if having them: the execution time
+  * the exitcode of the command/ script;
+    This means: be strict like all commands do! Write your cronjob script that
+    ends with exitcode 0 if it is successful and quit with non-zero if any
+    error occurs. Be strict with the exitcode to be able to monitor the cronjobs!
+  * The TTL value (parameter 2) generates a file with a timestamp. A check
+    script detects with it if a cronjob log is outdated
+* all metadata and the output will be written in a log file with parsable
+
+# Show help
 
 Use -h to show a help:
 
@@ -22,7 +45,7 @@ SYNTAX: ./cronwrapper.sh TTL COMMAND [LABEL]
 
 PARAMETERS:
     TTL       integer value in [min]
-              This value how often your cronjob runs. It is used to verify
+              This value says how often your cronjob runs. It is used to verify
               if a cronjob is out of date / does not run anymore.
 
     COMMAND   command to execute
@@ -54,6 +77,10 @@ your server monitoring.
 
 # Replace existing Cronjobs
 
+I am sure you already have some cronjobs on your systems :-)
+
+You don't need to rewrite anything - we add the wrapper only.
+
 As an example ... if you have a daily cronjob like this starting at 3:12 am:
 
 ```bash
@@ -83,22 +110,8 @@ To test it immediately run con command line:
 You may ask: And what is the difference now?
 First: your task does the same thing(s) like before.
 
-But what the additional wrapper does:
+But we us a wrapper with its functions described on top.
 
-* The wrapper fetches any output of stdout + stderr and creates a log file with a name based on the started script 
-  (remark: you can override the naming with a 3rd parameter).
-  Do not try to keep silent anymore: write as many output as you want! Write the output that you can understand the execution!
-* The wrapper logs  a few things by itself: 
-  * the started command
-  * starting time
-  * ending time
-  * ... and if having them: the execution time
-  * the exitcode of the command/ script;
-    This means: be strinct like all commands do! Write your cronjob script that
-    ends with exitcode 0 if it is successful and quit with non-zero if any
-    error occurs. Be strict!
-  * The TTL value (parameter 2) generates a file with a timestamp. The check
-    script detects with it if a cronjob log is outdated
-* all metadata and the output will be written in a log file with parsable
-syntax! That's the key. Just using grep and cut you could verify all your jobs. But there is
-an additional check script too: run cronstatus.sh
+Run `cronstatus.sh`.
+
+And then have a look to the generated files in `/var/tmp/cronlogs/`. And the next chapter.

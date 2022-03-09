@@ -56,13 +56,15 @@ $line1
 
 $1
 
-
 SYNTAX: $0 TTL COMMAND [LABEL]
 
 PARAMETERS:
     TTL       integer value in [min]
-              This value how often your cronjob runs. It is used to verify
+              This value says how often your cronjob runs. It is used to verify
               if a cronjob is out of date / does not run anymore.
+              As a fast help a few values:
+                60   - 1 hour
+                1440 - 1 day
 
     COMMAND   command to execute
               When using spaces or parameters then quote it.

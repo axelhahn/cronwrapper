@@ -28,8 +28,14 @@ Questions:
 * How do you check if a job was successful? Just trust them? Watching each log? On each of your systems?
 * How do you detect if the last job execution was successful but does not run anymore?
 
-My simple approach: By simüly adding a wrapper in front of your current command 
+My simple approach: By simply adding a wrapper in front of your current command 
 breaks tons of limits! Suddenly a simple action opens so many posibilities.
+
+This repository contains scripts and helpers for local cronjobs
+
+* cronwrapper.sh - a wrapper script to call cronjob scripts
+* inc_cronfunctions.sh - an include file that can be sourced in your bash scripts
+* cronstatus.sh - ist shows status of all local cronjobs (and use cronwrapper.sh)
 
 # Requirements
 
