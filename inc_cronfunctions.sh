@@ -4,9 +4,9 @@
 #
 # source the script and call cw.help
 # 
+# ----------------------------------------------------------------------
 # 2022-03-09  ahahn  added cw.* functions; others marked as deprecated
 # ======================================================================
-
 
 # Handling of exitocdes
 typeset -i rc=0     # the last detected exitcode of a command
@@ -14,11 +14,7 @@ typeset -i rcAll=0  # sum of all collected exitcodes
 
 # set a start time
 export CW_timer_start
-
-
 export CW_lockfile
-
-
 
 # ----------------------------------------------------------------------
 # deprecated functions witout "cw." prefix
@@ -65,23 +61,27 @@ function color(){
         cw.color $*
         cw._isDeprecated "${FUNCNAME[0]}" "cw.color"
 }
+
 # DEPRECATED
 function cecho(){
         cw.cecho $*
         cw._isDeprecated "${FUNCNAME[0]}" "cw.cecho"
 }
+
 # DEPRECATED
 # ein Kommando ausfuehren und returncode ausgeben und auf rcAll aufsummieren
 function exec2() {
         cw._isDeprecated "${FUNCNAME[0]}" "cw.exec"
         cw.exec $*
 }
+
 # DEPRECATED
 # get last exitcode and store it in global var $rc
 function fetchRc(){
         cw.fetchRc
         cw._isDeprecated "${FUNCNAME[0]}" "cw.fetchRc"
 }
+
 # DEPRECATED
 function quit(){
         cw._isDeprecated "${FUNCNAME[0]}" "cw.quit"
@@ -90,13 +90,12 @@ function quit(){
 
 # ----------------------------------------------------------------------
 
-
 # show help for available cw.* functions
 # no parameter required
 function cw.help(){
         local _self="${BASH_SOURCE[0]}"
         cw.cecho head "HELP FOR CRONWRAPPER FUNCTIONS"
-        cw.cecho head "auto generated list of implemented cw.\* functions"
+        cw.cecho head "auto generated list of implemented cw.* functions"
         echo
         grep "^function\ cw\.[a-z][a-z]*" "$_self" | cut -f 2 -d " " | cut -f 1 -d '(' | sort | while read -r fktname
         do 
@@ -110,6 +109,7 @@ function cw.help(){
         done
 
 }
+
 # ----------------------------------------------------------------------
 
 # get last exitcode and store it in global var $rc
@@ -164,11 +164,9 @@ function cw.quit(){
         exit $rcAll
 }
 
-
 # ----------------------------------------------------------------------
 # coloring
 # ----------------------------------------------------------------------
-
 
 # set a terminal color by a keyword
 # param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
@@ -203,11 +201,11 @@ function cw.cecho (){
         cw.color "$_color"; echo -n "$*"; cw.color reset; echo
 }
 
-
 # ----------------------------------------------------------------------
 # locking
 # ----------------------------------------------------------------------
 
+# helper function: generate a filename for locking
 function cw._getlockfilename(){
         echo "/tmp/_lock__${*//[^a-zA-Z0-9]/_}"
 }
@@ -253,6 +251,7 @@ function cw.lock(){
 function cw.lockstatus(){
         test -f "${CW_lockfile}"
 }
+
 # remove an existing locking
 # no parameter is required
 # see cw.lock, cw.lockstatus
@@ -260,7 +259,6 @@ function cw.unlock(){
         test -n "${CW_lockfile}"
         rm -f "$CW_lockfile" || cecho error "ERROR: lock file ${CW_lockfile} was not removed"
 }
-
 
 # ----------------------------------------------------------------------
 
