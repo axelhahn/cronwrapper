@@ -25,9 +25,9 @@ or create softlinks in /usr/local/bin.
 
 ```bash
 cd /usr/local/bin/
-ls -s /opt/cronwrapper/cronstatus.sh
-ls -s /opt/cronwrapper/cronwrapper.sh
-ls -s /opt/cronwrapper/inc_cronfunctions.sh
+ln -s /opt/cronwrapper/cronstatus.sh
+ln -s /opt/cronwrapper/cronwrapper.sh
+ln -s /opt/cronwrapper/inc_cronfunctions.sh
 ```
 
 # Permissions

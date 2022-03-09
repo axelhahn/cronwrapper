@@ -1,6 +1,6 @@
 # Introduction
 
-The cronwrapper.sh is a script to wrap your cronjob. 
+The cronwrapper.sh is a script to wrap your (existing) cronjob. 
 
 It does a few small and helpful things:
 
