@@ -231,6 +231,7 @@ function cw.lock(){
 
         if [ -f "${CW_lockfile}" ]; then
 
+                echo -n "[${FUNCNAME[0]}] "
                 local _cw_lockpid
                 _cw_lockpid=$( cut -f 2 -d " " "${CW_lockfile}" | grep "[0-9]")
                 if [ -z "$_cw_lockpid" ]; then
@@ -238,7 +239,7 @@ function cw.lock(){
                         exit 1
                 fi
 
-                if ps -ef | grep "$_cw_lockpid" | grep "$_cw_label"
+                if ps -ef | grep "$_cw_lockpid" | grep "$_cw_label" >/dev/null
                 then
                         cw.cecho error "ERROR: The process pid $_cw_lockpid seems to be still active. Aborting."
                         exit 1
@@ -247,8 +248,11 @@ function cw.lock(){
                 cw.color reset
         fi
 
-        if ! echo "Process $$ - $(date) start lock for $0 $* ... $_cw_label" > "${CW_lockfile}"
+        echo -n "[${FUNCNAME[0]}] "
+        if echo "Process $$ - $(date) start lock for $0 $* ... $_cw_label" > "${CW_lockfile}"
         then
+                cw.cecho ok "OK"
+        else
                 cw.cecho error "ABORT - unable to create transfer lock"
                 exit 2
         fi
@@ -259,15 +263,25 @@ function cw.lock(){
 # Example: if cw.lockstatus; then echo Lock is ACTIVE; else echo NO LOCKING; fi
 # see cw.lock, cw.unlock
 function cw.lockstatus(){
-        test -f "${CW_lockfile}"
+        [ -n "${CW_lockfile}" ] && [ -f "${CW_lockfile}" ]
 }
 
 # remove an existing locking
 # no parameter is required
 # see cw.lock, cw.lockstatus
 function cw.unlock(){
-        test -n "${CW_lockfile}"
-        rm -f "$CW_lockfile" || cecho error "ERROR: lock file ${CW_lockfile} was not removed"
+        echo -n "[${FUNCNAME[0]}] "
+        if cw.lockstatus
+        then                
+                if rm -f "$CW_lockfile"
+                then
+                        cw.cecho ok "OK"
+                else
+                        cw.cecho error "ERROR: lock file ${CW_lockfile} was not removed"
+                fi
+        else
+                cw.cecho warning "SKIP: no lock was found"
+        fi
 }
 
 # ----------------------------------------------------------------------
