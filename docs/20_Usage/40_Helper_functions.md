@@ -26,10 +26,18 @@ cw.cecho
     colored echo output using color and reset color afterwards
     param  string  color code ... see cw.color
     param  string  text to display
+    
+    Example:
+    cw.cecho ok "Action was successful."
 
 cw.color
     set a terminal color by a keyword
     param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
+    
+    Example:
+    color cmd
+    ls -l 
+    color reset
 
 cw.exec
     execute a given command, show return code (and add it to final exit code)
@@ -63,9 +71,10 @@ cw.randomsleep
     sleep for a random time
     param  integer  time to randomize in sec
     param  integer  optional: minimal time to sleep in sec; default: 0
+    
     Example: 
-    cw.randomsleep 60     sleeps for a random time 0..60 sec
-    cw.randomsleep 60 30  sleeps for a random time 30..90 sec
+    cw.randomsleep 60     sleeps for a random time between 0..60 sec
+    cw.randomsleep 60 30  sleeps for a random time between 30..90 sec
 
 cw.timer
     get time in sec and milliseconds since start
@@ -75,6 +84,7 @@ cw.unlock
     remove an existing locking
     no parameter is required
     see cw.lock, cw.lockstatus
+
 ```
 
 ## example script

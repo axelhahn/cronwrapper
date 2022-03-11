@@ -94,20 +94,31 @@ function quit(){
 # no parameter required
 function cw.help(){
         local _self="${BASH_SOURCE[0]}"
+
+        echo
         cw.cecho head "HELP FOR CRONWRAPPER FUNCTIONS"
         cw.cecho head "auto generated list of implemented cw.* functions"
         echo
         grep "^function\ cw\.[a-z][a-z]*" "$_self" | cut -f 2 -d " " | cut -f 1 -d '(' | sort | while read -r fktname
         do 
-                cw.cecho cmd $fktname
+                cw.cecho cmd "$fktname"
                 typeset -i local _linestart
                 _linestart=$( grep -En "function\ $fktname\ *\(" "$_self" | cut -f 1 -d ':' )
-                typeset -i local _print_start=$_linestart-6
 
-                sed -n ${_print_start},${_linestart}p $_self | grep '^#' | grep -v "\-\-\-\-\-" | cut -c 3- | sed "s#^#    #g"
+                typeset -i local _iLine
+                _iLine=$_linestart-1
+                while [ $_iLine -gt 0 ]; do
+                        line="$( sed -n ${_iLine},${_iLine}p $_self )"
+                        if echo "$line" | grep '^#' >/dev/null
+                        then                                
+                                echo "$line" | grep -v "\-\-\-\-\-" | cut -c 3- | sed "s#^#    #g"
+                                _iLine=$_iLine-1
+                        else
+                                _iLine=0
+                        fi
+                done | tac
                 echo
         done
-
 }
 
 # ----------------------------------------------------------------------
@@ -139,9 +150,10 @@ function cw.exec() {
 # sleep for a random time
 # param  integer  time to randomize in sec
 # param  integer  optional: minimal time to sleep in sec; default: 0
+#
 # Example: 
-# cw.randomsleep 60     sleeps for a random time 0..60 sec
-# cw.randomsleep 60 30  sleeps for a random time 30..90 sec
+# cw.randomsleep 60     sleeps for a random time between 0..60 sec
+# cw.randomsleep 60 30  sleeps for a random time between 30..90 sec
 function cw.randomsleep(){
         typeset -i local _iRnd=$1
         typeset -i local _iMintime=$2
@@ -182,6 +194,11 @@ function cw.quit(){
 
 # set a terminal color by a keyword
 # param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
+#
+# Example:
+# color cmd
+# ls -l 
+# color reset
 function cw.color(){
         local sColorcode=""
         case $1 in
@@ -208,6 +225,9 @@ function cw.color(){
 # colored echo output using color and reset color afterwards
 # param  string  color code ... see cw.color
 # param  string  text to display
+#
+# Example:
+# cw.cecho ok "Action was successful."
 function cw.cecho (){
         local _color=$1; shift 1
         cw.color "$_color"; echo -n "$*"; cw.color reset; echo
