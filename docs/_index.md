@@ -1,4 +1,4 @@
-# Introduction
+Axels
 
 ```text
  ______                        ________                                    
@@ -8,14 +8,17 @@
                                                    |__|  |__|              
 ```
 
-Unix shell scripts for easier handling of cronjobs.
+Unix shell scripts in Bash for easier handling of cronjobs.\
 A little idea that offers more possibilities.
 
 Free software and Open source.
 
-GNU GPL 3.0
+👤 Author: Axel hahn \
+📄 Source: <https://github.com/axelhahn/cronwrapper> \
+📜 License: GNU GPL 3.0 \
+📗 Docs: see [./docs/](docs/)
 
----
+## Introduction
 
 Default Unix and linux cronjobs are quite basic stuff. Mostly you create
 "simple, stupid" jobs without output ... that just run. Or should.
@@ -29,8 +32,8 @@ Questions:
 * How do you check if a job was successful? Just trust them? Watching each log? On each of your systems?
 * How do you detect if the last job execution was successful but does not run anymore?
 
-My simple approach: By simply adding a wrapper in front of your current command
-breaks tons of limits! Suddenly a simple action opens so many posibilities.
+My simple approach: By simply adding a wrapper in front of your current command 
+breaks tons of limits! Suddenly a simple action opens so many possibilities.
 
 This repository contains scripts and helpers for local cronjobs
 
@@ -38,7 +41,7 @@ This repository contains scripts and helpers for local cronjobs
 * inc_cronfunctions.sh - an include file that can be sourced in your bash scripts
 * cronstatus.sh - ist shows status of all local cronjobs (and use cronwrapper.sh)
 
-# Requirements
+## Requirements
 
-Linux system with installed bash.
+Linux system with installed Bash.
 Tested on CentOS, Debian, Manjaro, Ubuntu.
