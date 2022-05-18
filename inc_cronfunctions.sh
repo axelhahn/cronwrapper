@@ -6,6 +6,7 @@
 # 
 # ----------------------------------------------------------------------
 # 2022-03-09  ahahn  added cw.* functions; others marked as deprecated
+# 2022-05-18  ahahn  update cw.lock
 # ======================================================================
 
 # Handling of exitocdes
@@ -246,9 +247,6 @@ function cw._getlockfilename(){
 # see cw.lockstatus, cw.unlock
 function cw.lock(){
 
-        local _cw_label
-        _cw_label=$( echo "$0 $*" | sed "s#[^a-zA-Z0-9]#_#g" )
-
         if [ -f "${CW_lockfile}" ]; then
 
                 echo -n "[${FUNCNAME[0]}] "
@@ -259,9 +257,14 @@ function cw.lock(){
                         exit 1
                 fi
 
-                if ps -ef | grep "$_cw_lockpid" | grep "$_cw_label" >/dev/null
+                # _cw_regex is "^" + username + spaces + found pid + single space
+                local _cw_regex
+                _cw_regex="^$( id -a | cut -f 1 -d ')' | cut -f 2 -d '(' )\ *$_cw_lockpid\ "
+
+                if ps -ef | grep "$_cw_regex" >/dev/null
                 then
                         cw.cecho error "ERROR: The process pid $_cw_lockpid seems to be still active. Aborting."
+                        ps -ef | grep "$_cw_regex"
                         exit 1
                 fi
                 cw.cecho warning "INFO: Lock file $CW_lockfile was found but process $_cw_lockpid is not active anymore."
@@ -269,7 +272,7 @@ function cw.lock(){
         fi
 
         echo -n "[${FUNCNAME[0]}] "
-        if echo "Process $$ - $(date) start lock for $0 $* ... $_cw_label" > "${CW_lockfile}"
+        if echo "Process $$ - $(date) start lock for $0: $*" > "${CW_lockfile}"
         then
                 cw.cecho ok "OK"
         else
