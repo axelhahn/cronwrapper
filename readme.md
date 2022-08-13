@@ -16,7 +16,7 @@ Free software and Open source.
 👤 Author: Axel hahn \
 📄 Source: <https://github.com/axelhahn/cronwrapper> \
 📜 License: GNU GPL 3.0 \
-📗 Docs: see [./docs/](docs/)
+📗 Docs: see [www.axel-hahn.de/docs](https://www.axel-hahn.de/docs/cronwrapper/)
 
 ## Introduction
 
