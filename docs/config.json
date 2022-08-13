@@ -12,6 +12,6 @@
             "GitHub Repo": "https://github.com/axelhahn/cronwrapper"
         },
         "theme": "daux-blue",
-        "search": false
+        "search": true
     }
 }
