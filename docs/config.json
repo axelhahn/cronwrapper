@@ -9,7 +9,8 @@
         "date_modified": true,
         "jump_buttons": true,
         "links": {
-            "GitHub Repo": "https://github.com/axelhahn/cronwrapper"
+            "GitHub Repo": "https://github.com/axelhahn/cronwrapper",
+            "Axels Docs": "https://www.axel-hahn.de/docs/"
         },
         "theme": "daux-blue",
         "search": true

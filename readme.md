@@ -13,7 +13,7 @@ A little idea that offers more possibilities.
 
 Free software and Open source.
 
-👤 Author: Axel hahn \
+👤 Author: Axel Hahn \
 📄 Source: <https://github.com/axelhahn/cronwrapper> \
 📜 License: GNU GPL 3.0 \
 📗 Docs: see [www.axel-hahn.de/docs](https://www.axel-hahn.de/docs/cronwrapper/)
