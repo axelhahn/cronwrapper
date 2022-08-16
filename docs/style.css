@@ -1,11 +1,12 @@
 /*
 
     patch css elements of daux.io blue theme
+    version 2022-08-14
 
 */
 
 
-/* ---------- vars ---------- */
+/* ---------- vars ---------- */ 
 
 :root{
 
@@ -27,14 +28,29 @@
 
     --h1: rgba(40,60,80,0.8);
     --h1-bottom: 1px solid rgba(40,60,80,0.1);
-    --h2: rgba(40,60,80,0.5);
-    --h3: rgba(40,60,80,0.3);
+    --h2: #468;
+    --h3: #579;
 
 }
 
 /* ---------- tags ---------- */
 
-body, *{color: var(--color); }
+a.Brand::before {
+	background: rgb(180,200,220);
+    border-radius: 100%;
+	color: #fff;
+    font-family: arial;
+	font-weight: bold;
+	padding: 0.3em 0.3em;
+	content: 'AH';
+    margin-right: 0.4em;
+    float: left;
+}
+a.Brand:hover::before {
+	background: #8cc;
+}
+
+body, *{color: var(--color);}
 body{background: var(--bg-body);}
 
 
@@ -74,7 +90,9 @@ h1:nth-child(1)>a{ color:var(--navlinkactive); }
 .Columns__right__content {
 	background: var(--bg);
 }
-
+.Page__header {
+	border-bottom: none;
+}
 /* ----- Navi left */
 
 .Nav a:hover{
