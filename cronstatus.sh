@@ -8,6 +8,7 @@
 # ------------------------------------------------------------
 # 2022-01-12  ahahn  fixes based on shellcheck
 # 2022-03-09  ahahn  added cw.* functions
+# 2022-09-21  ahahn  added colored OK or ERROR texts
 # ------------------------------------------------------------
 
 
@@ -22,6 +23,8 @@ typeset -i iMaxAge
 iMaxAge=$(date +%s)
 typeset -i iErrJobs=0
 
+statusOK=$(cw.color ok ; echo -n "OK"; cw.color reset)
+statusERROR=$(cw.color error ; echo -n "ERROR"; cw.color reset)
 
 # ----------------------------------------------------------------------
 # FUNCTIONS
@@ -59,10 +62,10 @@ do
         sTTL=$(getLogValue 'SCRIPTTTL')
 
         # ----- check return code
-        statusRc='OK'
+        statusRc="${statusOK}"
         if [ $rc -ne 0 ]; then
                 iErr+=1
-                statusRc='ERROR'
+                statusRc="${statusERROR}"
         fi
 
         # ----- check ttl value
@@ -73,7 +76,7 @@ do
         # ttlstatus="OK"
         if [ -z "$sTTL" ]; then
                 iErr+=1
-                statusTtl="ERROR: ttl value is empty"
+                statusTtl="${statusERROR}: ttl value is empty"
         else
                 # human readable ttl in min/ hours/ days
                 statusTtl="$iTTL min"
@@ -87,19 +90,19 @@ do
                 fi
                 if [ $iTTLsec -lt $iExectime ]; then
                         iErr=$iErr+1
-                        statusTtl="ERROR: $iTTL min = $iTTLsec s - is too low; exec time is $iExectime s - set a higher TTL for this cronjob"
+                        statusTtl="${statusERROR}: $iTTL min = $iTTLsec s - is too low; exec time is $iExectime s - set a higher TTL for this cronjob"
                         iErr+=1
                 else
-                        statusTtl="$statusTtl OK"
+                        statusTtl="$statusTtl ${statusOK}"
                 fi
         fi
         # ----- check expire
         statusExpire="$(date -d @$iJobExpire '+%Y-%m-%d %H:%M:%S')"
         if [ $iJobExpire -lt $iMaxAge ]; then
-                statusExpire="${statusExpire} ERROR"
+                statusExpire="${statusExpire} ${statusERROR}"
                 iErr+=1
         else
-                statusExpire="${statusExpire} OK"
+                statusExpire="${statusExpire} ${statusOK}"
         fi
 
         # ----- OUTPUT
