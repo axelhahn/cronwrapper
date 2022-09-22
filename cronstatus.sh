@@ -27,6 +27,7 @@ typeset -i iErrJobs=0
 
 statusOK=$(cw.color ok ; echo -n "OK"; cw.color reset)
 statusERROR=$(cw.color error ; echo -n "ERROR"; cw.color reset)
+sPre="    "
 
 # ----------------------------------------------------------------------
 # FUNCTIONS
@@ -63,7 +64,6 @@ do
         # server=$(basename "$logfile" | cut -f 1 -d "_")
         # jobname=$(basename "$logfile" | cut -f 2 -d "_" | sed "s#\.log##")
 
-        sPre="    "
         sCmd=$(getLogValue SCRIPTNAME)
         sLastStart=$(getLogValue SCRIPTSTARTTIME)
         typeset -i iJobExpire
@@ -72,6 +72,9 @@ do
         rc=$(getLogValue 'SCRIPTRC' | head -1)
         typeset -i iExectime
         iExectime=$(getLogValue 'SCRIPTEXECTIME' | head -1 | cut -f 1 -d " ")
+        # remark: other execution times of the same job
+        # grep "=JOBNAME:" /var/tmp/cronlogs/*joblog*
+
         sTTL=$(getLogValue 'SCRIPTTTL')
 
         # ----- check return code
