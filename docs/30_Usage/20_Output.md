@@ -17,6 +17,28 @@ Show the created output of a cronjob:
 
 ```bash
 cat /var/tmp/cronlogs/[your-logfile]*.log
+
+REM --------------------------------------------------------------------------------
+REM CRON WRAPPER - www.example.com
+REM --------------------------------------------------------------------------------
+SCRIPTNAME=[Commandline of executed job]
+SCRIPTTTL=30
+SCRIPTSTARTTIME=2022-09-22 09:48:58, 1663832938
+SCRIPTLABEL=testjob
+REM --------------------------------------------------------------------------------
+REM OK, executing job the first time
+JOBEXPIRE=1663837438
+REM --------------------------------------------------------------------------------
+SCRIPTENDTIME=2022-09-22 09:48:12, 1663832938
+SCRIPTEXECTIME=14 s
+SCRIPTRC=0
+REM --------------------------------------------------------------------------------
+SCRIPTOUT=[OUTPUT LINE 1]
+SCRIPTOUT=[OUTPUT LINE 2]
+SCRIPTOUT=...
+SCRIPTOUT=[OUTPUT LINE N]
+REM --------------------------------------------------------------------------------
+REM /opt/cronwrapper/cronwrapper.sh finished at Do 22 Sep 2022 09:48:58 CEST
 ```
 
 You see lines with
