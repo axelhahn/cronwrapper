@@ -6,11 +6,13 @@
 # Show status for all cronjobs using the cronwrapper
 #
 # ------------------------------------------------------------
-# 2022-01-12  ahahn  fixes based on shellcheck
-# 2022-03-09  ahahn  added cw.* functions
-# 2022-09-21  ahahn  added colored OK or ERROR texts
+# 2022-01-12  ahahn  1.1  fixes based on shellcheck
+# 2022-03-09  ahahn  1.2  added cw.* functions
+# 2022-09-21  ahahn  1.3  added colored OK or ERROR texts
+# 2022-09-22  ahahn  1.4  add last output lines; add total status; exitstatus > 0 on error 
 # ------------------------------------------------------------
 
+_version=1.4
 
 LOGDIR=/var/tmp/cronlogs
 # outfile=/tmp/cronjob_status.$$.tmp
@@ -37,13 +39,24 @@ function getLogValue(){
         grep "^$1=" "$logfile" | cut -f 2- -d "="
 }
 
+# get logfiles of all cronwrapper cronjobs
+function getLogfiles(){
+        ls -1t "$LOGDIR"/*log | grep -Fv "/__"        
+}
 
 
 # ----------------------------------------------------------------------
 # MAIN
 # ----------------------------------------------------------------------
 
-ls -1t "$LOGDIR"/*log | grep -Fv "/__" | while read -r logfile
+cat <<ENDOFHEAD
+____________________________________________________________________________________
+
+CRONJOBS on [$( hostname -f )]
+________________________________________________________________________________v$_version
+ENDOFHEAD
+
+for logfile in $( getLogfiles )
 do
         typeset -i iErr=0
 
@@ -109,12 +122,18 @@ do
         echo
         cw.cecho "head" "--- $logfile"
 
-        echo "${sPre}${sCmd}"
+        echo "${sPre}command   : ${sCmd}"
         echo "${sPre}last start: ${sLastStart}"
         echo "${sPre}returncode: ${rc} ${statusRc}"
-        echo "${sPre}duration: ${iExectime} s"
-        echo "${sPre}ttl: ${statusTtl}"
-        echo "${sPre}expires: ${iJobExpire} ${statusExpire}"
+        if [ $rc -ne 0 ]; then
+                echo
+                echo "${sPre}${sPre}Last lines in output:"
+                getLogValue SCRIPTOUT | tail -20 | sed "s#^#${sPre}${sPre}#g"
+                echo
+        fi
+        echo "${sPre}duration  : ${iExectime} s"
+        echo "${sPre}ttl       : ${statusTtl}"
+        echo "${sPre}expires   : ${iJobExpire} ${statusExpire}"
 
         if [ $iErr -gt 0 ]; then
                 cw.cecho "error" "${sPre}CHECK FAILED"
@@ -124,6 +143,8 @@ do
         fi
 done
 
+echo "____________________________________________________________________________________"
+
+echo "JOBS: $(getLogfiles | wc -l ) .. ERRORS: $iErrJobs"
 echo
-# TODO: $iErrJobs is in a while loop ... what is a subshell
-# echo TOTALSTATUS: $iErrJobs cronjobs have an error
+exit $iErrJobs
