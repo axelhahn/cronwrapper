@@ -7,17 +7,20 @@
 # This script makes an rsync to monitor target
 # 2019-09-12  v1.0  <axel.hahn@iml.unibe.ch>  first lines
 # 2022-09-21  v1.1  <axel.hahn@iml.unibe.ch>  add ssh key
+# 2022-09-22  v1.2  <axel.hahn@iml.unibe.ch>  optional: stop if hostname has no domain
 # ======================================================================
 
-_version=1.1
+_version=1.2
 
 LOGDIR=/var/tmp/cronlogs
 TARGET=
 SSHKEY=
 typeset -i SYNCAFTER=3600
+typeset -i REQUIREFQDN=0
 
+. $( dirname $0)/inc_cronfunctions.sh
 CFGFILE=$(dirname $0)/cronwrapper.cfg
-. ${CFGFILE}
+. "${CFGFILE}"
 
 # ----------------------------------------------------------------------
 # FUNCTIONS
@@ -59,12 +62,10 @@ ENDOFHELP
 cat <<ENDOFHEAD
 ____________________________________________________________________________________
 
-SNYC LOCAL LOGS
-____________________________________________________________________________________
-                                                                                v$_version
+SNYC LOCAL LOGS OF $( hostname -f )
+______________________________________________________________________________/ v$_version
 
 ENDOFHEAD
-
 
 while getopts ":h :i: :l: :s: :t:" opt
 do
@@ -91,19 +92,25 @@ do
                         echo "DEBUG: target was set to ${TARGET}"
                         ;;
                 :)
-                        echo "ERROR: Option -$OPTARG requires an argument." >&2
+                        cw.cecho error "ERROR: Option -$OPTARG requires an argument." >&2
                         showHelp
                         exit 1
                         ;;
                 *)
-                        echo "ERROR: $opt is unknown." >&2
+                        cw.cecho error "ERROR: $opt is unknown." >&2
                         showHelp
                         exit 1
         esac
 done
+if ! hostname -f | grep "\." >/dev/null; then
+    echo "REQUIREFQDN=$REQUIREFQDN"
+    test "$REQUIREFQDN" != "0" && cw.cecho error "ERROR: hostname [$( hostname -f )] is not a FQDN - there is no domain behind the host."
+    test "$REQUIREFQDN" != "0" && exit
+fi
+
 
 if [ -z "$TARGET" ]; then
-  echo ERROR: no target was set. use -t >&2
+  cw.cecho error ERROR: no target was set. use -t >&2
   echo
   showHelp
   exit 2
