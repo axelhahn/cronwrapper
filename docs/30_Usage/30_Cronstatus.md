@@ -24,7 +24,7 @@ In this example I have 2 cronjobs using the cronwrapper and both are OK. In that
 ____________________________________________________________________________________
 
 CRONJOBS on [www.example.com]
-________________________________________________________________________________v1.4
+______________________________________________________________________________/ v1.4
 
 --- /var/tmp/cronlogs/www.example.com_scheduler.sh.log
     command   : /opt/imlbackup/client/scheduler.sh
