@@ -8,9 +8,10 @@
 # 2019-09-12  v1.0  <axel.hahn@iml.unibe.ch>  first lines
 # 2022-09-21  v1.1  <axel.hahn@iml.unibe.ch>  add ssh key
 # 2022-09-22  v1.2  <axel.hahn@iml.unibe.ch>  optional: stop if hostname has no domain
+# 2022-09-23  v1.3  <axel.hahn@iml.unibe.ch>  fix exitcode on no sync and failed sync
 # ======================================================================
 
-_version=1.2
+_version=1.3
 
 LOGDIR=/var/tmp/cronlogs
 TARGET=
@@ -132,7 +133,7 @@ then
         echo "Force sync because last sync is older the given limit."
     else 
         echo "No sync is needed."
-        exit 1
+        exit 0
     fi
 else
     echo "Need to sync: logs were not synced yet."
@@ -150,10 +151,11 @@ fi
 if /usr/bin/rsync --delete -rvt "${moreparams}" "${LOGDIR}/" "${TARGET}"
 then 
     echo "OK, files were synced"
-    touch "${LOGDIR}/${TOUCHFILE}"
+    touch "${LOGDIR}/${TOUCHFILE}" && chmod 666 "${LOGDIR}/${TOUCHFILE}"
 else
     echo "ERROR while syncing files. Next run will try to sync again."
     rm -f "${LOGDIR}/$TOUCHFILE" 2>/dev/null
+    exit 2
 fi
 
 # ----------------------------------------------------------------------
