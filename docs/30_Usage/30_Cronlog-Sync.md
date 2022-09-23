@@ -5,10 +5,15 @@
 
 The helper script can sync the local logfiles of the cronwrapper
 output to central system by using rsync.
-Cronlog-sync saves the last successful sync with a touched file.
-If does not connect to the target if no newer file exists.
 
 You need to prepare such a host first before you can run this script.
+
+```mermaid
+graph TD;
+    server_1-->|"rsync<br>get-cronlogs#64;logserver"| logserver;
+    server_2-->logserver;
+    server_3-->logserver;
+``` 
 
 Create a target:
 
@@ -17,10 +22,10 @@ Create a target:
 
 on local system:
 
-* add a local user, eg. copy-cronlog
+* add a local user, eg. copy-cronlogs
 * create a ssh keypair for this user by ssh-keygen
 * copy the public key (id_rsa.pub) to target /home/get-cronlogs/.ssh/authorized_keys
-* test ssh connect as user copy-cronlog `ssh get-cronlogs@logserver.example.com echo OK`
+* test ssh connect as user copy-cronlogs `ssh get-cronlogs@logserver.example.com echo OK`
 * update values SSHKEY and TARGET in `cronstatus.cfg`
 
 ## Show help
@@ -48,7 +53,7 @@ PRAMETERS:
                   current value: [3600]
     -h            show this help
     -i [string]   path to ssh private key file
-                  current value: [/home/cronlog/.ssh/id_rsa@logserver.example.com]
+                  current value: [/home/copy-cronlogs/.ssh/id_rsa@logserver.example.com]
     -l [string]   local  log dir of cronjobs
                   current value: [/var/tmp/cronlogs]
     -q            be more quiet
@@ -57,7 +62,7 @@ PRAMETERS:
                   current value: [get-cronlogs@logserver.example.com:/var/tmp/allcronlogs/www.example.com]
 
 DEFAULTS:
-    see also /home/axel/skripte/cronwrapper/cronwrapper.cfg
+    see also /opt/cronwrapper/cronwrapper.cfg
 
 EXAMPLES:
     cronlog-sync.sh -s 20 -t [TARGET]   wait max 20 sec before starting sync
@@ -65,3 +70,5 @@ EXAMPLES:
 
 ```
 
+Cronlog-sync saves the last successful sync with a touched file.
+If does not connect to the target if no newer file exists.
