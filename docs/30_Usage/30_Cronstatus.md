@@ -15,6 +15,10 @@ It loops over all logfiles to see the last status of all your jobs (that were ex
 
 It shows the last execution time, the returncode and if the job is out of date.
 
+In case of an error it returns the last lines of output.
+
+It verifys the hostname with that one parsed from the log.
+
 ## Output
 
 In this example I have 2 cronjobs using the cronwrapper and both are OK. In that case the exit status is 0.
