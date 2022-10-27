@@ -10,9 +10,10 @@
 # 2022-03-09  ahahn  1.2  added cw.* functions
 # 2022-09-21  ahahn  1.3  added colored OK or ERROR texts
 # 2022-09-22  ahahn  1.4  add last output lines; add total status; exitstatus > 0 on error 
+# 2022-10-27  ahahn  1.5  add 2 checks for hostname: is it a fqdn + filename matches hostname -f
 # ------------------------------------------------------------
 
-_version=1.4
+_version=1.5
 
 LOGDIR=/var/tmp/cronlogs
 # outfile=/tmp/cronjob_status.$$.tmp
@@ -33,7 +34,7 @@ sPre="    "
 # FUNCTIONS
 # ----------------------------------------------------------------------
 
-# get a value from logfile (everything behind "="
+# get a value from logfile (everything behind "=")
 # param: label
 # global: $logfile
 function getLogValue(){
@@ -50,6 +51,7 @@ function getLogfiles(){
 # MAIN
 # ----------------------------------------------------------------------
 
+sCurrentServer=$(hostname -f)
 cat <<ENDOFHEAD
 ____________________________________________________________________________________
 
@@ -76,6 +78,20 @@ do
         # grep "=JOBNAME:" /var/tmp/cronlogs/*joblog*
 
         sTTL=$(getLogValue 'SCRIPTTTL')
+
+        # ----- check return code
+        sServer=$(basename "$logfile" | cut -f 1 -d "_")
+        sFqdnCheck=
+        sServerCheck=
+
+        if test "$REQUIREFQDN" != "0" && ! echo "$sServer" | grep "\." >/dev/null; then
+                sFqdnCheck="WARNING   : No FQDN in filename - only the short hostname: [$sServer]"
+                iErr+=1
+        fi
+        if test "${sCurrentServer}" != "$sServer"; then
+                sServerCheck="WARNING   : hostname -f returns [${sCurrentServer}] ... and differs to [$sServer] from logfile."
+                iErr+=1
+        fi
 
         # ----- check return code
         statusRc="${statusOK}"
@@ -137,6 +153,9 @@ do
         echo "${sPre}duration  : ${iExectime} s"
         echo "${sPre}ttl       : ${statusTtl}"
         echo "${sPre}expires   : ${iJobExpire} ${statusExpire}"
+        test -n "${sFqdnCheck}"   && cw.cecho "warning" "${sPre}${sFqdnCheck}"
+        test -n "${sServerCheck}" && cw.cecho "warning" "${sPre}${sServerCheck}"
+
 
         if [ $iErr -gt 0 ]; then
                 cw.cecho "error" "${sPre}CHECK FAILED"
