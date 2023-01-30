@@ -11,9 +11,10 @@
 # 2022-09-21  ahahn  1.3  added colored OK or ERROR texts
 # 2022-09-22  ahahn  1.4  add last output lines; add total status; exitstatus > 0 on error 
 # 2022-10-27  ahahn  1.5  add 2 checks for hostname: is it a fqdn + filename matches hostname -f
+# 2023-01-31  ahahn  1.6  add param support; analyze a single log
 # ------------------------------------------------------------
 
-_version=1.5
+_version=1.6
 
 LOGDIR=/var/tmp/cronlogs
 # outfile=/tmp/cronjob_status.$$.tmp
@@ -47,20 +48,45 @@ function getLogfiles(){
 }
 
 
-# ----------------------------------------------------------------------
-# MAIN
-# ----------------------------------------------------------------------
+# show help
+# param  string  info or error message
+function showhelp(){
+        local _self="$( basename $0 )"
+echo "
+SYNTAX: $_self [OPTIONS|LOGFILE]
 
-sCurrentServer=$(hostname -f)
-cat <<ENDOFHEAD
-____________________________________________________________________________________
+OPTIONS:
+    -h       show this help and exit.
 
-CRONJOBS on [$( hostname -f )]
-______________________________________________________________________________/ v$_version
-ENDOFHEAD
+PARAMETERS:
+    LOGFILE  filename to show details of a single logfile
+             Default: without any logfile you get a total overview of all 
+             cronjobs.
+EXAMPLES:
+    $_self
+             show total overview over all jobs
 
-for logfile in $( getLogfiles )
-do
+    $_self $LOGDIR/myjobfile.log
+             show output of a single job
+"
+}
+
+# show status of a single sob
+# param  string  filename of cronwrapper logfile
+# param  bool    flag: show logfile content; default: empty (=do not sohow log)
+function showStatus(){
+        logfile="$1"
+        local _showlog="$2"
+        echo
+        cw.cecho "head" "--- $logfile"
+        echo
+        if [ -n "$_showlog" ]; then
+                cat "$logfile" \
+                        | sed -e "s/^REM.*/$( printf "\033[0;36m&\033[0m" )/g" \
+                                -e "s/^.*=/$( printf "\033[0;35m&\033[0m" )/g" \
+                                -e "s/^/    /g"
+                echo
+        fi
         typeset -i iErr=0
 
         # server=$(basename "$logfile" | cut -f 1 -d "_")
@@ -138,8 +164,6 @@ do
         fi
 
         # ----- OUTPUT
-        echo
-        cw.cecho "head" "--- $logfile"
 
         echo "${sPre}command   : ${sCmd}"
         echo "${sPre}last start: ${sLastStart}"
@@ -163,10 +187,43 @@ do
         else
                 cw.cecho "ok" "${sPre}CHECK OK"
         fi
-done
+}
 
-echo "____________________________________________________________________________________"
+# show total overview of all jobs
+function showTotalstatus(){
+        for logfile in $( getLogfiles )
+        do
+                showStatus "$logfile"
+        done
 
-echo "JOBS: $(getLogfiles | wc -l ) .. ERRORS: $iErrJobs"
-echo
+        echo "____________________________________________________________________________________"
+
+        echo "JOBS: $(getLogfiles | wc -l ) .. ERRORS: $iErrJobs"
+        echo
+}
+# ----------------------------------------------------------------------
+# MAIN
+# ----------------------------------------------------------------------
+
+sCurrentServer=$(hostname -f)
+cat <<ENDOFHEAD
+____________________________________________________________________________________
+
+CRONJOBS on [$( hostname -f )]
+______________________________________________________________________________/ v$_version
+ENDOFHEAD
+
+if [ "$1" = "-h" ]; then
+        showhelp
+        exit 0
+fi
+
+if [ -n "$1" ]; then
+        showStatus "$1" 1
+        echo
+else
+        showTotalstatus
+fi
 exit $iErrJobs
+
+# ----------------------------------------------------------------------
