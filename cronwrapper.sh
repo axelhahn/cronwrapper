@@ -40,6 +40,35 @@
 # 2022-03-09  ahahn  small changes
 # ------------------------------------------------------------
 
+# ------------------------------------------------------------
+# CONFIG
+# ------------------------------------------------------------
+
+line1="--------------------------------------------------------------------------------"
+
+# --- set vars with required cli params
+typeset -i TTL=$1 2>/dev/null
+CALLSCRIPT=$2
+LABELSTR=$3
+LOGFILE=/tmp/call_any_script_$$.log
+
+test -z "${LABELSTR}" && LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
+
+# replace underscore (because it is used as a delimiter)
+# LABELSTR=$(echo ${LABELSTR} | sed "s#_#-#g")
+LABELSTR=${LABELSTR//_/-}
+TOUCHPART="_flag-${LABELSTR}_expire_"
+
+LOGDIR="/var/tmp/cronlogs"
+MYHOST=$( hostname -f )
+
+# --- log executions of the whole day
+JOBBLOGBASE=${MYHOST}_joblog_
+
+# ------------------------------------------------------------
+# FUNCTIONS
+# ------------------------------------------------------------
+
 # show help
 # param  string  info or error message
 function showhelp(){
@@ -100,30 +129,10 @@ function w() {
 }
 
 # ------------------------------------------------------------
-# CONFIG
+# MAIN
 # ------------------------------------------------------------
 
-line1="--------------------------------------------------------------------------------"
-
-# --- set vars with required cli params
-typeset -i TTL=$1 2>/dev/null
-CALLSCRIPT=$2
-LABELSTR=$3
-LOGFILE=/tmp/call_any_script_$$.log
-
-test -z "${LABELSTR}" && LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
-
-# replace underscore (because it is used as a delimiter)
-# LABELSTR=$(echo ${LABELSTR} | sed "s#_#-#g")
-LABELSTR=${LABELSTR//_/-}
-TOUCHPART="_flag-${LABELSTR}_expire_"
-
-LOGDIR="/var/tmp/cronlogs"
-MYHOST=$( hostname -f )
-
-# --- log executions of the whole day
-JOBBLOGBASE=${MYHOST}_joblog_
-
+test -f $( dirname $0)/cronwrapper.env && . $( dirname $0)/cronwrapper.env
 test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh
 
