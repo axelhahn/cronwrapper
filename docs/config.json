@@ -6,7 +6,7 @@
     "html": {
         "auto_toc": true,
         "auto_landing": false,
-        "date_modified": true,
+        "date_modified": false,
         "jump_buttons": true,
         "links": {
             "GitHub Repo": "https://github.com/axelhahn/cronwrapper",
