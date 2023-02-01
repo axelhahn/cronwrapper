@@ -1,42 +1,118 @@
 /*
 
     patch css elements of daux.io blue theme
-    version 2022-08-14
+    version 2022-12-04
 
 */
 
+:root {
 
-/* ---------- vars ---------- */ 
+    /* Axels Overrides */
+    --link-color: #37a;
+    --brand-color: var(--color-secondary);
+    --brand-background: var(--body-background);
+    --hr-color: none;
 
-:root{
+    --search-field-background: none;
+    --search-field-border-color: none;
 
-    /* background colors */
-    --bg:none;
-    --bg-body: #fff;
-    --bg-navlinkactive:#f4f4f4;
-    --bg-navlinkactive: linear-gradient(-90deg,rgba(0,0,0,0), rgba(40,60,80,0.05) 30%);
-    --bg-pre:#f8f8f8;
-    --bg-toc: #fff;
+    --sidebar-background:var(--body-background);
+    --sidebar-border-color: none;
+    --sidebar-link-active-background: #e8f4f6;
+    --sidebar-link-active-background: #eee;
 
-    /* foreground colors */
-    --color: #234;
-    --navlinkactive:#f33;
-    --title: #aaa;
+    /* Axels custom values */
+    --axel_bg-toc: var(--body-background);
+    --axel_bg-toc-head: #f8f8f8;
 
-    --link:#12a;
-    --toclink:rgba(40,60,80,0.8);
+    --axel_brand-background: none;
+    --axel_brand-pre-background: #8ce;
+    --axel_brand-pre-background-hover: #adf;
 
-    --h1: rgba(40,60,80,0.8);
-    --h1-bottom: 1px solid rgba(40,60,80,0.1);
-    --h2: #468;
-    --h3: #579;
+    --axel_h1_header: none;
 
+    --axel_h1: #aaa;
+    --axel_h1-bg: none;
+    --axel_h1-bottom: 3px solid none;
+    --axel_h2: #27a;
+    --axel_h2-bg: #fafafa;
+    --axel_h2-bottom: 2px solid #8ce;
+    --axel_h3: #838;
+    --axel_h3-bg: none;
+    --axel_h3-bottom: 1px solid #ddd;
+    --axel_h4: #c74;
+    --axel_h4-bg: none;
+    --axel_h4-bottom: 1px dashed #ddd;
+
+    --axel_hero_bg: #f8f8f8;
+
+    --axel_img-border: 2px dashed #cbc;
+
+    --axel_nav-bg:#fcfcfc;
+    --axel_nav-buttomborder: #ddd;
+
+    --axel_pre-background: #f8f8f8;
+    --axel-th-background: #d0e0e8;
+    --axel-article-nav-border-top: 0px dotted #ddd;
 }
 
-/* ---------- tags ---------- */
+.dark {
+
+    /* Axels Overrides */
+    --color-text: #c0c0c0;
+    --link-color: #6bd;
+
+    --brand-color: var(--color-text);
+    --brand-background: var(--body-background);
+    --hr-color: none;
+    --code-tag-background-color_: #bcc;
+
+    --search-field-background: none;
+    --search-field-border-color: none;
+
+    --sidebar-background:var(--body-background);
+    --sidebar-border-color: none;
+    --sidebar-link-active-background: #333;
+
+    /* Axels custom values */
+    --axel_bg-toc: var(--body-background);
+    --axel_bg-toc-head: #333;
+    
+    --axel_brand-background: none;
+    --axel_brand-pre-background: #69a;
+    --axel_brand-pre-background-hover: #6ab;
+
+    --axel_h1_header: none;
+
+    --axel_h1: #777;
+    --axel_h1-bg: none;
+    --axel_h1-bottom: none;
+    --axel_h2: #27a;
+    --axel_h2-bg: #282828;
+    --axel_h2-bottom: 2px solid #256;
+    --axel_h3: #838;
+    --axel_h3-bg: none;
+    --axel_h3-bottom: 1px solid #333;
+    --axel_h4: #c74;
+    --axel_h4-bg: none;
+    --axel_h4-bottom: 1px dashed #333;
+
+    --axel_hero_bg: #242424;
+
+    --axel_img-border: 2px dashed #656;
+
+    --axel_nav-bg:#242424;
+    --axel_nav-buttomborder: #555;
+    --axel_pre-background: #bcc;
+
+    --axel-th-background: #203038;
+    --axel-article-nav-border-top: 0px dotted #234;
+}
+
+/* ---------- left side ---------- */
 
 a.Brand::before {
-	background: rgb(180,200,220);
+	background: var(--axel_brand-pre-background);
     border-radius: 100%;
 	color: #fff;
     font-family: arial;
@@ -47,97 +123,61 @@ a.Brand::before {
     float: left;
 }
 a.Brand:hover::before {
-	background: #8cc;
+	background: var(--axel_brand-pre-background-hover);
+}
+a.Brand {
+	background: var(--axel_brand-background );
+	font-size: 200%;
+    height: 4em;
 }
 
-body, *{color: var(--color);}
-body{background: var(--bg-body);}
 
+/* ---------- page header: breadcrumb ---------- */
 
-a{color: var(--link);}
-a:hover{opacity: 0.7;}
+.Page__header{border: none;}
+.Page__header a{color: var(--axel_h1_header);}
+.Page__header h1{font-size: 1.3em;}
 
-h1>a{ color:var(--title);}
-_h1:nth-child(1){position: fixed; background: var(--bg); box-shadow: 0 0 1em #ccc; padding: 0 1em}
-h1:nth-child(1)>a{ color:var(--navlinkactive); }
+/* ---------- page content ---------- */
 
-.s-content h1{color: var(--h1); font-size: 200%; font-weight:bold; margin-top: 2em; border-bottom: var(--h1-bottom);}
-.s-content h2{color: var(--h2); font-size: 160%; }
-.s-content h3{color: var(--h3); font-size: 140%; }
-.s-content h4{margin: 0; font-size: 100%; text-align: center; background-color: rgba(0,0,0,0.05);padding: 0.3em;}
+.s-content{padding-top: 1em;}
+.s-content h1{background: var(--axel_h1-bg); color: var(--axel_h1); font-size: 200%; font-weight:bold; margin-bottom: 2em; margin-top: 0em; border-bottom: var(--axel_h1-bottom);}
+.s-content h2{background: var(--axel_h2-bg); color: var(--axel_h2); font-size: 180%; font-weight:bold; margin-top: 4em; border-bottom: var(--axel_h2-bottom);}
+h2:first-of-type {margin-top: 0em;}
+.s-content>h3{background: var(--axel_h3-bg); color: var(--axel_h3); font-size: 150%; font-weight:bold; margin-top: 3em; border-bottom: var(--axel_h3-bottom);}
+.s-content>h4{background: var(--axel_h4-bg); color: var(--axel_h4); font-size: 130%; font-weight:bold; margin-top: 3em; border-bottom: var(--axel_h4-bottom);}
 
+.s-content img{border: var(--axel_img-border); border-radius: 1.5em; padding: 1em; margin: 1em 0;}
 .s-content pre{
-    background: var(--bg-pre);
+    background: var(--axel_pre-background);
 }
+
+/* FIX smaller fnt size in tables */
+.s-content table {
+	font-size: 1em;
+}
+.s-content table th{
+    background: var(--axel-th-background);
+}
+
+.s-content h3 code{border: none; background: none; }
+
+article nav{border-top: var(--axel-article-nav-border-top); margin: 8em 0 5em;}
+.Pager li > a{padding: 1em 2em;}
 
 /* ---------- classes ---------- */
 
 .required{color:#a42;}
 .optional{color:#888;}
 
-
-/* ----- top left */
-.Brand,
-.Columns__left {
-	background: var(--bg);
-	border-right: 0px solid #e7e7e9;
-    color: var(--color);
-}
-.Brand{font-size: 200%;
-    background_: linear-gradient(-10deg,#fff 50%, #ddd);
-    background: var(--bg);
-}
-.Columns__right__content {
-	background: var(--bg);
-}
-.Page__header {
-	border-bottom: none;
-}
-/* ----- Navi left */
-
-.Nav a:hover{
-    background: none;
-    color: var(--navlinkactive) !important;
-}
-
-.Nav__item--active {
-    border-right_: 0.3em solid var(--navlinkactive);
-}
-.Nav__item--active > a{
-	background: var(--bg-navlinkactive);
-    color: var(--navlinkactive);
-}
-.Nav .Nav .Nav__item--active a {
-    color: var(--navlinkactive);
-}
-.Nav .Nav .Nav__item a {
-	opacity: 1;
-}
-.Nav__item--open > a {
-	background-color: var(--bg);
-}
-
-.Nav a[href*="__Welcome"]{
-    background: url("/icons/house.png") no-repeat 10px 4px ;
-    padding-left: 40px;
-}
-.Nav a[href*="__How_does_it_work"]{
-    background: url("/icons/light-bulb.png") no-repeat 10px 4px ;
-    padding-left: 40px;
-}
-
-
-
+div.hero{background: var(--axel_hero_bg);border-radius: 2em; padding: 5em 2em;text-align: center;} 
+div.hero h2{color: var(--color-text); background: none; _border: none; text-align: center; font-size: 300%; margin: 0 0 2em;}
+div.hero p.center{text-align: center;}
 
 /* ---------- classes ---------- */
 
-/* FIX smaller fnt size in tables */
-.s-content table {
-	font-size: 1em;
-}
 
-
-/* TOC */
+/* ---------- TOC ---------- */
 @media(min-width:1700px){
     .TableOfContentsContainer{
         position: fixed;
@@ -147,14 +187,20 @@ h1:nth-child(1)>a{ color:var(--navlinkactive); }
 }
 
 .TableOfContentsContainer{
-    border-top-left-radius: 1em;
-    background-color: var(--bg-toc);
-	border-left: 2px solid rgba(0,0,0,0.05);
-    padding: 0em;
+    background-color: var(--axel_bg-toc);
+    padding: 0.5em;
 }
-.TableOfContentsContainer__content {
 
-	border: none;
+.s-content .TableOfContentsContainer h4{
+    background-color: var(--axel_bg-toc-head);
+    border-top-left-radius: 1em;
+	font-size: 1.1em;
+    margin: 0;
+    padding: 0;
+}
+
+.TableOfContentsContainer__content {
+	border-width: 1px;
 	font-size: 0.5em;
 
 }
@@ -162,22 +208,19 @@ ul.TableOfContents ul{
 	list-style-type: none;
     padding-left: 1em;
 }
-.TableOfContentsContainer a{ color:var(--toclink);}
 
-.TableOfContentsContainer__content > .TableOfContents > li + li {
-	border-top: none;
-}
-.TableOfContentsContainer__content > .TableOfContents > li {
-	border-bottom: 1px dashed #ddd;
+.EditOn a::before{
+    content: '✏️ ';
 }
 
-/* pager - prev .. next */
-.s-content{
-    margin-bottom: 6em;
+.Links a[href^="https://github.com/"]::before {
+    content: '🌐 ';
 }
-.Pager{
-    border-top: 1px dashed #aaa; margin: 0; padding: 1em;
+
+.Links a[href^="https://git-repo.iml.unibe.ch/"]::before {
+    content: '🌐 ';
 }
-.Pager a{
-    color:var(--navlinkactive);
+
+.Links a[href^="https://www.axel-hahn.de/docs"]::before {
+    content: '📗 ';
 }
