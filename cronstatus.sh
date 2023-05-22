@@ -12,9 +12,10 @@
 # 2022-09-22  ahahn  1.4  add last output lines; add total status; exitstatus > 0 on error 
 # 2022-10-27  ahahn  1.5  add 2 checks for hostname: is it a fqdn + filename matches hostname -f
 # 2023-01-31  ahahn  1.6  add param support; analyze a single log
+# 2023-05-22  ahahn  1.7  show running jobs
 # ------------------------------------------------------------
 
-_version=1.6
+_version=1.7
 
 LOGDIR=/var/tmp/cronlogs
 # outfile=/tmp/cronjob_status.$$.tmp
@@ -47,6 +48,10 @@ function getLogfiles(){
         ls -1t "$LOGDIR"/*log | grep -Fv "/__"        
 }
 
+# get logfiles of all cronwrapper cronjobs
+function getRunningfiles(){
+        ls -1t "$LOGDIR"/*log.running 2>/dev/null
+}
 
 # show help
 # param  string  info or error message
@@ -123,7 +128,7 @@ function showStatus(){
         statusRc="${statusOK}"
         if [ $rc -ne 0 ]; then
                 iErr+=1
-                statusRc="${statusERROR}"
+                statusRc="<<<<<<<<<< ${statusERROR}"
         fi
 
         # ----- check ttl value
@@ -157,7 +162,7 @@ function showStatus(){
         # ----- check expire
         statusExpire="$(date -d @$iJobExpire '+%Y-%m-%d %H:%M:%S')"
         if [ $iJobExpire -lt $iMaxAge ]; then
-                statusExpire="${statusExpire} ${statusERROR}"
+                statusExpire="${statusExpire} <<<<<<<<<< ${statusERROR}"
                 iErr+=1
         else
                 statusExpire="${statusExpire} ${statusOK}"
@@ -189,6 +194,37 @@ function showStatus(){
         fi
 }
 
+# show running jobs
+function showRunningJobs(){
+        if getRunningfiles >/dev/null 2>&1 ; then
+                echo "____________________________________________________________________________________"
+                echo
+                echo "CURRENTLY RUNNING JOBS:"
+
+                for logfile in $( getRunningfiles )
+                do
+                        sCmd=$(getLogValue SCRIPTNAME)
+                        sLastStart=$(getLogValue SCRIPTSTARTTIME)
+                        typeset -i iSince=($( date '+%s' )-$( echo "$sLastStart" | cut -f 2 -d ',' ))/60
+                        typeset -i iTTL=$(getLogValue 'SCRIPTTTL')
+                        if [ $iTTL -lt $iSince ]; then
+                                statusTtl="${statusERROR}: TTL=$iTTL min is lower than execution time of ${iSince} min"
+                                iErr+=1
+                        fi
+
+                        echo
+                        cw.cecho "head" "${sPre}--- for $iSince min - $logfile"
+                        echo "${sPre}${sPre}command   : ${sCmd}"
+                        echo "${sPre}${sPre}last start: ${sLastStart}"
+                        echo "${sPre}${sPre}ttl       : ${iTTL}"
+
+                done
+        else
+                echo
+                echo "There is no running job."
+        fi
+}
+
 # show total overview of all jobs
 function showTotalstatus(){
         for logfile in $( getLogfiles )
@@ -196,9 +232,11 @@ function showTotalstatus(){
                 showStatus "$logfile"
         done
 
+        showRunningJobs
+
         echo "____________________________________________________________________________________"
 
-        echo "JOBS: $(getLogfiles | wc -l ) .. ERRORS: $iErrJobs"
+        echo "JOBS: $(getLogfiles | wc -l ) .. RUNNING: $(getRunningfiles | wc -l ) .. ERRORS: $iErrJobs"
         echo
 }
 # ----------------------------------------------------------------------

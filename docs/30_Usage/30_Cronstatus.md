@@ -47,7 +47,7 @@ In this example I have 2 cronjobs using the cronwrapper and both are OK. In that
 ____________________________________________________________________________________
 
 CRONJOBS on [www.example.com]
-______________________________________________________________________________/ v1.6
+______________________________________________________________________________/ v1.7
 
 --- /var/tmp/cronlogs/www.example.com_scheduler.sh.log
     command   : /opt/imlbackup/client/scheduler.sh
@@ -66,9 +66,25 @@ ______________________________________________________________________________/ 
     ttl       : 1440 - 24 h OK
     expires   : 1642047121 2022-01-13 05:12:01 OK
     CHECK OK
-____________________________________________________________________________________
-JOBS: 2 .. ERRORS: 0
 
+There is no running job.
+____________________________________________________________________________________
+JOBS: 1 .. RUNNING: 1 .. ERRORS: 0
+
+```
+
+If a job is currently running you get a shorter info block with the time how long it is running already:
+
+```txt
+(...)
+____________________________________________________________________________________
+CURRENTLY RUNNING JOBS:
+
+    --- for 2 min - /var/tmp/cronlogs/my-laptop_iml-backup.log.running
+        command   : /home/axel/skripte/client/backup.sh
+        last start: 2023-05-22 13:44:40, 1684755880
+        ttl       : 1440
+(...)
 ```
 
 ### Exitcode
