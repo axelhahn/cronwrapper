@@ -38,6 +38,7 @@
 # 2022-01-12  ahahn  fixes based on shellcheck
 # 2022-01-14  ahahn  fix runserver check
 # 2022-03-09  ahahn  small changes
+# 2023-01-27  axel.hahn@unibe.ch  include *.env file (if it exists)
 # ------------------------------------------------------------
 
 # show help
@@ -124,6 +125,7 @@ MYHOST=$( hostname -f )
 # --- log executions of the whole day
 JOBBLOGBASE=${MYHOST}_joblog_
 
+test -f $( dirname $0)/cronwrapper.env && . $( dirname $0)/cronwrapper.env
 test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh
 
