@@ -1,19 +1,20 @@
 #!/bin/bash
-# ------------------------------------------------------------
+# ----------------------------------------------------------------------
 #
 # CRONWRAPPER :: STATUS
 #
 # Show status for all cronjobs using the cronwrapper
 #
-# ------------------------------------------------------------
+# ----------------------------------------------------------------------
 # 2022-01-12  ahahn  1.1  fixes based on shellcheck
 # 2022-03-09  ahahn  1.2  added cw.* functions
 # 2022-09-21  ahahn  1.3  added colored OK or ERROR texts
 # 2022-09-22  ahahn  1.4  add last output lines; add total status; exitstatus > 0 on error 
 # 2022-10-27  ahahn  1.5  add 2 checks for hostname: is it a fqdn + filename matches hostname -f
-# ------------------------------------------------------------
+# 2023-05-22  ahahn  1.6  show running jobs
+# ----------------------------------------------------------------------
 
-_version=1.5
+_version=1.6
 
 LOGDIR=/var/tmp/cronlogs
 # outfile=/tmp/cronjob_status.$$.tmp
@@ -43,9 +44,13 @@ function getLogValue(){
 
 # get logfiles of all cronwrapper cronjobs
 function getLogfiles(){
-        ls -1t "$LOGDIR"/*log | grep -Fv "/__"        
+        ls -1t "$LOGDIR"/*log | grep -Fv "/__"
 }
 
+# get logfiles of all cronwrapper cronjobs
+function getRunningfiles(){
+        ls -1t "$LOGDIR"/*log.running 2>/dev/null
+}
 
 # ----------------------------------------------------------------------
 # MAIN
@@ -58,6 +63,9 @@ ________________________________________________________________________________
 CRONJOBS on [$( hostname -f )]
 ______________________________________________________________________________/ v$_version
 ENDOFHEAD
+
+
+# ---------- Show logs
 
 for logfile in $( getLogfiles )
 do
@@ -165,8 +173,39 @@ do
         fi
 done
 
-echo "____________________________________________________________________________________"
+# ---------- Show running jobs
 
+if getRunningfiles >/dev/null 2>&1 ; then
+        echo "____________________________________________________________________________________"
+        echo
+        echo "CURRENTLY RUNNING JOBS:"
+
+        for logfile in $( getRunningfiles )
+        do
+                sCmd=$(getLogValue SCRIPTNAME)
+                sLastStart=$(getLogValue SCRIPTSTARTTIME)
+                typeset -i iSince=($( date '+%s' )-$( echo "$sLastStart" | cut -f 2 -d ',' ))/60
+                typeset -i iTTL=$(getLogValue 'SCRIPTTTL')
+                if [ $iTTL -lt $iSince ]; then
+                        statusTtl="${statusERROR}: TTL=$iTTL min is lower than execution time of ${iSince} min"
+                        iErr+=1
+                fi
+
+                echo
+                cw.cecho "head" "${sPre}--- for $iSince min - $logfile"
+                echo "${sPre}${sPre}command   : ${sCmd}"
+                echo "${sPre}${sPre}last start: ${sLastStart}"
+                echo "${sPre}${sPre}ttl       : ${iTTL}"
+
+        done
+else
+        echo
+        echo "There is no running job."
+fi
+
+echo "____________________________________________________________________________________"
 echo "JOBS: $(getLogfiles | wc -l ) .. ERRORS: $iErrJobs"
 echo
 exit $iErrJobs
+
+# ----------------------------------------------------------------------
