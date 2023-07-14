@@ -13,11 +13,13 @@
 # 2022-10-27  ahahn  1.5  add 2 checks for hostname: is it a fqdn + filename matches hostname -f
 # 2023-01-31  ahahn  1.6  add param support; analyze a single log
 # 2023-05-22  ahahn  1.7  show running jobs
+# 2023-07-14  ahahn  1.8  add support for REQUIREFQDN
 # ------------------------------------------------------------
 
-_version=1.7
+_version=1.8
 
 LOGDIR=/var/tmp/cronlogs
+typeset -i REQUIREFQDN=0
 # outfile=/tmp/cronjob_status.$$.tmp
 # outfile=/tmp/cronjob_status.tmp
 
@@ -205,8 +207,8 @@ function showRunningJobs(){
                 do
                         sCmd=$(getLogValue SCRIPTNAME)
                         sLastStart=$(getLogValue SCRIPTSTARTTIME)
-                        typeset -i iSince=($( date '+%s' )-$( echo "$sLastStart" | cut -f 2 -d ',' ))/60
-                        typeset -i iTTL=$(getLogValue 'SCRIPTTTL')
+                        typeset -i iSince; iSince=($( date '+%s' )-$( echo "$sLastStart" | cut -f 2 -d ',' ))/60
+                        typeset -i iTTL;   iTTL=$(getLogValue 'SCRIPTTTL')
                         if [ $iTTL -lt $iSince ]; then
                                 statusTtl="${statusERROR}: TTL=$iTTL min is lower than execution time of ${iSince} min"
                                 iErr+=1
