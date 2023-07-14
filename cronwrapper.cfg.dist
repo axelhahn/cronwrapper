@@ -5,6 +5,12 @@
 # ----- shared values:
 LOGDIR=/var/tmp/cronlogs
 
+
+# ----- for cronwrapper
+# deny multiple execution of the same job? set 0 or 1
+SINGLEJOB=1
+
+
 # ----- for sync of local logs
 TOUCHFILE=lastsync
 TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )

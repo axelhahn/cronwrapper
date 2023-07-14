@@ -101,7 +101,7 @@ The cronjob above needs to be rewritten like that:
 12 3 * * * root /usr/local/bin/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
 ```
 
-To test it immediately run con command line:
+To test it immediately run the cron command line with its user:
 
 ```bash
 /usr/local/bin/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh

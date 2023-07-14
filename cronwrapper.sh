@@ -13,37 +13,39 @@
 #
 # ------------------------------------------------------------
 # 2002-02-06  ahahn  V1.0
-# 2002-07-15         Stderr wird auch ins Logfile geschrieben
-# 2002-09-17  ahahn  Email wird versendet, wenn Skript nicht
-#                    ausfuehrbar ist.
-# 2003-04-05  ahahn  show output of executed script
-# 2004-03-26  ahahn  added output with labels 2 grab infos from output
-# 2006-01-01  ahahn  disabled email
-# 2009-05-01  ahahn  MPC: keinerlei Ausgabe auf stdout- Ausgabe nur im Log
-# 2009-05-04  ahahn  Test auf execute Rechte deaktiviert
-# 2009-05-13  ahahn  Check: Cron darf nur einmalig auf einem Server laufen
-#                    Dies erfordert Umstellung der Parameter-Struktur
-# 2009-05-14  ahahn  sleep eingebaut mit Hilfe what_am_i
-# 2009-05-18  ahahn  mehr Infos zu Locking und ausfuehrendem Server im Output
-# 2010-10-19  ahahn  add JOBEXPIRE to output (to detect outdated cronjobs)
-# 2012-04-03  ahahn  Sourcen von $0.cfg fuer eigene Variablenwerte
-# 2012-04-04  ahahn  aktiver Job verwendet separates Logfile
-# 2012-04-05  ahahn  TTL mit in der Ausgabe
-# 2012-04-13  ahahn  joblog hinzugefuegt
-# 2013-05-15  axel.hahn@iml.unibe.ch  FIRST IML VERSION
-# 2013-07-xx  axel.hahn@iml.unibe.ch  TTL ist max 1h TTL-Parameter-Wert
-# 2013-08-07  axel.hahn@iml.unibe.ch  Strip html in der Ausgabe
-# 2017-10-13  axel.hahn@iml.unibe.ch  use eval to execute multiple commands
-# 2021-02-23  ahahn  add help and parameter detection
-# 2022-01-12  ahahn  fixes based on shellcheck
-# 2022-01-14  ahahn  fix runserver check
-# 2022-03-09  ahahn  small changes
+# 2002-07-15         1.1   Stderr wird auch ins Logfile geschrieben
+# 2002-09-17  ahahn  1.2   Email wird versendet, wenn Skript nicht
+#                          ausfuehrbar ist.
+# 2003-04-05  ahahn  1.3   show output of executed script
+# 2004-03-26  ahahn  1.4   added output with labels 2 grab infos from output
+# 2006-01-01  ahahn  1.5   disabled email
+# 2009-05-01  ahahn  1.6   MPC: keinerlei Ausgabe auf stdout- Ausgabe nur im Log
+# 2009-05-04  ahahn  1.7   Test auf execute Rechte deaktiviert
+# 2009-05-13  ahahn  1.8   Check: Cron darf nur einmalig auf einem Server laufen
+#                          Dies erfordert Umstellung der Parameter-Struktur
+# 2009-05-14  ahahn  1.9   sleep eingebaut mit Hilfe what_am_i
+# 2009-05-18  ahahn  1.10  mehr Infos zu Locking und ausfuehrendem Server im Output
+# 2010-10-19  ahahn  1.11  add JOBEXPIRE to output (to detect outdated cronjobs)
+# 2012-04-03  ahahn  1.12  Sourcen von $0.cfg fuer eigene Variablenwerte
+# 2012-04-04  ahahn  1.13  aktiver Job verwendet separates Logfile
+# 2012-04-05  ahahn  1.14  TTL mit in der Ausgabe
+# 2012-04-13  ahahn  1.15  joblog hinzugefuegt
+# 2013-05-15  axel.hahn@iml.unibe.ch  1.16  FIRST IML VERSION
+# 2013-07-xx  axel.hahn@iml.unibe.ch  1.17  TTL ist max 1h TTL-Parameter-Wert
+# 2013-08-07  axel.hahn@iml.unibe.ch  1.18  Strip html in der Ausgabe
+# 2017-10-13  axel.hahn@iml.unibe.ch  1.19  use eval to execute multiple commands
+# 2021-02-23  ahahn  1.20  add help and parameter detection
+# 2022-01-12  ahahn  1.21  fixes based on shellcheck
+# 2022-01-14  ahahn  1.22  fix runserver check
+# 2022-03-09  ahahn  1.23  small changes
+# 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
 
+_version="1.24"
 line1="--------------------------------------------------------------------------------"
 
 # --- set vars with required cli params
@@ -64,6 +66,7 @@ MYHOST=$( hostname -f )
 
 # --- log executions of the whole day
 JOBBLOGBASE=${MYHOST}_joblog_
+SINGLEJOB=1
 
 # ------------------------------------------------------------
 # FUNCTIONS
@@ -75,7 +78,7 @@ function showhelp(){
 echo "
 $line1
 
-AXELS CRONWRAPPER
+AXELS CRONWRAPPER v $_version
 Puts control and comfort to cronjobs.
 
 source: https://github.com/axelhahn/cronwrapper
@@ -132,8 +135,8 @@ function w() {
 # MAIN
 # ------------------------------------------------------------
 
-test -f $( dirname $0)/cronwrapper.env && . $( dirname $0)/cronwrapper.env
-test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
+test -f "$( dirname $0)/cronwrapper.env" && . $( dirname $0)/cronwrapper.env
+test -f "$( dirname $0)/cronwrapper.cfg" && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh
 
 
@@ -169,6 +172,23 @@ fi
 # ------------------------------------------------------------
 mkdir $LOGDIR 2>/dev/null
 chmod 777 $LOGDIR 2>/dev/null
+
+# prevent multiple execution
+if test -f "$OUTFILE"; then
+        typeset -i runningProcessid; 
+        runningProcessid=$(grep "SCRIPTPROCESS" "$OUTFILE" | cut -f 2 -d '=')
+        if [ $runningProcessid -gt 0 ]; then
+                if ps $runningProcessid >/dev/null; then
+                        # the last process is still running
+                        if [ "$SINGLEJOB" != "0" ]; then
+                                OUTFILE=$FINALOUTFILE
+                                w "ERROR: Execution of the next task PID $$ at $( date ) was blocked."
+                                echo "ERROR: The job is still running as PID $runningProcessid ... stopping the new task."
+                                exit 1
+                        fi
+                fi
+        fi
+fi
 rm -f "$OUTFILE" 2>/dev/null
 touch "$OUTFILE"
 w "REM $line1"
@@ -179,6 +199,7 @@ w "SCRIPTNAME=${CALLSCRIPT}"
 w "SCRIPTTTL=${TTL}"
 w "SCRIPTSTARTTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iStart"
 w "SCRIPTLABEL=${LABELSTR}"
+w "SCRIPTPROCESS=$$"
 
 if [ -z "${CALLSCRIPT}" ]; then
         w "REM STOP: no script was found. check syntax for $(basename $0)"

@@ -12,6 +12,12 @@ The file needs read permissions for all users (0644).
 # ----- shared values:
 LOGDIR=/var/tmp/cronlogs
 
+
+# ----- for cronwrapper
+# deny multiple execution of the same job? set 0 or 1
+SINGLEJOB=1
+
+
 # ----- for sync of local logs
 TOUCHFILE=lastsync
 TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
@@ -41,6 +47,7 @@ TARGET      | string | ssh target where to sync files from $LOGFILE with `sshuse
 SSHKEY      | string | filename to ssh private key to connect passwordless to $TARGET
 SYNCAFTER   | int    | time in sec; default: 3600 (1h); time before syncing the logdir even if it has noch change
 REQUIREFQDN | int    | 0 or 1; block sync if `hostname -f` has no FQDN
+SINGLEJOB   | int    | 0 or 1; 1=deny multiple execution of the same job
 
 ## Environment file
 
