@@ -74,18 +74,18 @@ The last command tests the returncode only.
 
 To detect outdated jobs see section for cronstatus.sh on the next page.
 
-| value | type | description |
-|---    |---   |---          |
-| SCRIPTNAME | string |  commandline of executed job; The value is taken from 1st parameter of cronwrapper commandline |
-| SCRIPTTTL  | integer | TTL value: in how many minutes this cronjob wust be repeated? The value is taken from 2nd parameter of cronwrapper commandline |
+| value           | type     | description |
+|---              |---       |---          |
+| SCRIPTNAME      | string   |  commandline of executed job; The value is taken from 1st parameter of cronwrapper commandline |
+| SCRIPTTTL       | integer  | TTL value: in how many minutes this cronjob wust be repeated? The value is taken from 2nd parameter of cronwrapper commandline |
 | SCRIPTSTARTTIME | datetime | starting time of the cronjob as time and (after comma) as unix timestamp; eg. `2022-09-22 09:48:58, 1663832938`|
-| SCRIPTLABEL | string | label that will be part of the flag file and the log file name in the output directory. By default it is generated but you can override it with a 3rd parameter in cronwrapper commandline |
-| SCRIPTPROCESS | integer | process id |
-| JOBEXPIRE     | integer | Unix timestamp when the job is expired. t is calculated by starttime plus TTL |
-| SCRIPTENDTIME | datetime | ending time of the cronjob as time and (after comma) as unix timestamp; eg. `2022-09-22 09:48:12, 1663832938`|
-| SCRIPTEXECTIME | string | Needed time for execution in seconds as human readable time; the delta of endtime - starttime |
-| SCRIPTRC | integer | 
-| SCRIPTOUT | string | Output of the executed command. This value can be repeated in the log on multiline outputs
+| SCRIPTLABEL     | string   | label that will be part of the flag file and the log file name in the output directory. By default it is generated but you can override it with a 3rd parameter in cronwrapper commandline |
+| SCRIPTPROCESS   | integer  | process id |
+| JOBEXPIRE       | integer  | Unix timestamp when the job is expired. t is calculated by starttime plus TTL |
+| SCRIPTENDTIME   | datetime | ending time of the cronjob as time and (after comma) as unix timestamp; eg. `2022-09-22 09:48:12, 1663832938`|
+| SCRIPTEXECTIME  | string   | Needed time for execution in seconds as human readable time; the delta of endtime - starttime |
+| SCRIPTRC        | integer  | returncode of the executed commandline |
+| SCRIPTOUT       | string   | Output of the executed command. This value can be repeated in the log on multiline outputs
 
 ## flagfile
 
