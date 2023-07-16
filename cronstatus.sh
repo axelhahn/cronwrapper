@@ -224,7 +224,7 @@ function showRunningJobs(){
                         cw.cecho "head" "${sPre}--- for $iSince min - $logfile"
                         echo "${sPre}${sPre}command   : ${sCmd}"
                         echo "${sPre}${sPre}last start: ${sLastStart}"
-                        echo "${sPre}${sPre}ttl       : ${iTTL}"
+                        echo "${sPre}${sPre}ttl       : ${iTTL} min"
 
                         typeset -i iPid; iPid=$(getLogValue SCRIPTPROCESS)
                         if [ $iPid -gt 0 ]; then
