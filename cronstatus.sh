@@ -14,9 +14,10 @@
 # 2023-01-31  ahahn  1.6  add param support; analyze a single log
 # 2023-05-22  ahahn  1.7  show running jobs
 # 2023-07-14  ahahn  1.8  add support for REQUIREFQDN
+# 2023-07-14  ahahn  1.9  added check if process still runs
 # ------------------------------------------------------------
 
-_version=1.8
+_version=1.9
 
 LOGDIR=/var/tmp/cronlogs
 typeset -i REQUIREFQDN=0
@@ -52,7 +53,7 @@ function getLogfiles(){
 
 # get logfiles of all cronwrapper cronjobs
 function getRunningfiles(){
-        ls -1t "$LOGDIR"/*log.running 2>/dev/null
+        ls -1t "$LOGDIR"/*log.running* 2>/dev/null
 }
 
 # show help
@@ -198,6 +199,11 @@ function showStatus(){
 
 # show running jobs
 function showRunningJobs(){
+        local sCmd
+        local sLastStart
+        local iSince
+        local iTTL
+        local iPid
         if getRunningfiles >/dev/null 2>&1 ; then
                 echo "____________________________________________________________________________________"
                 echo
@@ -219,6 +225,17 @@ function showRunningJobs(){
                         echo "${sPre}${sPre}command   : ${sCmd}"
                         echo "${sPre}${sPre}last start: ${sLastStart}"
                         echo "${sPre}${sPre}ttl       : ${iTTL}"
+
+                        typeset -i iPid; iPid=$(getLogValue SCRIPTPROCESS)
+                        if [ $iPid -gt 0 ]; then
+                                # detect process id and check if it is still running
+                                if ps $iPid >/dev/null 2>&1; then
+                                        cw.cecho "ok" "${sPre}${sPre}OK - still running"
+                                else
+                                        cw.cecho "error" "${sPre}${sPre}ERROR: The process $iPid does not exist anymore."
+                                        iErr+=1
+                                fi
+                        fi
 
                 done
         else
