@@ -10,7 +10,7 @@ By starting the helper script
 ____________________________________________________________________________________
 
 CRONJOBS on [linux-pc]
-______________________________________________________________________________/ v1.6
+______________________________________________________________________________/ v1.9
 
 SYNTAX: cronstatus.sh [OPTIONS|LOGFILE]
 
@@ -73,19 +73,23 @@ JOBS: 1 .. RUNNING: 1 .. ERRORS: 0
 
 ```
 
-If a job is currently running you get a shorter info block with the time how long it is running already:
+If a job is currently running you get a shorter info block with the time how long it is running already.
 
 ```txt
 (...)
 ____________________________________________________________________________________
 CURRENTLY RUNNING JOBS:
 
-    --- for 2 min - /var/tmp/cronlogs/my-laptop_iml-backup.log.running
+    --- for 2 min - /var/tmp/cronlogs/my-laptop_iml-backup.log.running.NNNNN
         command   : /home/axel/skripte/client/backup.sh
         last start: 2023-05-22 13:44:40, 1684755880
         ttl       : 1440
+        OK - still running
 (...)
 ```
+
+If the job was aborted - maybe because of a reboot while the job was running) you get a line `ERROR: The process NNNNN does not exist anymore.` 
+Then you should check the file content and delete it, eg by using `./cronstatus.sh [logfile]` (see below)
 
 ### Exitcode
 

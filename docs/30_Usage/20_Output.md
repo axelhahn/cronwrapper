@@ -1,3 +1,4 @@
+# Logged data
 
 Have look into the directory after your first job was run.
 
@@ -9,9 +10,9 @@ The wrapper stores 3 information in different files
 
 * The output of the last execution of a job
 * a flagfile with a timestamp in it (0 byte)
-* a daily log file with all executions of all jobs and thheir returncodes
+* a daily log file with all executions of all jobs and their returncodes
 
-### logfile
+## logfile
 
 Show the created output of a cronjob:
 
@@ -25,6 +26,7 @@ SCRIPTNAME=[Commandline of executed job]
 SCRIPTTTL=30
 SCRIPTSTARTTIME=2022-09-22 09:48:58, 1663832938
 SCRIPTLABEL=testjob
+SCRIPTPROCESS=32396
 REM --------------------------------------------------------------------------------
 REM OK, executing job the first time
 JOBEXPIRE=1663837438
@@ -61,8 +63,8 @@ grep "^SCRIPTRC" /var/tmp/cronlogs/*.log
 ```
 
 The last command tests the returncode only. 
-To detect outdated jobs see section for cronstatus.sh below.
+To detect outdated jobs see section for cronstatus.sh on the next page.
 
-### joblog
+## joblog
 
 The daily joblog exists for jobs that run several /  many times per day. It stores the Label of a job, the starting time and a result code.
