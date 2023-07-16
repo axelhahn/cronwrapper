@@ -39,13 +39,14 @@
 # 2022-01-14  ahahn  1.22  fix runserver check
 # 2022-03-09  ahahn  1.23  small changes
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
+# 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
 
-_version="1.24"
+_version="1.25"
 line1="--------------------------------------------------------------------------------"
 
 # --- set vars with required cli params
@@ -142,8 +143,7 @@ test -f "$( dirname $0)/cronwrapper.cfg" && . $( dirname $0)/cronwrapper.cfg
 
 FINALOUTFILE="$LOGDIR/${MYHOST}_${LABELSTR}.log"
 JOBLOG="$LOGDIR/${JOBBLOGBASE}$(date +%a).done"
-# OUTFILE="$LOGDIR/`hostname`_${LABELSTR}.log"
-OUTFILE="$FINALOUTFILE.running"
+OUTFILE="$FINALOUTFILE.running.$$"
 typeset -i iStart
 iStart=$(date +%s)
 
