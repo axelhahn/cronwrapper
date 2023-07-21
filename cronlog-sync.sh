@@ -10,9 +10,10 @@
 # 2022-09-22  v1.2  <axel.hahn@iml.unibe.ch>  optional: stop if hostname has no domain
 # 2022-09-23  v1.3  <axel.hahn@iml.unibe.ch>  fix exitcode on no sync and failed sync
 # 2022-09-23  v1.4  <axel.hahn@iml.unibe.ch>  option -q is more quiet and -f to set SYNCAFTER
+# 2023-07-21  v1.5  <axel.hahn@iml.unibe.ch>  fix typo in header
 # ======================================================================
 
-_version=1.4
+_version=1.5
 
 LOGDIR=/var/tmp/cronlogs
 TARGET=
@@ -33,7 +34,7 @@ function showHead(){
 cat <<ENDOFHEAD
 ____________________________________________________________________________________
 
-SNYC LOCAL LOGS OF $( hostname -f )
+SYNC LOCAL LOGS OF $( hostname -f )
 ______________________________________________________________________________/ v$_version
 
 ENDOFHEAD
