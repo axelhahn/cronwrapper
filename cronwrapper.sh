@@ -40,13 +40,14 @@
 # 2022-03-09  ahahn  1.23  small changes
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
+# 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
 
-_version="1.25"
+_version="1.26"
 line1="--------------------------------------------------------------------------------"
 
 # --- set vars with required cli params
@@ -58,7 +59,6 @@ LOGFILE=/tmp/call_any_script_$$.log
 test -z "${LABELSTR}" && LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
 
 # replace underscore (because it is used as a delimiter)
-# LABELSTR=$(echo ${LABELSTR} | sed "s#_#-#g")
 LABELSTR=${LABELSTR//_/-}
 TOUCHPART="_flag-${LABELSTR}_expire_"
 
@@ -143,7 +143,8 @@ test -f "$( dirname $0)/cronwrapper.cfg" && . $( dirname $0)/cronwrapper.cfg
 
 FINALOUTFILE="$LOGDIR/${MYHOST}_${LABELSTR}.log"
 JOBLOG="$LOGDIR/${JOBBLOGBASE}$(date +%a).done"
-OUTFILE="$FINALOUTFILE.running.$$"
+OUTFILEBASE="$FINALOUTFILE.running"
+OUTFILE="$OUTFILEBASE.$$"
 typeset -i iStart
 iStart=$(date +%s)
 
@@ -173,24 +174,21 @@ fi
 mkdir $LOGDIR 2>/dev/null
 chmod 777 $LOGDIR 2>/dev/null
 
-# prevent multiple execution
-if test -f "$OUTFILE"; then
-        typeset -i runningProcessid; 
-        runningProcessid=$(grep "SCRIPTPROCESS" "$OUTFILE" | cut -f 2 -d '=')
-        if [ $runningProcessid -gt 0 ]; then
-                if ps $runningProcessid >/dev/null; then
-                        # the last process is still running
-                        if [ "$SINGLEJOB" != "0" ]; then
-                                OUTFILE=$FINALOUTFILE
-                                w "ERROR: Execution of the next task PID $$ at $( date ) was blocked."
-                                echo "ERROR: The job is still running as PID $runningProcessid ... stopping the new task."
+# prevent multiple execution ... if configured
+if [ "$SINGLEJOB" != "0" ]; then
+        for otheroutfile in $( ls -1 $OUTFILEBASE.* 2>/dev/null )
+        do
+                typeset -i runningProcessid; 
+                runningProcessid=$(grep "SCRIPTPROCESS" "$otheroutfile" | cut -f 2 -d '=')
+                if [ $runningProcessid -gt 0 ]; then
+                        if ps $runningProcessid >/dev/null; then
+                                echo "job=${LABELSTR}:host=$MYHOST:start=$iStart:end=$iStart:exectime=0:ttl=${TTL}:rc=1:blockingpid=$runningProcessid" >>"$JOBLOG"
                                 exit 1
                         fi
                 fi
-        fi
+        done
 fi
-rm -f "$OUTFILE" 2>/dev/null
-touch "$OUTFILE"
+
 w "REM $line1"
 w "REM CRON WRAPPER - $MYHOST"
 w "REM $line1"
