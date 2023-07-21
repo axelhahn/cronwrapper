@@ -35,8 +35,8 @@ Use -h to show a help:
 > ./cronlog-sync.sh -h
 ____________________________________________________________________________________
 
-SNYC LOCAL LOGS OF www.example.com
-______________________________________________________________________________/ v1.4
+SYNC LOCAL LOGS OF www.example.com
+______________________________________________________________________________/ v1.5
 
 HELP:
     This script syncs local cronlogs to a target.

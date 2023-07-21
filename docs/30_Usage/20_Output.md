@@ -131,3 +131,4 @@ With a delimter `:` you see these data (values like in the job logs)
 * exectime - execution time of the job in sec
 * ttl - the ttl value
 * rc - return code
+* blockedbypid - when using option SINGLEJOB=1 and a 2nd job will be executed you get the pid that blocked its execution.
