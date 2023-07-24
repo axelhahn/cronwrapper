@@ -148,7 +148,22 @@ Last but not least: You maybe want to start the job on system start - so enable 
 ## Logviewer
 
 TODO: 
-on logserver install 
+on a logserver install 
 
 * a webservice with PHP 
 * the viewer <https://git-repo.iml.unibe.ch/iml-open-source/cronlog-viewer> into webroot or any subfolder below webroot
+
+You get a list of all servers and all cronjobs. Here you can filter by server, status or any table column.
+
+![Screenshot: CronlogViewer - jobs of all servers](/images/cronlogviewer_all_servers.png)
+
+1) If you have several instances of the CronlogViewer you can switch between them.
+2) Filter the list by server while typing something. "All" shows all jobs of all servers and you can filter all jobs. By clicking to a servername you get a list of its cronjobs.
+3) Filter by status. This is very useful for the view of all servers: with one click you get all troublemakers
+4) A table of the cronjobs. You see the status of last execution of a cronjob. The table can be filtered or ordered by any column. A click into a row opens a syntax highlighted log viewer.
+
+In the tab "history" is a table of the parsed joblog file that can be ordered and filtered.
+
+In the tab "timeline" you get a graph with a timeline and bars based on the execution time per cronjob (jobs that run longer than 60 sec). So you can find conflicts of jobs that should not run at the same time.
+
+![Screenshot: CronlogViewer - timeline of a server](/images/cronlogviewer_timeline.png)
