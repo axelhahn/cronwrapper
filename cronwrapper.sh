@@ -41,27 +41,27 @@
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
+# 2022-07-28  ahahn  1.27  add hooks
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
 
-_version="1.26"
+_version="1.27"
 line1="--------------------------------------------------------------------------------"
 
 # --- set vars with required cli params
 typeset -i TTL=$1 2>/dev/null
 CALLSCRIPT=$2
 LABELSTR=$3
-LOGFILE=/tmp/call_any_script_$$.log
-
 test -z "${LABELSTR}" && LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
 
 # replace underscore (because it is used as a delimiter)
 LABELSTR=${LABELSTR//_/-}
 TOUCHPART="_flag-${LABELSTR}_expire_"
 
+LOGFILE=/tmp/call_any_script_$$.log
 LOGDIR="/var/tmp/cronlogs"
 MYHOST=$( hostname -f )
 
@@ -83,6 +83,7 @@ AXELS CRONWRAPPER v $_version
 Puts control and comfort to cronjobs.
 
 source: https://github.com/axelhahn/cronwrapper
+docs: https://www.axel-hahn.de/docs/cronwrapper/
 license: GNU GPL 3.0
 
 $line1
@@ -132,6 +133,39 @@ function w() {
         echo "$*" >>"$OUTFILE"
 }
 
+# execute hook skripts in a given directory in alphabetic order
+# param  string   name of hook directory
+# param  string   optional: integer of existcode or "" for non-on-result hook
+function runHooks(){
+  local _hookbase="$1"
+  local _exitcode="$2"
+  local _hookdir; _hookdir="$( dirname $0 )/hooks/$_hookbase"
+
+  if [ -z "$_exitcode" ]; then
+    _hookdir="$_hookdir/always"
+  elif [ "$_exitcode" = "0" ]; then
+    _hookdir="$_hookdir/on-ok"
+  else
+    _hookdir="$_hookdir/on-error"
+  fi
+  for hookscript in $( ls -1a "$_hookdir" | grep -v "^\." | sort )
+  do
+    if [ -x "$_hookdir/$hookscript" ]; then
+      echo "----- HOOK START: $_hookdir/$hookscript"
+      $_hookdir/$hookscript
+      echo "----- HOOK END  : $_hookdir/$hookscript"
+      echo
+    else
+      w "REM HOOK: SKIP $_hookdir/$hookscript (not executable)"
+    fi
+  done
+
+  # if an exitcode was given as param then run hooks without exitcode 
+  # (in subdir "always")
+  if [ -n "$_exitcode" ]; then
+    runHooks "$_hookbase"
+  fi
+}
 # ------------------------------------------------------------
 # MAIN
 # ------------------------------------------------------------
@@ -168,9 +202,6 @@ if [ -z "${MYHOST}" ]; then
 	exit 1
 fi
 
-# ------------------------------------------------------------
-# WRITE HEADER
-# ------------------------------------------------------------
 mkdir $LOGDIR 2>/dev/null
 chmod 777 $LOGDIR 2>/dev/null
 
@@ -188,6 +219,9 @@ if [ "$SINGLEJOB" != "0" ]; then
                 fi
         done
 fi
+# ------------------------------------------------------------
+# WRITE HEADER
+# ------------------------------------------------------------
 
 w "REM $line1"
 w "REM CRON WRAPPER - $MYHOST"
@@ -263,15 +297,11 @@ w REM $line1
 # MAIN
 # ------------------------------------------------------------
 rc=none
-# RETSTATUS="OK"
-eval "${CALLSCRIPT}" >"${LOGFILE}" 2>&1
+
+runHooks "before"    >"${LOGFILE}" 2>&1
+eval "${CALLSCRIPT}" >>"${LOGFILE}" 2>&1
 rc=$?
-# if [ $rc -ne 0 ]; then
-#         RETSTATUS="WARNING !!!"
-# fi
-# w "sending email..."
-# cat "${LOGFILE}" | mail -s"${EMAIL_SUBJECT} - ${LABELSTR} - $RETSTATUS" "${EMAIL_TO}"
-# w "   rc=$?"
+runHooks "after" $rc >>"${LOGFILE}" 2>&1
 
 typeset -i iEnd
 iEnd=$(date +%s)
