@@ -1,5 +1,6 @@
 # -----------------------------------------------------------------------------
 # CRONWRAPPER * config
+# see https://www.axel-hahn.de/docs/cronwrapper/Configuration.html
 # -----------------------------------------------------------------------------
 
 # ----- shared values:
@@ -10,8 +11,13 @@ LOGDIR=/var/tmp/cronlogs
 # deny multiple execution of the same job? set 0 or 1
 SINGLEJOB=1
 
+# directory with hooks
+HOOKDIR=./hooks
+
 
 # ----- for sync of local logs
+# see https://www.axel-hahn.de/docs/cronwrapper/Usage/Cronlog_Sync.html
+
 TOUCHFILE=lastsync
 TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
 SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com

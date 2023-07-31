@@ -63,6 +63,7 @@ TOUCHPART="_flag-${LABELSTR}_expire_"
 
 LOGFILE=/tmp/call_any_script_$$.log
 LOGDIR="/var/tmp/cronlogs"
+HOOKDIR=./hooks
 MYHOST=$( hostname -f )
 
 # --- log executions of the whole day
@@ -139,7 +140,7 @@ function w() {
 function runHooks(){
   local _hookbase="$1"
   local _exitcode="$2"
-  local _hookdir; _hookdir="$( dirname $0 )/hooks/$_hookbase"
+  local _hookdir; _hookdir="${HOOKDIR}/$_hookbase"
 
   if [ -z "$_exitcode" ]; then
     _hookdir="$_hookdir/always"
@@ -174,7 +175,7 @@ test -f "$( dirname $0)/cronwrapper.env" && . $( dirname $0)/cronwrapper.env
 test -f "$( dirname $0)/cronwrapper.cfg" && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh
 
-
+HOOKDIR=${HOOKDIR/./$( dirname $0 )}
 FINALOUTFILE="$LOGDIR/${MYHOST}_${LABELSTR}.log"
 JOBLOG="$LOGDIR/${JOBBLOGBASE}$(date +%a).done"
 OUTFILEBASE="$FINALOUTFILE.running"
