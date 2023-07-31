@@ -17,6 +17,9 @@ LOGDIR=/var/tmp/cronlogs
 # deny multiple execution of the same job? set 0 or 1
 SINGLEJOB=1
 
+# directory with hooks
+HOOKDIR=./hooks
+
 
 # ----- for sync of local logs
 TOUCHFILE=lastsync
@@ -38,6 +41,7 @@ Variable  | type   | description
 ---       |---     |---
 LOGDIR    | string | Ouput dir of all logfiles when using cronwrapper.<br>It is used by status script and sync script to read data from here. Default: "/var/tmp/cronlogs"
 SINGLEJOB | int    | 0 or 1; 1=deny multiple execution of the same job (default)
+HOOKDIR   | string | set an absolute directory to the hooks directory; use it if you use a created a softlink for the cronwrapper to /usr/local/bin and want to point to the real install directory; default: ./hooks
 
 For an optional rsync script to collect all logs of all servers on a central server (see [Cronlog-Sync](30_Usage/50_Cronlog-Sync.md)):
 
