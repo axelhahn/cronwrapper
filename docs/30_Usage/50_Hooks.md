@@ -37,13 +37,13 @@ You can place multiple scripts into the subdirs on-ok|on-error|always. To be exe
 
 Their order for execution is alphabetic (by using the sort command). Suggestion is to add numbers in front of a script name.
 
-## What variables you can have access..
+## What variables you can access..
 
 Your hooks maybe want to access a few information to send a notification or whatever.
 These data may help you to generate a message.
 
 | variable          | type     | description |
-|-------------------|----------|---|
+|---                |---       |---          |
 | `${CALLSCRIPT}`   | {string} | executed command line |
 | `${FINALOUTFILE}` | {string} | filename of the final logfile of the job to send as information|
 | `${LABELSTR}`     | {string} | label of the job|
