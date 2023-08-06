@@ -36,3 +36,20 @@ After execution of the scripts of “on-ok” or “on-error” folder. Then add
 You can place multiple scripts into the subdirs on-ok|on-error|always. To be executed a file must have execution permissions.
 
 Their order for execution is alphabetic (by using the sort command). Suggestion is to add numbers in front of a script name.
+
+## What variables you can have access..
+
+Your hooks maybe want to access a few information to send a notification or whatever.
+These data may help you to generate a message.
+
+| variable          | type     | description |
+|-------------------|----------|---|
+| `${CALLSCRIPT}`   | {string} | executed command line |
+| `${FINALOUTFILE}` | {string} | filename of the final logfile of the job to send as information|
+| `${LABELSTR}`     | {string} | label of the job|
+| `${MYHOST}`       | {string} | hostname|
+| `${TTL}`          | {int}    | ttl value in minutes|
+| `${iStart}`       | {int}    | Unix timestamp of the starting time|
+| `${iEnd}`         | {int}    | Unix timestamp of the ending time (for after/*/*)|
+| `${iExectime}`    | {int}    | execution time in seconds (for after/*/*)|
+| `${rc}`           | {int}    | resturncode of the failed job (for after/on-error/*)|

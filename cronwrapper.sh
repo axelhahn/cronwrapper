@@ -41,7 +41,7 @@
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
-# 2022-07-28  ahahn  1.27  add hooks
+# 2022-08-06  ahahn  1.27  add hooks
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -302,8 +302,6 @@ rc=none
 runHooks "before"    >"${LOGFILE}" 2>&1
 eval "${CALLSCRIPT}" >>"${LOGFILE}" 2>&1
 rc=$?
-runHooks "after" $rc >>"${LOGFILE}" 2>&1
-
 typeset -i iEnd
 iEnd=$(date +%s)
 w "SCRIPTENDTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iEnd"
@@ -322,6 +320,8 @@ w "REM $line1"
 echo "job=${LABELSTR}:host=$MYHOST:start=$iStart:end=$iEnd:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$JOBLOG"
 chmod 777 "$JOBLOG" 2>/dev/null
 find $LOGDIR -name "${JOBBLOGBASE}*" -type f -mtime +4 -exec rm -f {} \;
+
+runHooks "after" $rc >>"${LOGFILE}" 2>&1
 
 # ------------------------------------------------------------
 # CLEANUP UND ENDE
