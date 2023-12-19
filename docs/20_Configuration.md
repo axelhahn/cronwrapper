@@ -43,7 +43,7 @@ LOGDIR    | string | Ouput dir of all logfiles when using cronwrapper.<br>It is 
 SINGLEJOB | int    | 0 or 1; 1=deny multiple execution of the same job (default)
 HOOKDIR   | string | set an absolute directory to the hooks directory; use it if you use a created a softlink for the cronwrapper to /usr/local/bin and want to point to the real install directory; default: ./hooks
 
-For an optional rsync script to collect all logs of all servers on a central server (see [Cronlog-Sync](30_Usage/50_Cronlog-Sync.md)):
+For an optional rsync script to collect all logs of all servers on a central server (see [Cronlog-Sync](40_More/50_Cronlog-Sync.md)):
 
 Variable    | type   | description
 ---         |---     |---

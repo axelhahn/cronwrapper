@@ -63,6 +63,7 @@ Remark:
 To send an email you need to install a mailer like sendmail or postfix locally and configure it to be able to send trusted emails via your smtp gateway.
 
 Create a script as root eg. `hooks/after/on-error/send_email.sh`.
+
 Make it executable `chmod 0755 hooks/after/on-error/send_email.sh`
 
 Content of *send_email.sh*:
