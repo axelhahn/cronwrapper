@@ -41,7 +41,7 @@
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
-# 2022-08-06  ahahn  1.27  add hooks
+# 2022-12-19  ahahn  1.27  add hooks
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -49,6 +49,15 @@
 # ------------------------------------------------------------
 
 _version="1.27"
+
+SOURCE=${BASH_SOURCE[0]}
+while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  CW_DIRSELF=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+  SOURCE=$(readlink "$SOURCE")
+  [[ $SOURCE != /* ]] && SOURCE=$CW_DIRSELF/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+CW_DIRSELF=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+
 line1="--------------------------------------------------------------------------------"
 
 # --- set vars with required cli params
@@ -63,7 +72,7 @@ TOUCHPART="_flag-${LABELSTR}_expire_"
 
 LOGFILE=/tmp/call_any_script_$$.log
 LOGDIR="/var/tmp/cronlogs"
-HOOKDIR=./hooks
+HOOKDIR=${CW_DIRSELF}/hooks
 MYHOST=$( hostname -f )
 
 # --- log executions of the whole day
@@ -171,9 +180,9 @@ function runHooks(){
 # MAIN
 # ------------------------------------------------------------
 
-test -f "$( dirname $0)/cronwrapper.env" && . $( dirname $0)/cronwrapper.env
-test -f "$( dirname $0)/cronwrapper.cfg" && . $( dirname $0)/cronwrapper.cfg
-. $( dirname $0)/inc_cronfunctions.sh
+test -f "${CW_DIRSELF}/cronwrapper.env" && . "${CW_DIRSELF}/cronwrapper.env"
+test -f "${CW_DIRSELF}/cronwrapper.cfg" && . "${CW_DIRSELF}/cronwrapper.cfg"
+. "${CW_DIRSELF}/inc_cronfunctions.sh"
 
 HOOKDIR=${HOOKDIR/./$( dirname $0 )}
 FINALOUTFILE="$LOGDIR/${MYHOST}_${LABELSTR}.log"
