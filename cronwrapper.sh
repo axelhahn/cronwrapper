@@ -36,7 +36,7 @@
 # 2017-10-13  axel.hahn@iml.unibe.ch  1.19  use eval to execute multiple commands
 # 2021-02-23  ahahn  1.20  add help and parameter detection
 # 2022-01-12  ahahn  1.21  fixes based on shellcheck
-# 2022-01-14  ahahn  1.22  fix runserver check
+# 2022-01-14  ahahn  1.22  fix CW_RUNSERVER check
 # 2022-03-09  ahahn  1.23  small changes
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
@@ -203,8 +203,8 @@ CW_JOBLOG="$CW_LOGDIR/${CW_JOBBLOGBASE}$(date +%a).done"
 CW_OUTFILEBASE="$CW_FINALOUTFILE.running"
 CW_OUTFILE="$CW_OUTFILEBASE.$$"
 
-typeset -i iStart
-iStart=$(date +%s)
+typeset -i CW_TIMER_START
+CW_TIMER_START=$(date +%s)
 
 # ------------------------------------------------------------
 # CHECK PARAMS
@@ -239,7 +239,7 @@ if [ "$CW_SINGLEJOB" != "0" ]; then
                 runningProcessid=$(grep "SCRIPTPROCESS" "$otheroutfile" | cut -f 2 -d '=')
                 if [ $runningProcessid -gt 0 ]; then
                         if ps $runningProcessid >/dev/null; then
-                                echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$iStart:end=$iStart:exectime=0:ttl=${TTL}:rc=1:blockingpid=$runningProcessid" >>"$CW_JOBLOG"
+                                echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_START:exectime=0:ttl=${TTL}:rc=1:blockingpid=$runningProcessid" >>"$CW_JOBLOG"
                                 exit 1
                         fi
                 fi
@@ -255,7 +255,7 @@ w "REM $line1"
 
 w "SCRIPTNAME=${CW_CALLSCRIPT}"
 w "SCRIPTTTL=${TTL}"
-w "SCRIPTSTARTTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iStart"
+w "SCRIPTSTARTTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $CW_TIMER_START"
 w "SCRIPTLABEL=${CW_LABELSTR}"
 w "SCRIPTPROCESS=$$"
 
@@ -268,34 +268,34 @@ fi
 # CHECK: runs this job on another machine?
 # ------------------------------------------------------------
 w REM $line1
-typeset -i iExpire
-iExpire=$(date +%s)
-typeset -i iExpDelta=$(( TTL*3/2 ))
-if [ $iExpDelta -gt 60 ]; then
-        iExpDelta=60
+typeset -i CW_TIMER_EXPIRE
+CW_TIMER_EXPIRE=$(date +%s)
+typeset -i CW_TIMER_EXPIREDELTA=$(( TTL*3/2 ))
+if [ $CW_TIMER_EXPIREDELTA -gt 60 ]; then
+        CW_TIMER_EXPIREDELTA=60
 fi
 
-# let iExpire=$iExpire+$TTL*60*3/2
-iExpire=$(( iExpire+TTL*60 + iExpDelta*60 ))
+# let CW_TIMER_EXPIRE=$CW_TIMER_EXPIRE+$TTL*60*3/2
+CW_TIMER_EXPIRE=$(( CW_TIMER_EXPIRE+TTL*60 + CW_TIMER_EXPIREDELTA*60 ))
 if [ $TTL -eq 0 ]; then
-        iExpire=0
+        CW_TIMER_EXPIRE=0
 fi
 
-aLastfiles=( "${CW_LOGDIR}"/*"${CW_TOUCHPART}"* )
-lastfile=${aLastfiles[0]}
+CW_ARR_RUNFILES=( "${CW_LOGDIR}"/*"${CW_TOUCHPART}"* )
+CW_LASTFILE=${CW_ARR_RUNFILES[0]}
 
-if ls "${lastfile}" >/dev/null 2>&1; then
-        TOUCHFILE=$(basename "$lastfile")
-        typeset -i expdate
-        expdate=$(echo "$TOUCHFILE"| cut -f 4 -d "_") 2>/dev/null
-        runserver=$(echo "$TOUCHFILE" | cut -f 5 -d "_")
+if ls "${CW_LASTFILE}" >/dev/null 2>&1; then
+        CW_TOUCHFILE=$(basename "$CW_LASTFILE")
+        typeset -i CW_TIMER_EXPDATE
+        CW_TIMER_EXPDATE=$(echo "$CW_TOUCHFILE"| cut -f 4 -d "_") 2>/dev/null
+        CW_RUNSERVER=$(echo "$CW_TOUCHFILE" | cut -f 5 -d "_")
 
-        w "REM INFO: expires $expdate - $(date -d @$expdate)"
-        typeset -i timeleft=$expdate-$iStart
-        # w "REM INFO: job is locked for other servers for $timeleft more seconds"
-        if ! echo "${CW_MYHOST}" | grep -F "$runserver" >/dev/null; then
-                w "REM INFO: it locked up to $expdate by $runserver"
-                if [ $timeleft -gt 0 ]; then
+        w "REM INFO: expires $CW_TIMER_EXPDATE - $(date -d @$CW_TIMER_EXPDATE)"
+        typeset -i CW_TIMER_TIMELEFT=$CW_TIMER_EXPDATE-$CW_TIMER_START
+        # w "REM INFO: job is locked for other servers for $CW_TIMER_TIMELEFT more seconds"
+        if ! echo "${CW_MYHOST}" | grep -F "$CW_RUNSERVER" >/dev/null; then
+                w "REM INFO: it locked up to $CW_TIMER_EXPDATE by $CW_RUNSERVER"
+                if [ $CW_TIMER_TIMELEFT -gt 0 ]; then
                         w REM STOP: job is locked.
                         mv "$CW_OUTFILE" "${CW_FINALOUTFILE}"
                         exit 2
@@ -313,9 +313,9 @@ fi
 rm -f "${CW_LOGDIR}"/*"${CW_TOUCHPART}"* 2>/dev/null
 
 # -- create touchfile for this server
-touch "${CW_LOGDIR}/${CW_TOUCHPART}${iExpire}_${CW_MYHOST}"
-w JOBEXPIRE=${iExpire}
-# w REM INFO: created touchfile ${CW_TOUCHPART}${iExpire}_`hostname`
+touch "${CW_LOGDIR}/${CW_TOUCHPART}${CW_TIMER_EXPIRE}_${CW_MYHOST}"
+w JOBEXPIRE=${CW_TIMER_EXPIRE}
+# w REM INFO: created touchfile ${CW_TOUCHPART}${CW_TIMER_EXPIRE}_`hostname`
 w REM $line1
 
 # ------------------------------------------------------------
@@ -326,10 +326,10 @@ rc=none
 runHooks "before"    >"${CW_LOGFILE}" 2>&1
 eval "${CW_CALLSCRIPT}" >>"${CW_LOGFILE}" 2>&1
 rc=$?
-typeset -i iEnd
-iEnd=$(date +%s)
-w "SCRIPTENDTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iEnd"
-iExectime=$(( iEnd-iStart ))
+typeset -i CW_TIMER_END
+CW_TIMER_END=$(date +%s)
+w "SCRIPTENDTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $CW_TIMER_END"
+iExectime=$(( CW_TIMER_END-CW_TIMER_START ))
 w SCRIPTEXECTIME=$iExectime s
 w SCRIPTRC=$rc
 w "REM $line1"
@@ -338,7 +338,7 @@ sed -e 's/<[^>]*>//g' "${CW_LOGFILE}" | sed "s#^#SCRIPTOUT=#g" >>"$CW_OUTFILE"
 w "REM $line1"
 
 # write a log for execution of a cronjob
-echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$iStart:end=$iEnd:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$CW_JOBLOG"
+echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_END:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$CW_JOBLOG"
 chmod 777 "$CW_JOBLOG" 2>/dev/null
 find $CW_LOGDIR -name "${CW_JOBBLOGBASE}*" -type f -mtime +4 -exec rm -f {} \;
 
