@@ -151,7 +151,7 @@ function runHooks(){
   do
     if [ -x "$_hookdir/$hookscript" ]; then
       echo "----- HOOK START: $_hookdir/$hookscript"
-      $_hookdir/$hookscript
+      "$_hookdir/$hookscript"
       echo "----- HOOK END  : $_hookdir/$hookscript"
       echo
     else
@@ -334,8 +334,6 @@ w SCRIPTEXECTIME=$iExectime s
 w SCRIPTRC=$rc
 w "REM $line1"
 
-sed -e 's/<[^>]*>//g' "${CW_LOGFILE}" | sed "s#^#SCRIPTOUT=#g" >>"$CW_OUTFILE"
-w "REM $line1"
 
 # write a log for execution of a cronjob
 echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_END:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$CW_JOBLOG"
@@ -343,6 +341,9 @@ chmod 777 "$CW_JOBLOG" 2>/dev/null
 find $CW_LOGDIR -name "${CW_JOBBLOGBASE}*" -type f -mtime +4 -exec rm -f {} \;
 
 runHooks "after" $rc >>"${CW_LOGFILE}" 2>&1
+
+sed -e 's/<[^>]*>//g' "${CW_LOGFILE}" | sed "s#^#SCRIPTOUT=#g" >>"$CW_OUTFILE"
+w "REM $line1"
 
 # ------------------------------------------------------------
 # CLEANUP AND END
