@@ -13,7 +13,7 @@
 #
 # ------------------------------------------------------------
 # 2002-02-06  ahahn  V1.0
-# 2002-07-15         1.1   Stderr wird auch ins Logfile geschrieben
+# 2002-07-15         1.1   Stderr wird auch ins CW_LOGFILE geschrieben
 # 2002-09-17  ahahn  1.2   Email wird versendet, wenn Skript nicht
 #                          ausfuehrbar ist.
 # 2003-04-05  ahahn  1.3   show output of executed script
@@ -27,7 +27,7 @@
 # 2009-05-18  ahahn  1.10  mehr Infos zu Locking und ausfuehrendem Server im Output
 # 2010-10-19  ahahn  1.11  add JOBEXPIRE to output (to detect outdated cronjobs)
 # 2012-04-03  ahahn  1.12  Sourcen von $0.cfg fuer eigene Variablenwerte
-# 2012-04-04  ahahn  1.13  aktiver Job verwendet separates Logfile
+# 2012-04-04  ahahn  1.13  aktiver Job verwendet separates CW_LOGFILE
 # 2012-04-05  ahahn  1.14  TTL mit in der Ausgabe
 # 2012-04-13  ahahn  1.15  joblog hinzugefuegt
 # 2013-05-15  axel.hahn@iml.unibe.ch  1.16  FIRST IML VERSION
@@ -50,38 +50,26 @@
 
 _version="1.27"
 
-SOURCE=${BASH_SOURCE[0]}
-while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-  CW_DIRSELF=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
-  SOURCE=$(readlink "$SOURCE")
-  [[ $SOURCE != /* ]] && SOURCE=$CW_DIRSELF/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-CW_DIRSELF=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 
 line1="--------------------------------------------------------------------------------"
 
-# --- set vars with required cli params
-typeset -i TTL=$1 2>/dev/null
-CALLSCRIPT=$2
-LABELSTR=$3
-test -z "${LABELSTR}" && LABELSTR=$(basename "${CALLSCRIPT}" | cut -f 1 -d " " )
-
-# replace underscore (because it is used as a delimiter)
-LABELSTR=${LABELSTR//_/-}
-TOUCHPART="_flag-${LABELSTR}_expire_"
-
-LOGFILE=/tmp/call_any_script_$$.log
-LOGDIR="/var/tmp/cronlogs"
-HOOKDIR=${CW_DIRSELF}/hooks
-MYHOST=$( hostname -f )
-
-# --- log executions of the whole day
-JOBBLOGBASE=${MYHOST}_joblog_
-SINGLEJOB=1
 
 # ------------------------------------------------------------
 # FUNCTIONS
 # ------------------------------------------------------------
+
+# helper script: detect the current script path evn if it is a softlink
+# return: path of the script
+function getRealScriptPath(){
+  local _source;
+  _source=${BASH_SOURCE[0]}
+  while [ -L "$_source" ]; do # resolve $_source until the file is no longer a symlink
+  CW_DIRSELF=$( cd -P "$( dirname "$_source" )" >/dev/null 2>&1 && pwd )
+  _source=$(readlink "$_source")
+  [[ $_source != /* ]] && _source=$CW_DIRSELF/$_source # if $_source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  done
+  cd -P "$( dirname "$_source" )" >/dev/null 2>&1 && pwd
+}
 
 # show help
 # param  string  info or error message
@@ -128,7 +116,7 @@ job in error cases.
 
 OUTPUT:
 The output directory of all jobs executed by $0 is
-${LOGDIR}.
+${CW_LOGDIR}.
 The output logs are parseble with simple grep command.
 
 MONITORING:
@@ -138,9 +126,10 @@ your server monitoring.
 "
 }
 
-# helper function - append to file
+# helper function - append a line to output file
+# param  string   text to write
 function w() {
-        echo "$*" >>"$OUTFILE"
+        echo "$*" >>"$CW_OUTFILE"
 }
 
 # execute hook skripts in a given directory in alphabetic order
@@ -149,7 +138,7 @@ function w() {
 function runHooks(){
   local _hookbase="$1"
   local _exitcode="$2"
-  local _hookdir; _hookdir="${HOOKDIR}/$_hookbase"
+  local _hookdir; _hookdir="${CW_HOOKDIR}/$_hookbase"
 
   if [ -z "$_exitcode" ]; then
     _hookdir="$_hookdir/always"
@@ -176,19 +165,44 @@ function runHooks(){
     runHooks "$_hookbase"
   fi
 }
+
 # ------------------------------------------------------------
 # MAIN
 # ------------------------------------------------------------
+
+# --- set vars with required cli params
+typeset -i TTL=$1 2>/dev/null
+CW_CALLSCRIPT=$2
+CW_LABELSTR=$3
+
+test -z "${CW_LABELSTR}" && CW_LABELSTR=$(basename "${CW_CALLSCRIPT}" | cut -f 1 -d " " )
+
+CW_DIRSELF=$( getRealScriptPath )
+
+# replace underscore (because it is used as a delimiter)
+CW_LABELSTR=${CW_LABELSTR//_/-}
+CW_TOUCHPART="_flag-${CW_LABELSTR}_expire_"
+
+CW_LOGFILE=/tmp/call_any_script_$$.log
+CW_LOGDIR="/var/tmp/cronlogs"
+CW_HOOKDIR=${CW_DIRSELF}/hooks
+CW_MYHOST=$( hostname -f )
+
+# --- log executions of the whole day
+CW_JOBBLOGBASE=${CW_MYHOST}_joblog_
+CW_SINGLEJOB=1
+
 
 test -f "${CW_DIRSELF}/cronwrapper.env" && . "${CW_DIRSELF}/cronwrapper.env"
 test -f "${CW_DIRSELF}/cronwrapper.cfg" && . "${CW_DIRSELF}/cronwrapper.cfg"
 . "${CW_DIRSELF}/inc_cronfunctions.sh"
 
-HOOKDIR=${HOOKDIR/./$( dirname $0 )}
-FINALOUTFILE="$LOGDIR/${MYHOST}_${LABELSTR}.log"
-JOBLOG="$LOGDIR/${JOBBLOGBASE}$(date +%a).done"
-OUTFILEBASE="$FINALOUTFILE.running"
-OUTFILE="$OUTFILEBASE.$$"
+CW_HOOKDIR=${CW_HOOKDIR/./$( dirname $0 )}
+CW_FINALOUTFILE="$CW_LOGDIR/${CW_MYHOST}_${CW_LABELSTR}.log"
+CW_JOBLOG="$CW_LOGDIR/${CW_JOBBLOGBASE}$(date +%a).done"
+CW_OUTFILEBASE="$CW_FINALOUTFILE.running"
+CW_OUTFILE="$CW_OUTFILEBASE.$$"
+
 typeset -i iStart
 iStart=$(date +%s)
 
@@ -207,47 +221,48 @@ if [ $TTL -eq 0 ]; then
 	showhelp "ERROR: TTL must be integer and greater zero."
 	exit 1
 fi
-if [ -z "${MYHOST}" ]; then
+if [ -z "${CW_MYHOST}" ]; then
 	showhelp "ERROR: hostname -f did not return any hostname."
 	exit 1
 fi
 
-mkdir $LOGDIR 2>/dev/null
-chmod 777 $LOGDIR 2>/dev/null
+mkdir $CW_LOGDIR 2>/dev/null
+chmod 777 $CW_LOGDIR 2>/dev/null
 
+# ------------------------------------------------------------
 # prevent multiple execution ... if configured
-if [ "$SINGLEJOB" != "0" ]; then
-        for otheroutfile in $( ls -1 $OUTFILEBASE.* 2>/dev/null )
+# ------------------------------------------------------------
+if [ "$CW_SINGLEJOB" != "0" ]; then
+        for otheroutfile in $( ls -1 $CW_OUTFILEBASE.* 2>/dev/null )
         do
                 typeset -i runningProcessid; 
                 runningProcessid=$(grep "SCRIPTPROCESS" "$otheroutfile" | cut -f 2 -d '=')
                 if [ $runningProcessid -gt 0 ]; then
                         if ps $runningProcessid >/dev/null; then
-                                echo "job=${LABELSTR}:host=$MYHOST:start=$iStart:end=$iStart:exectime=0:ttl=${TTL}:rc=1:blockingpid=$runningProcessid" >>"$JOBLOG"
+                                echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$iStart:end=$iStart:exectime=0:ttl=${TTL}:rc=1:blockingpid=$runningProcessid" >>"$CW_JOBLOG"
                                 exit 1
                         fi
                 fi
         done
 fi
+
 # ------------------------------------------------------------
 # WRITE HEADER
 # ------------------------------------------------------------
-
 w "REM $line1"
-w "REM CRON WRAPPER - $MYHOST"
+w "REM CRON WRAPPER - $CW_MYHOST"
 w "REM $line1"
 
-w "SCRIPTNAME=${CALLSCRIPT}"
+w "SCRIPTNAME=${CW_CALLSCRIPT}"
 w "SCRIPTTTL=${TTL}"
 w "SCRIPTSTARTTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iStart"
-w "SCRIPTLABEL=${LABELSTR}"
+w "SCRIPTLABEL=${CW_LABELSTR}"
 w "SCRIPTPROCESS=$$"
 
-if [ -z "${CALLSCRIPT}" ]; then
+if [ -z "${CW_CALLSCRIPT}" ]; then
         w "REM STOP: no script was found. check syntax for $(basename $0)"
         exit 1
 fi
-
 
 # ------------------------------------------------------------
 # CHECK: runs this job on another machine?
@@ -266,7 +281,7 @@ if [ $TTL -eq 0 ]; then
         iExpire=0
 fi
 
-aLastfiles=( "${LOGDIR}"/*"${TOUCHPART}"* )
+aLastfiles=( "${CW_LOGDIR}"/*"${CW_TOUCHPART}"* )
 lastfile=${aLastfiles[0]}
 
 if ls "${lastfile}" >/dev/null 2>&1; then
@@ -278,11 +293,11 @@ if ls "${lastfile}" >/dev/null 2>&1; then
         w "REM INFO: expires $expdate - $(date -d @$expdate)"
         typeset -i timeleft=$expdate-$iStart
         # w "REM INFO: job is locked for other servers for $timeleft more seconds"
-        if ! echo "${MYHOST}" | grep -F "$runserver" >/dev/null; then
+        if ! echo "${CW_MYHOST}" | grep -F "$runserver" >/dev/null; then
                 w "REM INFO: it locked up to $expdate by $runserver"
                 if [ $timeleft -gt 0 ]; then
                         w REM STOP: job is locked.
-                        mv "$OUTFILE" "${FINALOUTFILE}"
+                        mv "$CW_OUTFILE" "${CW_FINALOUTFILE}"
                         exit 2
                 else
                         w REM INFO: OK, job is expired
@@ -295,49 +310,46 @@ else
 fi
 
 # -- delete all touchfiles of this job
-rm -f "${LOGDIR}"/*"${TOUCHPART}"* 2>/dev/null
+rm -f "${CW_LOGDIR}"/*"${CW_TOUCHPART}"* 2>/dev/null
 
 # -- create touchfile for this server
-touch "${LOGDIR}/${TOUCHPART}${iExpire}_${MYHOST}"
+touch "${CW_LOGDIR}/${CW_TOUCHPART}${iExpire}_${CW_MYHOST}"
 w JOBEXPIRE=${iExpire}
-# w REM INFO: created touchfile ${TOUCHPART}${iExpire}_`hostname`
+# w REM INFO: created touchfile ${CW_TOUCHPART}${iExpire}_`hostname`
 w REM $line1
 
 # ------------------------------------------------------------
-# MAIN
+# EXECUTE
 # ------------------------------------------------------------
 rc=none
 
-runHooks "before"    >"${LOGFILE}" 2>&1
-eval "${CALLSCRIPT}" >>"${LOGFILE}" 2>&1
+runHooks "before"    >"${CW_LOGFILE}" 2>&1
+eval "${CW_CALLSCRIPT}" >>"${CW_LOGFILE}" 2>&1
 rc=$?
 typeset -i iEnd
 iEnd=$(date +%s)
 w "SCRIPTENDTIME=$( date '+%Y-%m-%d %H:%M:%S' ), $iEnd"
 iExectime=$(( iEnd-iStart ))
 w SCRIPTEXECTIME=$iExectime s
-
 w SCRIPTRC=$rc
-
-
 w "REM $line1"
 
-sed -e 's/<[^>]*>//g' "${LOGFILE}" | sed "s#^#SCRIPTOUT=#g" >>"$OUTFILE"
+sed -e 's/<[^>]*>//g' "${CW_LOGFILE}" | sed "s#^#SCRIPTOUT=#g" >>"$CW_OUTFILE"
 w "REM $line1"
 
 # write a log for execution of a cronjob
-echo "job=${LABELSTR}:host=$MYHOST:start=$iStart:end=$iEnd:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$JOBLOG"
-chmod 777 "$JOBLOG" 2>/dev/null
-find $LOGDIR -name "${JOBBLOGBASE}*" -type f -mtime +4 -exec rm -f {} \;
+echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$iStart:end=$iEnd:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$CW_JOBLOG"
+chmod 777 "$CW_JOBLOG" 2>/dev/null
+find $CW_LOGDIR -name "${CW_JOBBLOGBASE}*" -type f -mtime +4 -exec rm -f {} \;
 
-runHooks "after" $rc >>"${LOGFILE}" 2>&1
+runHooks "after" $rc >>"${CW_LOGFILE}" 2>&1
 
 # ------------------------------------------------------------
-# CLEANUP UND ENDE
+# CLEANUP AND END
 # ------------------------------------------------------------
-rm -f "${LOGFILE}"
+rm -f "${CW_LOGFILE}"
 w "REM $0 finished at $(date)"
-mv "${OUTFILE}" "${FINALOUTFILE}"
+mv "${CW_OUTFILE}" "${CW_FINALOUTFILE}"
 
 # ------------------------------------------------------------
 # EOF
