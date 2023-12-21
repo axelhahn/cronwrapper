@@ -91,7 +91,9 @@ function showStatus(){
         if [ -n "$_showlog" ]; then
                 cat "$logfile" \
                         | sed -e "s/^REM.*/$( printf "\033[0;36m&\033[0m" )/g" \
-                                -e "s/^.*=/$( printf "\033[0;35m&\033[0m" )/g" \
+                                -e "s/^[A-Z]*/$( printf "\033[0;35m&\033[0m" )/g" \
+                                -e "s/=/$( printf "\033[0;32m&\033[0m" )/g" \
+                                -e "s/----- HOOK.*$/$( printf "\033[0;36m&\033[0m" )/g" \
                                 -e "s/^/    /g"
                 echo
         fi
