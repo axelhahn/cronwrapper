@@ -48,7 +48,7 @@
 # CONFIG
 # ------------------------------------------------------------
 
-_version="1.27"
+_version="2.0-WIP"
 
 
 line1="--------------------------------------------------------------------------------"
@@ -136,34 +136,34 @@ function w() {
 # param  string   name of hook directory
 # param  string   optional: integer of existcode or "" for non-on-result hook
 function runHooks(){
-  local _hookbase="$1"
-  local _exitcode="$2"
-  local _hookdir; _hookdir="${CW_HOOKDIR}/$_hookbase"
+        local _hookbase="$1"
+        local _exitcode="$2"
+        local _hookdir; _hookdir="${CW_HOOKDIR}/$_hookbase"
 
-  if [ -z "$_exitcode" ]; then
-    _hookdir="$_hookdir/always"
-  elif [ "$_exitcode" = "0" ]; then
-    _hookdir="$_hookdir/on-ok"
-  else
-    _hookdir="$_hookdir/on-error"
-  fi
-  for hookscript in $( ls -1a "$_hookdir" | grep -v "^\." | sort )
-  do
-    if [ -x "$_hookdir/$hookscript" ]; then
-      echo "----- HOOK START: $_hookdir/$hookscript"
-      "$_hookdir/$hookscript"
-      echo "----- HOOK END  : $_hookdir/$hookscript"
-      echo
-    else
-      w "REM HOOK: SKIP $_hookdir/$hookscript (not executable)"
-    fi
-  done
+        if [ -z "$_exitcode" ]; then
+                _hookdir="$_hookdir/always"
+        elif [ "$_exitcode" = "0" ]; then
+                _hookdir="$_hookdir/on-ok"
+        else
+                _hookdir="$_hookdir/on-error"
+        fi
+        for hookscript in $( ls -1a "$_hookdir" | grep -v "^\." | sort )
+        do
+                if [ -x "$_hookdir/$hookscript" ]; then
+                        echo "----- HOOK START: $_hookdir/$hookscript"
+                        "$_hookdir/$hookscript"
+                        echo "----- HOOK END  : $_hookdir/$hookscript"
+                        echo
+                else
+                        w "REM HOOK: SKIP $_hookdir/$hookscript (not executable)"
+                fi
+        done
 
-  # if an exitcode was given as param then run hooks without exitcode 
-  # (in subdir "always")
-  if [ -n "$_exitcode" ]; then
-    runHooks "$_hookbase"
-  fi
+        # if an exitcode was given as param then run hooks without exitcode 
+        # (in subdir "always")
+        if [ -n "$_exitcode" ]; then
+                runHooks "$_hookbase"
+        fi
 }
 
 # ------------------------------------------------------------
@@ -226,7 +226,7 @@ if [ -z "${CW_MYHOST}" ]; then
 	exit 1
 fi
 
-mkdir $CW_LOGDIR 2>/dev/null
+test -d $CW_LOGDIR || mkdir $CW_LOGDIR 2>/dev/null
 chmod 777 $CW_LOGDIR 2>/dev/null
 
 # ------------------------------------------------------------
