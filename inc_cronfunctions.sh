@@ -1,3 +1,4 @@
+#!/bin/bash
 # ======================================================================
 # 
 # INCLUDE file with shared functions
@@ -7,6 +8,7 @@
 # ----------------------------------------------------------------------
 # 2022-03-09  ahahn  added cw.* functions; others marked as deprecated
 # 2022-05-18  ahahn  update cw.lock
+# 2023-12-29  ahahn  remove deprecated functions; shellfixes
 # ======================================================================
 
 # Handling of exitocdes
@@ -18,83 +20,13 @@ export CW_timer_start
 export CW_lockfile
 
 # ----------------------------------------------------------------------
-# deprecated functions witout "cw." prefix
-# ----------------------------------------------------------------------
-
-# draw a message for deprecated warning
-# param  string  name of deprecated function
-# param  string  text for replacement
-function cw._isDeprecated(){
-        local _fkt
-        _fkt=$1
-        shift 1
-        cw.cecho warning "WARNING: function $_fkt() is DEPRECATED. Replace it with <$*>."
-}
-
-# DEPRECATED
-# vom Remoteserver eine Liste von Verzeichnissen holen
-# Params: Server  Zielverzeichnis lokal  Liste der Verzeichnisse (remote)
-function getRemoteFiles(){
-
-        cw._isDeprecated "${FUNCNAME[0]}" "a self written function"
-
-        srvSource=$1
-        targetDir=$2
-        shift 2
-
-        dirlist=$*
-
-        echo "--- ${srvSource} - to $targetDir"
-        mkdir -p "${targetDir}"
-
-        for mydir in $dirlist
-        do
-                echo -n "${mydir} "
-                rsync -a "${srvSource}:${mydir}" "${targetDir}"
-                fetchRc
-        done
-        echo
-
-}
-
-# DEPRECATED
-function color(){
-        cw.color $*
-        cw._isDeprecated "${FUNCNAME[0]}" "cw.color"
-}
-
-# DEPRECATED
-function cecho(){
-        cw.cecho $*
-        cw._isDeprecated "${FUNCNAME[0]}" "cw.cecho"
-}
-
-# DEPRECATED
-# ein Kommando ausfuehren und returncode ausgeben und auf rcAll aufsummieren
-function exec2() {
-        cw._isDeprecated "${FUNCNAME[0]}" "cw.exec"
-        cw.exec $*
-}
-
-# DEPRECATED
-# get last exitcode and store it in global var $rc
-function fetchRc(){
-        cw.fetchRc
-        cw._isDeprecated "${FUNCNAME[0]}" "cw.fetchRc"
-}
-
-# DEPRECATED
-function quit(){
-        cw._isDeprecated "${FUNCNAME[0]}" "cw.quit"
-        cw.quit $*
-}
-
-# ----------------------------------------------------------------------
 
 # show help for available cw.* functions
 # no parameter required
 function cw.help(){
         local _self="${BASH_SOURCE[0]}"
+        local _linestart; typeset -i _linestart
+        local _iLine; typeset -i _iLine
 
         echo
         cw.cecho head "HELP FOR CRONWRAPPER FUNCTIONS"
@@ -103,10 +35,9 @@ function cw.help(){
         grep "^function\ cw\.[a-z][a-z]*" "$_self" | cut -f 2 -d " " | cut -f 1 -d '(' | sort | while read -r fktname
         do 
                 cw.cecho cmd "$fktname"
-                typeset -i local _linestart
+                
                 _linestart=$( grep -En "function\ $fktname\ *\(" "$_self" | cut -f 1 -d ':' )
 
-                typeset -i local _iLine
                 _iLine=$_linestart-1
                 while [ $_iLine -gt 0 ]; do
                         line="$( sed -n ${_iLine},${_iLine}p $_self )"
@@ -156,9 +87,9 @@ function cw.exec() {
 # cw.randomsleep 60     sleeps for a random time between 0..60 sec
 # cw.randomsleep 60 30  sleeps for a random time between 30..90 sec
 function cw.randomsleep(){
-        typeset -i local _iRnd=$1
-        typeset -i local _iMintime=$2
-        typeset -i local _iSleep=$(($RANDOM%$_iRnd+$_iMintime))
+        local _iRnd; typeset -i _iRnd=$1
+        local _iMintime; typeset -i _iMintime=$2
+        local _iSleep; typeset -i _iSleep=$(($RANDOM%$_iRnd+$_iMintime))
         echo Sleeping for $_iSleep sec ...
         sleep $_iSleep
 }
@@ -166,13 +97,13 @@ function cw.randomsleep(){
 # get time in sec and milliseconds since start
 # no parameter is required
 function cw.timer(){
-        local timer_end=$( date +%s.%N ) 
-        local totaltime=$( awk "BEGIN {print $timer_end - $CW_timer_start }" )
+        local timer_end; timer_end=$( date +%s.%N ) 
+        local totaltime; totaltime=$( awk "BEGIN {print $timer_end - $CW_timer_start }" )
 
-        local sec_time=$( echo $totaltime | cut -f 1 -d "." )
+        local sec_time; sec_time=$( echo $totaltime | cut -f 1 -d "." )
         test -z "$sec_time" && sec_time=0 
         
-        local ms_time=$( echo $totaltime | cut -f 2 -d "." | cut -c 1-3 )
+        local ms_time; ms_time=$( echo $totaltime | cut -f 2 -d "." | cut -c 1-3 )
         
         echo "$sec_time.$ms_time sec"
 } 
