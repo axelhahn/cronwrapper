@@ -15,6 +15,7 @@
 # 2023-05-22  ahahn  1.7  show running jobs
 # 2023-07-14  ahahn  1.8  add support for REQUIREFQDN
 # 2023-07-14  ahahn  1.9  added check if process still runs
+# 2024-01-04  ahahn  1.10 update error messages
 # ------------------------------------------------------------
 
 _version=1.9
@@ -133,7 +134,7 @@ function showStatus(){
         statusRc="${statusOK}"
         if [ $rc -ne 0 ]; then
                 iErr+=1
-                statusRc="<<<<<<<<<< ${statusERROR}"
+                statusRc="<<<<<<<<<< ${statusERROR}: non zero exit code"
         fi
 
         # ----- check ttl value
@@ -167,7 +168,7 @@ function showStatus(){
         # ----- check expire
         statusExpire="$(date -d @$iJobExpire '+%Y-%m-%d %H:%M:%S')"
         if [ $iJobExpire -lt $iMaxAge ]; then
-                statusExpire="${statusExpire} <<<<<<<<<< ${statusERROR}"
+                statusExpire="${statusExpire} <<<<<<<<<< ${statusERROR}: Expired"
                 iErr+=1
         else
                 statusExpire="${statusExpire} ${statusOK}"
@@ -224,21 +225,21 @@ function showRunningJobs(){
 
                         echo
                         cw.cecho "head" "${sPre}--- for $iSince min - $logfile"
-                        echo "${sPre}${sPre}command   : ${sCmd}"
-                        echo "${sPre}${sPre}last start: ${sLastStart}"
-                        echo "${sPre}${sPre}ttl       : ${iTTL} min"
-
                         typeset -i iPid; iPid=$(getLogValue SCRIPTPROCESS)
                         if [ $iPid -gt 0 ]; then
                                 # detect process id and check if it is still running
                                 if ps $iPid >/dev/null 2>&1; then
                                         cw.cecho "ok" "${sPre}${sPre}OK - still running"
                                 else
-                                        cw.cecho "error" "${sPre}${sPre}ERROR: The process $iPid does not exist anymore."
+                                        cw.cecho "error" "${sPre}${sPre}ERROR     : The process $iPid does not exist anymore."
+                                        cw.cecho "error" "${sPre}${sPre}            Check the log file and delete it."
                                         iErr+=1
                                 fi
                         fi
 
+                        echo "${sPre}${sPre}command   : ${sCmd}"
+                        echo "${sPre}${sPre}last start: ${sLastStart}"
+                        echo "${sPre}${sPre}ttl       : ${iTTL} min"
                 done
         else
                 echo
