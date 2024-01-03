@@ -80,9 +80,9 @@ $line1
 AXELS CRONWRAPPER v $_version
 Puts control and comfort to cronjobs.
 
-source: https://github.com/axelhahn/cronwrapper
-docs: https://www.axel-hahn.de/docs/cronwrapper/
-license: GNU GPL 3.0
+    Source : https://github.com/axelhahn/cronwrapper
+    Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+    License: GNU GPL 3.0
 
 $line1
 
@@ -323,7 +323,7 @@ w REM $line1
 # ------------------------------------------------------------
 rc=none
 
-runHooks "before"    >"${CW_LOGFILE}" 2>&1
+runHooks "before"       > "${CW_LOGFILE}" 2>&1
 eval "${CW_CALLSCRIPT}" >>"${CW_LOGFILE}" 2>&1
 rc=$?
 typeset -i CW_TIMER_END
