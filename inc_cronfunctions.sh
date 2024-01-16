@@ -128,7 +128,7 @@ function cw.quit(){
 # param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
 #
 # Example:
-# color cmd
+# cw.color cmd
 # ls -l 
 # color reset
 function cw.color(){

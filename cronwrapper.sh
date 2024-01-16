@@ -41,7 +41,7 @@
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
-# 2022-12-19  ahahn  1.27  add hooks
+# 2024-01-??  ahahn  2.0   add hooks
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -52,7 +52,7 @@ _version="2.0-WIP"
 
 
 line1="--------------------------------------------------------------------------------"
-
+. $( dirname $0)/inc_cronfunctions.sh
 
 # ------------------------------------------------------------
 # FUNCTIONS
@@ -76,53 +76,61 @@ function getRealScriptPath(){
 function showhelp(){
 echo "
 $line1
+                                                                             | 
+    A  X  E  L  S                                                          -- --
+   ______                        ________                                    |
+  |      |.----.-----.-----.    |  |  |  |.----.---.-.-----.-----.-----.----.
+  |   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
+  |______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
+                                                     |__|  |__|
+$( printf "%76s" "v $_version" )
 
-AXELS CRONWRAPPER v $_version
-Puts control and comfort to cronjobs.
+  Puts control and comfort to cronjobs.
 
-    Source : https://github.com/axelhahn/cronwrapper
-    Docs   : https://www.axel-hahn.de/docs/cronwrapper/
-    License: GNU GPL 3.0
+  Source : https://github.com/axelhahn/cronwrapper
+  Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+  License: GNU GPL 3.0
 
 $line1
 
-$1
+$(cw.color error)$1$(cw.color reset)
 
 SYNTAX: $0 TTL COMMAND [LABEL]
 
 PARAMETERS:
-    TTL       integer value in [min]
-              This value says how often your cronjob runs. It is used to verify
-              if a cronjob is out of date / does not run anymore.
-              As a fast help a few values:
-                60   - 1 hour
-                1440 - 1 day
 
-    COMMAND   command to execute
-              When using spaces or parameters then quote it.
-              Be strict: if your job is ok then exit wit returncode 0.
-              If an error occurs exit with returncode <> 0.
-
-    LABEL     optional: label to be used as output filename
-              If not set it will be detected from basename of executed command.
-              When you start a script with different parameters it is highly
-              recommended to set the label.
+  TTL     integer value in [min]
+          This value says how often your cronjob runs. It is used to verify
+          if a cronjob is out of date / does not run anymore.
+          As a fast help a few values:
+          60   - 1 hour
+          1440 - 1 day
+  
+  COMMAND command to execute
+          When using spaces or parameters then quote it.
+          Be strict: if your job is ok then exit wit returncode 0.
+          If an error occurs exit with returncode <> 0.
+  
+  LABEL   optional: label to be used as output filename
+          If not set it will be detected from basename of executed command.
+          When you start a script with different parameters it is highly
+          recommended to set the label.
 
 REMARK:
-You don't need to redirect the output in a cron config file. STDOUT and
-STDERR will be fetched automaticly. 
-It also means: Generate as much output as you want and want to have to debug a
-job in error cases.
+  You don't need to redirect the output in a cron config file. STDOUT and
+  STDERR will be fetched automaticly. 
+  It also means: Generate as much output as you want and want to have to debug
+  a job in error cases.
 
 OUTPUT:
-The output directory of all jobs executed by $0 is
-${CW_LOGDIR}.
-The output logs are parseble with simple grep command.
+  The output directory of all jobs executed by $0 is
+  ${CW_LOGDIR}.
+  The output logs are parseble with simple grep command.
 
 MONITORING:
-You can run $(dirname $0)/cronstatus.sh to get a list of all cronjobs and its
-status. Check its source. Based on its logic you can create a check script for
-your server monitoring.
+  You can run $(dirname $0)/cronstatus.sh to get a list of all cronjobs and 
+  its status. Check its source. Based on its logic you can create a check 
+  script for your server monitoring.
 "
 }
 
