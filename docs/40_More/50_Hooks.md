@@ -42,18 +42,18 @@ Their order for execution is alphabetic (by using the sort command). Suggestion 
 Your hooks maybe want to access a few information to send a notification or whatever.
 These data may help you to generate a message.
 
-| variable     | type     | description |
-|---           |---       |---          |
-| CALLSCRIPT   | {string} | executed command line |
-| FINALOUTFILE | {string} | filename of the final logfile of the job to send as information |
-| LABELSTR     | {string} | label of the job|
-| OUTFILE      | {string} | filename of the still running cronjob (for after/*/*); you can grep its content eg. "^SCRIPTOUT=" (see Output)  |
-| MYHOST       | {string} | hostname|
-| TTL          | {int}    | ttl value in minutes|
-| iStart       | {int}    | Unix timestamp of the starting time|
-| iEnd         | {int}    | Unix timestamp of the ending time (for after/*/*)|
-| iExectime    | {int}    | execution time in seconds (for after/*/*)|
-| rc           | {int}    | resturncode of the failed job (for after/on-error/*)|
+| variable        | type     | description |
+|---              |---       |---          |
+| CW_CALLSCRIPT   | {string} | executed command line |
+| CW_FINALOUTFILE | {string} | filename of the final logfile of the job to send as information |
+| CW_LABELSTR     | {string} | label of the job|
+| CW_OUTFILE      | {string} | filename of the still running cronjob (for after/*/*); you can grep its content eg. "^SCRIPTOUT=" (see Output)  |
+| CW_MYHOST       | {string} | hostname|
+| CW_TIMER_START  | {int}    | Unix timestamp of the starting time|
+| CW_TIMER_END    | {int}    | Unix timestamp of the ending time (for after/*/*)|
+| TTL             | {int}    | ttl value in minutes|
+| iExectime       | {int}    | execution time in seconds (for after/*/*)|
+| rc              | {int}    | resturncode of the failed job (for after/on-error/*)|
 
 ## Example
 
@@ -72,7 +72,7 @@ Content of *send_email.sh*:
 #!/bin/bash
 
 TO=sysadmin@example.com
-SUBJECT="Cronjob on ${MYHOST} - ${LABELSTR} failed with rc=${rc}"
+SUBJECT="Cronjob on ${CW_MYHOST} - ${CW_LABELSTR} failed with rc=${rc}"
 
 cat "${OUTFILE}" | mail -s "${SUBJECT}" ${TO}
 ```
