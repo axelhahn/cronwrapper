@@ -16,11 +16,15 @@
 # 2023-07-14  ahahn  1.8  add support for REQUIREFQDN
 # 2023-07-14  ahahn  1.9  added check if process still runs
 # 2024-01-04  ahahn  1.10 update error messages
+# 2024-01-17  ahahn  1.11 update help; use cw.emoji
 # ------------------------------------------------------------
 
-_version=1.9
+_version=1.11
 
+CW_LABELSTR=
+CW_LOGFILE=
 LOGDIR=/var/tmp/cronlogs
+
 typeset -i REQUIREFQDN=0
 # outfile=/tmp/cronjob_status.$$.tmp
 # outfile=/tmp/cronjob_status.tmp
@@ -42,14 +46,19 @@ sPre="    "
 
 # get a value from logfile (everything behind "=")
 # param: label
-# global: $logfile
+# global: $CW_LOGFILE
 function getLogValue(){
-        grep "^$1=" "$logfile" | cut -f 2- -d "="
+        grep "^$1=" "$CW_LOGFILE" | cut -f 2- -d "="
 }
 
 # get logfiles of all cronwrapper cronjobs
 function getLogfiles(){
         ls -1t "$LOGDIR"/*log | grep -Fv "/__"        
+}
+
+# get logfiles of all cronwrapper cronjobs
+function _getLabel(){
+        echo "$1" | rev | cut -f 1- -d '/' | rev | cut -f 2- -d '_' | sed "s,\.log,,"
 }
 
 # get logfiles of all cronwrapper cronjobs
@@ -62,35 +71,53 @@ function getRunningfiles(){
 function showhelp(){
         local _self="$( basename $0 )"
 echo "
-SYNTAX: $_self [OPTIONS|LOGFILE]
 
-OPTIONS:
-    -h       show this help and exit.
+Show the status of all local cronjobs that use the cronwrapper or a single job
+by giving its logfile as parameter.
 
-PARAMETERS:
-    LOGFILE  filename to show details of a single logfile
-             Default: without any logfile you get a total overview of all 
-             cronjobs.
-EXAMPLES:
-    $_self
-             show total overview over all jobs
+..... $( cw.emoji "✨" )SYNTAX:
 
-    $_self $LOGDIR/myjobfile.log
-             show output of a single job
+  $_self [OPTIONS|LOGFILE]
+
+
+..... $( cw.emoji "🔧" )OPTIONS:
+
+  -h       show this help and exit.
+
+
+..... $( cw.emoji "🏷️" )PARAMETERS:
+
+  LOGFILE  filename to show details of a single logfile
+           Default: without any logfile you get a total overview of all 
+           cronjobs.
+
+
+..... $( cw.emoji "🧩" )EXAMPLES:
+
+  $_self
+           show total overview over all jobs
+
+  $_self $LOGDIR/myjobfile.log
+           show output of a single job
 "
 }
 
 # show status of a single sob
-# param  string  filename of cronwrapper logfile
+# param  string  filename of cronwrapper logfile OR label of cronjob
 # param  bool    flag: show logfile content; default: empty (=do not sohow log)
 function showStatus(){
-        logfile="$1"
-        local _showlog="$2"
+        local _label="$1"
+        test -f "$_label" && CW_LOGFILE="$_label"
+        test -f "$_label" || CW_LOGFILE="$CW_LOGDIR/$( hostname -f )_${_label}.log"
+
+        CW_LABELSTR=$( _getLabel "$CW_LOGFILE")
+                local _showlog="$2"
         echo
-        cw.cecho "head" "--- $logfile"
+        cw.cecho "head" "..... $( cw.emoji "📔" )$CW_LABELSTR"
         echo
+        echo "    Logfile   : $CW_LOGFILE"
         if [ -n "$_showlog" ]; then
-                cat "$logfile" \
+                cat "$CW_LOGFILE" \
                         | sed -e "s/^REM.*/$( printf "\033[0;36m&\033[0m" )/g" \
                                 -e "s/^[A-Z]*/$( printf "\033[0;35m&\033[0m" )/g" \
                                 -e "s/=/$( printf "\033[0;32m&\033[0m" )/g" \
@@ -100,8 +127,8 @@ function showStatus(){
         fi
         typeset -i iErr=0
 
-        # server=$(basename "$logfile" | cut -f 1 -d "_")
-        # jobname=$(basename "$logfile" | cut -f 2 -d "_" | sed "s#\.log##")
+        # server=$(basename "$CW_LOGFILE" | cut -f 1 -d "_")
+        # jobname=$(basename "$CW_LOGFILE" | cut -f 2 -d "_" | sed "s#\.log##")
 
         sCmd=$(getLogValue SCRIPTNAME)
         sLastStart=$(getLogValue SCRIPTSTARTTIME)
@@ -117,7 +144,7 @@ function showStatus(){
         sTTL=$(getLogValue 'SCRIPTTTL')
 
         # ----- check return code
-        sServer=$(basename "$logfile" | cut -f 1 -d "_")
+        sServer=$(basename "$CW_LOGFILE" | cut -f 1 -d "_")
         sFqdnCheck=
         sServerCheck=
 
@@ -126,7 +153,7 @@ function showStatus(){
                 iErr+=1
         fi
         if test "${sCurrentServer}" != "$sServer"; then
-                sServerCheck="WARNING   : hostname -f returns [${sCurrentServer}] ... and differs to [$sServer] from logfile."
+                sServerCheck="WARNING   : hostname -f returns [${sCurrentServer}] ... and differs to [$sServer] from CW_LOGFILE."
                 iErr+=1
         fi
 
@@ -193,11 +220,12 @@ function showStatus(){
 
 
         if [ $iErr -gt 0 ]; then
-                cw.cecho "error" "${sPre}CHECK FAILED"
+                cw.cecho "error" "${sPre}$( cw.emoji "❌" )CHECK FAILED"
                 iErrJobs=$iErrJobs+1
         else
-                cw.cecho "ok" "${sPre}CHECK OK"
+                cw.cecho "ok" "${sPre}$( cw.emoji "✔️" )CHECK OK"
         fi
+        echo
 }
 
 # show running jobs
@@ -212,7 +240,7 @@ function showRunningJobs(){
                 echo
                 echo "CURRENTLY RUNNING JOBS:"
 
-                for logfile in $( getRunningfiles )
+                for CW_LOGFILE in $( getRunningfiles )
                 do
                         sCmd=$(getLogValue SCRIPTNAME)
                         sLastStart=$(getLogValue SCRIPTSTARTTIME)
@@ -224,14 +252,14 @@ function showRunningJobs(){
                         fi
 
                         echo
-                        cw.cecho "head" "${sPre}--- for $iSince min - $logfile"
+                        cw.cecho "head" "${sPre}..... for $iSince min - $( cw.emoji "📔" )$CW_LOGFILE"
                         typeset -i iPid; iPid=$(getLogValue SCRIPTPROCESS)
                         if [ $iPid -gt 0 ]; then
                                 # detect process id and check if it is still running
                                 if ps $iPid >/dev/null 2>&1; then
                                         cw.cecho "ok" "${sPre}${sPre}OK - still running"
                                 else
-                                        cw.cecho "error" "${sPre}${sPre}ERROR     : The process $iPid does not exist anymore."
+                                        cw.cecho "error" "${sPre}${sPre}ERROR     : The process $iPid does not exist anymore. The job was aborted."
                                         cw.cecho "error" "${sPre}${sPre}            Check the log file and delete it."
                                         iErr+=1
                                 fi
@@ -240,6 +268,7 @@ function showRunningJobs(){
                         echo "${sPre}${sPre}command   : ${sCmd}"
                         echo "${sPre}${sPre}last start: ${sLastStart}"
                         echo "${sPre}${sPre}ttl       : ${iTTL} min"
+                        echo
                 done
         else
                 echo
@@ -269,8 +298,8 @@ sCurrentServer=$(hostname -f)
 cat <<ENDOFHEAD
 ____________________________________________________________________________________
 
-CRONJOBS on [$( hostname -f )]
-______________________________________________________________________________/ v$_version
+  AXELS CRONWRAPPER - Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
+_____________________________________________________________________________/ v$_version
 ENDOFHEAD
 
 if [ "$1" = "-h" ]; then

@@ -41,7 +41,7 @@
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
-# 2024-01-??  ahahn  2.0   add hooks
+# 2024-01-23  ahahn  2.0   add hooks; update help; use cw.emoji
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -74,7 +74,7 @@ function getRealScriptPath(){
 # show help
 # param  string  info or error message
 function showhelp(){
-echo "
+cat <<ENDOFHELP
 $line1
                                                                              | 
     A  X  E  L  S                                                          -- --
@@ -87,17 +87,19 @@ $( printf "%76s" "v $_version" )
 
   Puts control and comfort to cronjobs.
 
-  Source : https://github.com/axelhahn/cronwrapper
-  Docs   : https://www.axel-hahn.de/docs/cronwrapper/
-  License: GNU GPL 3.0
+  $( cw.emoji "📄" )Source : https://github.com/axelhahn/cronwrapper
+  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+  $( cw.emoji "📜" )License: GNU GPL 3.0
 
 $line1
 
-$(cw.color error)$1$(cw.color reset)
+$(test -n "$1" && ( cw.color error; echo "$1"; cw.color reset; echo; echo ))
+..... $( cw.emoji "✨" )SYNTAX:
 
-SYNTAX: $0 TTL COMMAND [LABEL]
+  $0 TTL COMMAND [LABEL]
 
-PARAMETERS:
+
+..... $( cw.emoji "🏷️" )PRAMETERS:
 
   TTL     integer value in [min]
           This value says how often your cronjob runs. It is used to verify
@@ -116,22 +118,29 @@ PARAMETERS:
           When you start a script with different parameters it is highly
           recommended to set the label.
 
-REMARK:
+
+..... $( cw.emoji "📝" )REMARK:
+
   You don't need to redirect the output in a cron config file. STDOUT and
   STDERR will be fetched automaticly. 
   It also means: Generate as much output as you want and want to have to debug
   a job in error cases.
 
-OUTPUT:
+
+..... $( cw.emoji "🗨️" )MORE TO SAY:
+
   The output directory of all jobs executed by $0 is
   ${CW_LOGDIR}.
   The output logs are parseble with simple grep command.
 
-MONITORING:
   You can run $(dirname $0)/cronstatus.sh to get a list of all cronjobs and 
-  its status. Check its source. Based on its logic you can create a check 
-  script for your server monitoring.
-"
+  its status. Based on its output you can create a check script for your 
+  server monitoring.
+
+  You can sync all logfiles of all cronjobs to a defined server using
+  $(dirname $0)/cronlog-sync.sh
+  
+ENDOFHELP
 }
 
 # helper function - append a line to output file
@@ -218,7 +227,7 @@ CW_TIMER_START=$(date +%s)
 # CHECK PARAMS
 # ------------------------------------------------------------
 if [ "$1" = "-?" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-	showhelp "Showing help ..."
+	showhelp
 	exit 1
 fi
 if [ $# -lt 2 ]; then

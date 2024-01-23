@@ -9,6 +9,7 @@
 # 2022-03-09  ahahn  added cw.* functions; others marked as deprecated
 # 2022-05-18  ahahn  update cw.lock
 # 2023-12-29  ahahn  remove deprecated functions; shellfixes
+# 2024-01-23  ahahn  added cw.emoji
 # ======================================================================
 
 # Handling of exitocdes
@@ -77,6 +78,12 @@ function cw.exec() {
         $*
         cw.fetchRc
 
+}
+
+# show a given emoji if its display is supported
+# param  string  emoji to show
+function cw.emoji {
+  test "$(echo -ne '\xE0\xA5\xA5' | wc -m)" -eq 1 && echo "$1 "
 }
 
 # sleep for a random time

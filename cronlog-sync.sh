@@ -11,10 +11,10 @@
 # 2022-09-23  v1.3  <axel.hahn@iml.unibe.ch>  fix exitcode on no sync and failed sync
 # 2022-09-23  v1.4  <axel.hahn@iml.unibe.ch>  option -q is more quiet and -f to set SYNCAFTER
 # 2023-07-21  v1.5  <axel.hahn@iml.unibe.ch>  fix typo in header
+# 2024-01-23  v1.6  ahahn                     update help; use cw.emoji; update exitcodes
 # ======================================================================
 
-_version=1.5
-
+_version=1.6
 LOGDIR=/var/tmp/cronlogs
 TARGET=
 SSHKEY=
@@ -34,7 +34,7 @@ function showHead(){
 cat <<ENDOFHEAD
 ____________________________________________________________________________________
 
-SYNC LOCAL LOGS OF $( hostname -f )
+  AXELS CRONWRAPPER - SYNC LOCAL LOGS OF $( cw.emoji "🖥️" )$( hostname -f )
 ______________________________________________________________________________/ v$_version
 
 ENDOFHEAD
@@ -44,34 +44,65 @@ function showHelp(){
     showHead
     local self=$( basename $0)
 cat <<ENDOFHELP
-HELP:
-    This script syncs local cronlogs to a target.
-    It should be used as cronjob in /etc/cron.d/ and/ or triggered
-    whem any cronwrapper script was fisnished.
 
-SYNTAX:
-    $self [OPTIONS]
+This script syncs local cronlogs to a target.
+It should be used as cronjob in /etc/cron.d/ and/ or triggered
+whem any cronwrapper script was fisnished.
 
-PRAMETERS:
-    -f [integer]  time in sec when to force symc without new logs
-                  value 0 forces sync
-                  current value: [$SYNCAFTER]
-    -h            show this help
-    -i [string]   path to ssh private key file
-                  current value: [$SSHKEY]
-    -l [string]   local  log dir of cronjobs
-                  current value: [$LOGDIR]
-    -q            be more quiet
-    -s [integer]  sleep random time .. maximum is given value in seconds
-    -t [string]   target dir (local or remote like rsync syntax)
-                  current value: [$TARGET]
 
-DEFAULTS:
-    see also ${CFGFILE}
+..... $( cw.emoji "✨" )SYNTAX:
 
-EXAMPLES:
-    $self -s 20 -t [TARGET]   wait max 20 sec before starting sync
-    $self -q -f 0             be more quiet and force sync (0 sec)
+  $self [OPTIONS]
+
+
+..... $( cw.emoji "🔧" )OPTIONS:
+
+  -f [integer]  time in sec when to force symc without new logs
+                value 0 forces sync
+                current value: [$SYNCAFTER]
+
+  -h            show this help
+
+  -i [string]   path to ssh private key file
+                current value:
+                [$SSHKEY]
+
+  -l [string]   local log dir of cronjobs
+                current value:[$LOGDIR]
+
+  -q            be more quiet
+
+  -s [integer]  sleep random time .. maximum is given value in seconds
+
+  -t [string]   target dir (local or remote like rsync syntax)
+                current value: 
+                [$TARGET]
+
+
+..... $( cw.emoji "🔷" )DEFAULTS:
+
+  see ${CFGFILE}
+
+
+..... $( cw.emoji "🧩" )EXAMPLES:
+
+  $self -s 20 -t [TARGET]
+                Wait max. 20 sec before starting sync to a custom target
+  $self -q -f 0
+                be more quiet and force sync (0 sec)
+
+
+..... $( cw.emoji "❌" )EXITCODES:
+
+  0             OK. Action ended as expected. No sync needed or sync was done.
+
+  1             Missing parameter
+  2             Invalid option
+  3             No FQDN was found in hostname
+  4             No target was set in configuration
+  5             Target is still example.com
+  6             Logdir with files to sync was not found
+  7             rsync of local logs to target failed
 
 ENDOFHELP
 }
@@ -115,7 +146,7 @@ do
         *)
             cw.cecho error "ERROR: $opt is unknown." >&2
             showHelp
-            exit 1
+            exit 2
     esac
 done
 
@@ -123,22 +154,30 @@ test $VERBOSE -ne 0 && showHead
 
 if ! hostname -f | grep "\." >/dev/null; then
     test "$REQUIREFQDN" != "0" && cw.cecho error "ERROR: hostname [$( hostname -f )] is not a FQDN - there is no domain behind the host."
-    test "$REQUIREFQDN" != "0" && exit
+    test "$REQUIREFQDN" != "0" && exit 3
 fi
 
 if [ -z "$TARGET" ]; then
   cw.cecho error ERROR: no target was set. use -t >&2
   echo
   showHelp
-  exit 2
+  exit 4
+fi
+
+if grep "example.com" <<< "$TARGET"; then
+    echo
+    echo "ABORT: target is 'example.com'. You need to modify the configuration"
+    echo "       file ${CFGFILE} and set the target to your own system."
+    echo
+    exit 5
 fi
 
 if [ $VERBOSE -ne 0 ]; then
-    echo "----- local data in ${LOGDIR}" && ls -l "${LOGDIR}" || exit 3
+    echo "----- local data in ${LOGDIR}" && ls -l "${LOGDIR}" || exit 6
     echo
     echo "----- test for files to sync"
 else
-    ls -l "${LOGDIR}" >/dev/null || exit 3
+    ls -l "${LOGDIR}" >/dev/null || exit 6
 fi
 
 
@@ -173,7 +212,7 @@ then
 else
     echo "ERROR while syncing files. Next run will try to sync again."
     rm -f "${LOGDIR}/$TOUCHFILE" 2>/dev/null
-    exit 2
+    exit 7
 fi
 
 # ----------------------------------------------------------------------
