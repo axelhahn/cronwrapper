@@ -16,10 +16,10 @@
 # 2023-07-14  ahahn  1.8  add support for REQUIREFQDN
 # 2023-07-14  ahahn  1.9  added check if process still runs
 # 2024-01-04  ahahn  1.10 update error messages
-# 2024-01-17  ahahn  1.11 update help; use cw.emoji
+# 2024-01-30  ahahn  2.0  update help; use cw.emoji; use label as parameter; show last executions
 # ------------------------------------------------------------
 
-_version=1.11
+_version=2.0pre
 
 CW_LABELSTR=
 CW_LOGFILE=
@@ -58,7 +58,7 @@ function getLogfiles(){
 
 # get logfiles of all cronwrapper cronjobs
 function _getLabel(){
-        echo "$1" | rev | cut -f 1- -d '/' | rev | cut -f 2- -d '_' | sed "s,\.log,,"
+        echo "$1" | rev | cut -f 1- -d '/' | rev | cut -f 2- -d '_' | sed "s,\.log.*,," 
 }
 
 # get logfiles of all cronwrapper cronjobs
@@ -102,6 +102,40 @@ by giving its logfile as parameter.
 "
 }
 
+# show last executions of the same job in the last few days (*done files)
+# param  string  label
+function _showLast(){
+        local _label="$1"
+
+        local iStart
+        local iRc
+        local iExectime
+        local ico
+
+        if grep "job=${_label}:" $CW_LOGDIR/*done >/dev/null; then
+                echo
+                echo "${sPre}Last executions within the last few days:"
+                echo
+                echo "${sPre}${sPre}    Start time           rc  Execution time"
+                echo "${sPre}${sPre}    ------------------- --- ---------------"
+                grep "job=${_label}:" $CW_LOGDIR/*done \
+                        | tr ":" " " \
+                        | sort -k +5 | tail -10 \
+                        | while read -r line
+                do
+                        iStart=$(    echo "$line" | grep -o "start=[0-9]*"    | cut -f 2 -d "=")
+                        iExectime=$( echo "$line" | grep -o "exectime=[0-9]*" | cut -f 2 -d "=")
+                        iRc=$(       echo "$line" | grep -o "rc=[0-9]*"       | cut -f 2 -d "=")
+                        # echo "    $line"
+
+                        ico=
+                        test "$iRc" = "0" && ico=$( cw.emoji "✔️" )
+                        test "$iRc" = "0" || ico=$( cw.emoji "❌" )
+                        printf "${sPre}${sPre}%3s %19s %3s   %10s s\n" "$ico" "$( date +%Y-%m-%d\ %H:%M:%S --date=@$iStart )" "$iRc" "$iExectime"
+                done
+        fi
+} 
+
 # show status of a single sob
 # param  string  filename of cronwrapper logfile OR label of cronjob
 # param  bool    flag: show logfile content; default: empty (=do not sohow log)
@@ -111,9 +145,9 @@ function showStatus(){
         test -f "$_label" || CW_LOGFILE="$CW_LOGDIR/$( hostname -f )_${_label}.log"
 
         CW_LABELSTR=$( _getLabel "$CW_LOGFILE")
-                local _showlog="$2"
+        local _showlog="$2"
         echo
-        cw.cecho "head" "..... $( cw.emoji "📔" )$CW_LABELSTR"
+        cw.cecho "head" "..... $( cw.emoji "📜" )$CW_LABELSTR"
         echo
         echo "    Logfile   : $CW_LOGFILE"
         if [ -n "$_showlog" ]; then
@@ -124,6 +158,7 @@ function showStatus(){
                                 -e "s/----- HOOK.*$/$( printf "\033[0;36m&\033[0m" )/g" \
                                 -e "s/^/    /g"
                 echo
+                echo "    Logfile   : $CW_LOGFILE"
         fi
         typeset -i iErr=0
 
@@ -225,6 +260,7 @@ function showStatus(){
         else
                 cw.cecho "ok" "${sPre}$( cw.emoji "✔️" )CHECK OK"
         fi
+        _showLast "$CW_LABELSTR"
         echo
 }
 
@@ -242,6 +278,7 @@ function showRunningJobs(){
 
                 for CW_LOGFILE in $( getRunningfiles )
                 do
+                        CW_LABELSTR=$( _getLabel "$CW_LOGFILE")
                         sCmd=$(getLogValue SCRIPTNAME)
                         sLastStart=$(getLogValue SCRIPTSTARTTIME)
                         typeset -i iSince; iSince=($( date '+%s' )-$( echo "$sLastStart" | cut -f 2 -d ',' ))/60
@@ -252,7 +289,9 @@ function showRunningJobs(){
                         fi
 
                         echo
-                        cw.cecho "head" "${sPre}..... for $iSince min - $( cw.emoji "📔" )$CW_LOGFILE"
+                        cw.cecho "head" "${sPre}..... $( cw.emoji "⏳" )for $iSince min - $CW_LABELSTR"
+                        echo
+                        echo "${sPre}${sPre}Logfile   : $CW_LOGFILE"
                         typeset -i iPid; iPid=$(getLogValue SCRIPTPROCESS)
                         if [ $iPid -gt 0 ]; then
                                 # detect process id and check if it is still running
