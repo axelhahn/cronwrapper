@@ -10,6 +10,7 @@
 # 2022-05-18  ahahn  update cw.lock
 # 2023-12-29  ahahn  remove deprecated functions; shellfixes
 # 2024-01-23  ahahn  added cw.emoji
+# 2024-01-31  ahahn  support for NOCOLOR=1
 # ======================================================================
 
 # Handling of exitocdes
@@ -83,7 +84,9 @@ function cw.exec() {
 # show a given emoji if its display is supported
 # param  string  emoji to show
 function cw.emoji {
-  test "$(echo -ne '\xE0\xA5\xA5' | wc -m)" -eq 1 && echo "$1 "
+        if [ "$NO_COLOR" != "1" ]; then
+                test "$(echo -ne '\xE0\xA5\xA5' | wc -m)" -eq 1 && echo "$1 "
+        fi
 }
 
 # sleep for a random time
@@ -139,8 +142,12 @@ function cw.quit(){
 # ls -l 
 # color reset
 function cw.color(){
+        local _color; _color=$1
         local sColorcode=""
-        case $1 in
+        if [ "$NO_COLOR" = "1" ]; then
+                _color="reset"
+        fi
+        case $_color in
                 "reset") sColorcode="0"
                         ;;
                 "head")  sColorcode="33" # yellow
