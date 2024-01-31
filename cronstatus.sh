@@ -36,8 +36,8 @@ typeset -i iMaxAge
 iMaxAge=$(date +%s)
 typeset -i iErrJobs=0
 
-statusOK=$(cw.color ok ; echo -n "OK"; cw.color reset)
-statusERROR=$(cw.color error ; echo -n "ERROR"; cw.color reset)
+statusOK=$(cw.cecho ok "OK")
+statusERROR=$(cw.cecho error "ERROR")
 sPre="    "
 
 # ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ by giving its logfile as parameter.
 
 ..... $( cw.emoji "✨" )SYNTAX:
 
-  $_self [OPTIONS|LOGFILE]
+  $_self [-h|LOGFILE|LABEL]
 
 
 ..... $( cw.emoji "🔧" )OPTIONS:
@@ -88,8 +88,9 @@ by giving its logfile as parameter.
 ..... $( cw.emoji "🏷️" )PARAMETERS:
 
   LOGFILE  filename to show details of a single logfile
-           Default: without any logfile you get a total overview of all 
-           cronjobs.
+  LABEL    label of a job
+
+  Default: without any logfile/ label you get a total overview of all cronjobs.
 
 
 ..... $( cw.emoji "🧩" )EXAMPLES:
@@ -110,14 +111,15 @@ function _showLast(){
         local iStart
         local iRc
         local iExectime
-        local ico
+        local sStatus
 
-        if grep "job=${_label}:" $CW_LOGDIR/*done >/dev/null; then
-                echo
+        local iCount; typeset -i iCount; iCount=$( cat $CW_LOGDIR/*done | grep -c "job=${_label}:" )
+        echo
+        if [ "$iCount" -gt "1" ]; then
                 echo "${sPre}Last executions within the last few days:"
                 echo
-                echo "${sPre}${sPre}    Start time           rc  Execution time"
-                echo "${sPre}${sPre}    ------------------- --- ---------------"
+                echo "${sPre}${sPre}Result      Start time             rc    Execution time"
+                echo "${sPre}${sPre}---------   -------------------   ---   ---------------"
                 grep "job=${_label}:" $CW_LOGDIR/*done \
                         | tr ":" " " \
                         | sort -k +5 | tail -10 \
@@ -129,10 +131,12 @@ function _showLast(){
                         # echo "    $line"
 
                         ico=
-                        test "$iRc" = "0" && ico=$( cw.emoji "✔️" )
-                        test "$iRc" = "0" || ico=$( cw.emoji "❌" )
-                        printf "${sPre}${sPre}%3s %19s %3s   %10s s\n" "$ico" "$( date +%Y-%m-%d\ %H:%M:%S --date=@$iStart )" "$iRc" "$iExectime"
+                        test "$iRc" = "0" && sStatus=$statusOK
+                        test "$iRc" = "0" || sStatus=$statusERROR
+                        printf "${sPre}${sPre}%-17s %21s %5s  %13s s\n" "$sStatus" "$( date +%Y-%m-%d\ %H:%M:%S --date=@$iStart )" "$iRc" "$iExectime"
                 done
+        else
+                echo "${sPre}(no other executions found)"
         fi
 } 
 
