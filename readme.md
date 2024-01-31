@@ -42,6 +42,7 @@ This repository contains scripts and helpers for local cronjobs
 * cronwrapper.sh - a wrapper script to call cronjob scripts
 * inc_cronfunctions.sh - an include file that can be sourced in your bash scripts
 * cronstatus.sh - ist shows status of all local cronjobs (and use cronwrapper.sh)
+* cronlog-sync.sh - syncs logfiles to a central log server
 
 To sync logfiles to a central log server there is script that detects new files in the logdir since the last sync.
 
