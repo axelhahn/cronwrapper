@@ -18,7 +18,7 @@ OPTIONS:
     -h       show this help and exit.
 
 PARAMETERS:
-    LOGFILE  filename to show details of a single logfile
+    LOGFILE  filename or label to show details of a single logfile
              Default: without any logfile you get a total overview of all 
              cronjobs.
 EXAMPLES:
@@ -133,7 +133,7 @@ It is a try to help - if the log is a bit bigger you need to open the log.
 If you add a logfile as parameter you get a highlighted output of the log and the analysis section for this job.
 
 ```txt
-./cronstatus.sh [logfile]
+./cronstatus.sh [logfile|label]
 ```
 
 In this example I executed a dummy cronjob: `ls` with a ttl of 10 min. This shows detail view shos

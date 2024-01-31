@@ -55,6 +55,10 @@ These data may help you to generate a message.
 | iExectime       | {int}    | execution time in seconds (for after/*/*)|
 | rc              | {int}    | resturncode of the failed job (for after/on-error/*)|
 
+## Exitcode
+
+The exitcode of a hook script is not relevant. The returncode of the cronjob will be preserved.
+
 ## Example
 
 ### Send an email if a job failed

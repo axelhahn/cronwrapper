@@ -42,6 +42,7 @@ This repository contains scripts and helpers for local cronjobs
 * cronwrapper.sh - a wrapper script to call cronjob scripts
 * inc_cronfunctions.sh - an include file that can be sourced in your bash scripts
 * cronstatus.sh - ist shows status of all local cronjobs (and use cronwrapper.sh)
+* cronlog-sync.sh - syncs logfiles to a central log server
 
 To sync logfiles to a central log server there is script that detects new files in the logdir since the last sync.
 
@@ -49,3 +50,11 @@ To sync logfiles to a central log server there is script that detects new files 
 
 Linux system with installed Bash.
 Tested on CentOS, Debian, Manjaro, Ubuntu.
+
+## New in 2.0
+
+* ADDED: hooks
+* ADDED: Support for `NO_COLOR=1`
+* ADDED: emoji support (only if NO_COLOR is not 1)
+* UPDATE: enhanced output for `cronstatus.sh`: show a table with last executions
+* UPDATE: renamed variables with prefix "CW_" (for cron wrapper)
