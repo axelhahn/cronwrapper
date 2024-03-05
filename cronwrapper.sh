@@ -94,12 +94,11 @@ $( printf "%76s" "v $_version" )
 $line1
 
 $(test -n "$1" && ( cw.color error; echo "$1"; cw.color reset; echo; echo ))
-..... $( cw.emoji "✨" )SYNTAX:
+$(cw.helpsection "✨" "SYNTAX")
 
   $0 TTL COMMAND [LABEL]
 
-
-..... $( cw.emoji "🏷️" )PRAMETERS:
+$(cw.helpsection "🏷️" "PRAMETERS")
 
   TTL     integer value in [min]
           This value says how often your cronjob runs. It is used to verify
@@ -118,16 +117,14 @@ $(test -n "$1" && ( cw.color error; echo "$1"; cw.color reset; echo; echo ))
           When you start a script with different parameters it is highly
           recommended to set the label.
 
-
-..... $( cw.emoji "📝" )REMARK:
+$(cw.helpsection "📝" "REMARK")
 
   You don't need to redirect the output in a cron config file. STDOUT and
   STDERR will be fetched automaticly. 
   It also means: Generate as much output as you want and want to have to debug
   a job in error cases.
 
-
-..... $( cw.emoji "🗨️" )MORE TO SAY:
+$(cw.helpsection "🗨️" "MORE TO SAY")
 
   The output directory of all jobs executed by $0 is
   ${CW_LOGDIR}.
@@ -216,7 +213,8 @@ test -f "${CW_DIRSELF}/cronwrapper.cfg" && . "${CW_DIRSELF}/cronwrapper.cfg"
 
 CW_HOOKDIR=${CW_HOOKDIR/./$( dirname $0 )}
 CW_FINALOUTFILE="$CW_LOGDIR/${CW_MYHOST}_${CW_LABELSTR}.log"
-CW_JOBLOG="$CW_LOGDIR/${CW_JOBBLOGBASE}$(date +%a).done"
+CW_JOBLOG="$CW_LOGDIR/${CW_JOBBLOGBASE}$(date +%Y%m%d-%a).done"
+CW_KEEPDAYS=14
 CW_OUTFILEBASE="$CW_FINALOUTFILE.running"
 CW_OUTFILE="$CW_OUTFILEBASE.$$"
 
@@ -355,7 +353,7 @@ w "REM $line1"
 # write a log for execution of a cronjob
 echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_END:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$CW_JOBLOG"
 chmod 777 "$CW_JOBLOG" 2>/dev/null
-find $CW_LOGDIR -name "${CW_JOBBLOGBASE}*" -type f -mtime +4 -exec rm -f {} \;
+find $CW_LOGDIR -name "${CW_JOBBLOGBASE}*" -type f -mtime +$CW_KEEPDAYS -exec rm -f {} \;
 
 runHooks "after" $rc >>"${CW_LOGFILE}" 2>&1
 
