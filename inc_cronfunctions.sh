@@ -11,6 +11,7 @@
 # 2023-12-29  ahahn  remove deprecated functions; shellfixes
 # 2024-01-23  ahahn  added cw.emoji
 # 2024-01-31  ahahn  support for NOCOLOR=1
+# 2024-03-05  ahahn  add function cw.helpsection  for help text in scripts
 # ======================================================================
 
 # Handling of exitocdes
@@ -177,6 +178,14 @@ function cw.color(){
 function cw.cecho (){
         local _color=$1; shift 1
         cw.color "$_color"; echo -n "$*"; cw.color reset; echo
+}
+
+# print a headline for a help section
+# param  string  emoji
+# param  string  headline text
+function cw.helpsection(){
+        echo "      ______________________________________________________________________________"
+        echo "...../ $( cw.emoji "$1" )$2"
 }
 
 # ----- locking --------------------------------------------------------
