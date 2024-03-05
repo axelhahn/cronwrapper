@@ -75,25 +75,26 @@ echo "
 Show the status of all local cronjobs that use the cronwrapper or a single job
 by giving its logfile as parameter.
 
-..... $( cw.emoji "✨" )SYNTAX:
+This script is part of Axels cronwrapper.
+  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+  $( cw.emoji "📜" )License: GNU GPL 3.0
+
+$(cw.helpsection "✨" "SYNTAX")
 
   $_self [-h|LOGFILE|LABEL]
 
-
-..... $( cw.emoji "🔧" )OPTIONS:
+$(cw.helpsection "🔧" "OPTIONS")
 
   -h       show this help and exit.
 
-
-..... $( cw.emoji "🏷️" )PARAMETERS:
+$(cw.helpsection "🏷️" "PARAMETERS")
 
   LOGFILE  filename to show details of a single logfile
   LABEL    label of a job
 
   Default: without any logfile/ label you get a total overview of all cronjobs.
 
-
-..... $( cw.emoji "🧩" )EXAMPLES:
+$(cw.helpsection "🧩" "EXAMPLES")
 
   $_self
            show total overview over all jobs
@@ -293,24 +294,24 @@ function showRunningJobs(){
                         fi
 
                         echo
-                        cw.cecho "head" "${sPre}..... $( cw.emoji "⏳" )for $iSince min - $CW_LABELSTR"
+                        cw.cecho "head" "..... $( cw.emoji "⏳" )for $iSince min - $CW_LABELSTR"
                         echo
-                        echo "${sPre}${sPre}Logfile   : $CW_LOGFILE"
+                        echo "${sPre}Logfile   : $CW_LOGFILE"
                         typeset -i iPid; iPid=$(getLogValue SCRIPTPROCESS)
                         if [ $iPid -gt 0 ]; then
                                 # detect process id and check if it is still running
                                 if ps $iPid >/dev/null 2>&1; then
-                                        cw.cecho "ok" "${sPre}${sPre}OK - still running"
+                                        cw.cecho "ok" "${sPre}OK - still running"
                                 else
-                                        cw.cecho "error" "${sPre}${sPre}ERROR     : The process $iPid does not exist anymore. The job was aborted."
-                                        cw.cecho "error" "${sPre}${sPre}            Check the log file and delete it."
+                                        cw.cecho "error" "${sPre}ERROR     : The process $iPid does not exist anymore. The job was aborted."
+                                        cw.cecho "error" "${sPre}            Check the log file and delete it."
                                         iErr+=1
                                 fi
                         fi
 
-                        echo "${sPre}${sPre}command   : ${sCmd}"
-                        echo "${sPre}${sPre}last start: ${sLastStart}"
-                        echo "${sPre}${sPre}ttl       : ${iTTL} min"
+                        echo "${sPre}command   : ${sCmd}"
+                        echo "${sPre}last start: ${sLastStart}"
+                        echo "${sPre}ttl       : ${iTTL} min"
                         echo
                 done
         else

@@ -49,13 +49,15 @@ This script syncs local cronlogs to a target.
 It should be used as cronjob in /etc/cron.d/ and/ or triggered
 whem any cronwrapper script was fisnished.
 
+This script is part of Axels cronwrapper.
+  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+  $( cw.emoji "📜" )License: GNU GPL 3.0
 
-..... $( cw.emoji "✨" )SYNTAX:
+$(cw.helpsection "✨" "SYNTAX")
 
   $self [OPTIONS]
 
-
-..... $( cw.emoji "🔧" )OPTIONS:
+$(cw.helpsection "🔧" "OPTIONS")
 
   -f [integer]  time in sec when to force symc without new logs
                 value 0 forces sync
@@ -78,21 +80,18 @@ whem any cronwrapper script was fisnished.
                 current value: 
                 [$TARGET]
 
-
-..... $( cw.emoji "🔷" )DEFAULTS:
+$(cw.helpsection "🔷" "DEFAULTS")
 
   see ${CFGFILE}
 
-
-..... $( cw.emoji "🧩" )EXAMPLES:
+$(cw.helpsection "🧩" "EXAMPLES")
 
   $self -s 20 -t [TARGET]
                 Wait max. 20 sec before starting sync to a custom target
   $self -q -f 0
                 be more quiet and force sync (0 sec)
 
-
-..... $( cw.emoji "❌" )EXITCODES:
+$(cw.helpsection "❌" "EXITCODES")
 
   0             OK. Action ended as expected. No sync needed or sync was done.
 
