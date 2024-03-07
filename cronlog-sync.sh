@@ -15,7 +15,7 @@
 # ======================================================================
 
 _version=1.6
-LOGDIR=/var/tmp/cronlogs
+CW_LOGDIR=/var/tmp/cronlogs
 TARGET=
 SSHKEY=
 typeset -i SYNCAFTER=3600
@@ -70,7 +70,7 @@ $(cw.helpsection "🔧" "OPTIONS")
                 [$SSHKEY]
 
   -l [string]   local log dir of cronjobs
-                current value:[$LOGDIR]
+                current value:[$CW_LOGDIR]
 
   -q            be more quiet
 
@@ -124,7 +124,7 @@ do
             SSHKEY=$OPTARG
             ;;
         l)
-            LOGDIR=$OPTARG
+            CW_LOGDIR=$OPTARG
             ;;
         q)
             VERBOSE=0
@@ -172,18 +172,18 @@ if grep "example.com" <<< "$TARGET"; then
 fi
 
 if [ $VERBOSE -ne 0 ]; then
-    echo "----- local data in ${LOGDIR}" && ls -l "${LOGDIR}" || exit 6
+    echo "----- local data in ${CW_LOGDIR}" && ls -l "${CW_LOGDIR}" || exit 6
     echo
     echo "----- test for files to sync"
 else
-    ls -l "${LOGDIR}" >/dev/null || exit 6
+    ls -l "${CW_LOGDIR}" >/dev/null || exit 6
 fi
 
 
-if ls -ltr "${LOGDIR}" | tail -1 | grep "$TOUCHFILE" >/dev/null
+if ls -ltr "${CW_LOGDIR}" | tail -1 | grep "$CW_TOUCHFILE" >/dev/null
 then
     echo -n "NO newer logs. "
-    typeset -i age=$(($(date +%s) - $(date +%s -r "${LOGDIR}/${TOUCHFILE}")))
+    typeset -i age=$(($(date +%s) - $(date +%s -r "${CW_LOGDIR}/${CW_TOUCHFILE}")))
     echo -n "last sync was $age sec ago (limit: $SYNCAFTER sec). "
     if test $age -gt $SYNCAFTER
     then
@@ -204,13 +204,13 @@ if test -n "$SSHKEY"; then
     moreparams="-e ssh -i ${SSHKEY} -o StrictHostKeyChecking=no"
 fi
 
-if /usr/bin/rsync --delete -rvt "${moreparams}" "${LOGDIR}/" "${TARGET}"
+if /usr/bin/rsync --delete -rvt "${moreparams}" "${CW_LOGDIR}/" "${TARGET}"
 then 
     echo "OK, files were synced"
-    touch "${LOGDIR}/${TOUCHFILE}" && chmod 666 "${LOGDIR}/${TOUCHFILE}"
+    touch "${CW_LOGDIR}/${CW_TOUCHFILE}" && chmod 666 "${CW_LOGDIR}/${CW_TOUCHFILE}"
 else
     echo "ERROR while syncing files. Next run will try to sync again."
-    rm -f "${LOGDIR}/$TOUCHFILE" 2>/dev/null
+    rm -f "${CW_LOGDIR}/$CW_TOUCHFILE" 2>/dev/null
     exit 7
 fi
 

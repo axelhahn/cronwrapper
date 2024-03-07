@@ -184,7 +184,7 @@ function cw.cecho (){
 # param  string  emoji
 # param  string  headline text
 function cw.helpsection(){
-        echo "      ______________________________________________________________________________"
+        echo "      ________________________________________________________________________"
         echo "...../ $( cw.emoji "$1" )$2"
 }
 

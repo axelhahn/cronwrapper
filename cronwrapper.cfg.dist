@@ -5,20 +5,20 @@
 
 # ----- shared values:
 CW_LOGDIR=/var/tmp/cronlogs
-
+CW_KEEPDAYS=14
 
 # ----- for cronwrapper
 # deny multiple execution of the same job? set 0 or 1
-SINGLEJOB=1
+CW_SINGLEJOB=1
 
-# directory with hooks
-HOOKDIR=./hooks
+# directory with hooks - only change it if you know what you are doing
+CW_HOOKDIR=./hooks
 
 
 # ----- for sync of local logs
 # see https://www.axel-hahn.de/docs/cronwrapper/Usage/Cronlog_Sync.html
 
-TOUCHFILE=lastsync
+CW_TOUCHFILE=lastsync
 TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
 SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
 

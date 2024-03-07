@@ -51,7 +51,7 @@
 _version="2.0-WIP"
 
 
-line1="--------------------------------------------------------------------------------"
+line1="------------------------------------------------------------------------------"
 . $( dirname $0)/inc_cronfunctions.sh
 
 # ------------------------------------------------------------
@@ -74,24 +74,26 @@ function getRealScriptPath(){
 # show help
 # param  string  info or error message
 function showhelp(){
-cat <<ENDOFHELP
-$line1
-                                                                             | 
-    A  X  E  L  S                                                          -- --
-   ______                        ________                                    |
+        cw.color head
+        cat <<ENDOFHEAD
+
+                                                                           | 
+    A  X  E  L  S                                                        --x--
+   ______                        ________                                  |
   |      |.----.-----.-----.    |  |  |  |.----.---.-.-----.-----.-----.----.
   |   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
   |______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
                                                      |__|  |__|
+ENDOFHEAD
+cw.color reset
+cat <<ENDOFHELP
 $( printf "%76s" "v $_version" )
 
-  Puts control and comfort to cronjobs.
+  Puts control and comfort to your cronjobs.
 
   $( cw.emoji "📄" )Source : https://github.com/axelhahn/cronwrapper
   $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   $( cw.emoji "📜" )License: GNU GPL 3.0
-
-$line1
 
 $(test -n "$1" && ( cw.color error; echo "$1"; cw.color reset; echo; echo ))
 $(cw.helpsection "✨" "SYNTAX")
@@ -104,8 +106,9 @@ $(cw.helpsection "🏷️" "PRAMETERS")
           This value says how often your cronjob runs. It is used to verify
           if a cronjob is out of date / does not run anymore.
           As a fast help a few values:
-          60   - 1 hour
-          1440 - 1 day
+            60    - 1 hour
+            1440  - 1 day
+            10080 - 7 days
   
   COMMAND command to execute
           When using spaces or parameters then quote it.
@@ -200,6 +203,7 @@ CW_TOUCHPART="_flag-${CW_LABELSTR}_expire_"
 CW_LOGFILE=/tmp/call_any_script_$$.log
 CW_LOGDIR="/var/tmp/cronlogs"
 CW_HOOKDIR=${CW_DIRSELF}/hooks
+CW_KEEPDAYS=14
 CW_MYHOST=$( hostname -f )
 
 # --- log executions of the whole day
@@ -214,7 +218,6 @@ test -f "${CW_DIRSELF}/cronwrapper.cfg" && . "${CW_DIRSELF}/cronwrapper.cfg"
 CW_HOOKDIR=${CW_HOOKDIR/./$( dirname $0 )}
 CW_FINALOUTFILE="$CW_LOGDIR/${CW_MYHOST}_${CW_LABELSTR}.log"
 CW_JOBLOG="$CW_LOGDIR/${CW_JOBBLOGBASE}$(date +%Y%m%d-%a).done"
-CW_KEEPDAYS=14
 CW_OUTFILEBASE="$CW_FINALOUTFILE.running"
 CW_OUTFILE="$CW_OUTFILEBASE.$$"
 

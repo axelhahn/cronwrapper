@@ -36,6 +36,7 @@ typeset -i iMaxAge
 iMaxAge=$(date +%s)
 typeset -i iErrJobs=0
 
+line1="______________________________________________________________________________"
 statusOK=$(cw.cecho ok "OK")
 statusERROR=$(cw.cecho error "ERROR")
 sPre="    "
@@ -92,7 +93,8 @@ $(cw.helpsection "🏷️" "PARAMETERS")
   LOGFILE  filename to show details of a single logfile
   LABEL    label of a job
 
-  Default: without any logfile/ label you get a total overview of all cronjobs.
+  Default: without any logfile/ label you get a total overview of all
+           cronjobs.
 
 $(cw.helpsection "🧩" "EXAMPLES")
 
@@ -101,6 +103,7 @@ $(cw.helpsection "🧩" "EXAMPLES")
 
   $_self $LOGDIR/myjobfile.log
            show output of a single job
+
 "
 }
 
@@ -117,13 +120,13 @@ function _showLast(){
         local iCount; typeset -i iCount; iCount=$( cat $CW_LOGDIR/*done | grep -c "job=${_label}:" )
         echo
         if [ "$iCount" -gt "1" ]; then
-                echo "${sPre}Last executions within the last few days:"
+                echo "${sPre}Last executions:"
                 echo
                 echo "${sPre}${sPre}Result      Start time             rc    Execution time"
                 echo "${sPre}${sPre}---------   -------------------   ---   ---------------"
                 grep "job=${_label}:" $CW_LOGDIR/*done \
                         | tr ":" " " \
-                        | sort -k +5 | tail -10 \
+                        | sort -k +5 -r | head -10 \
                         | while read -r line
                 do
                         iStart=$(    echo "$line" | grep -o "start=[0-9]*"    | cut -f 2 -d "=")
@@ -277,7 +280,7 @@ function showRunningJobs(){
         local iTTL
         local iPid
         if getRunningfiles >/dev/null 2>&1 ; then
-                echo "____________________________________________________________________________________"
+                echo $line1
                 echo
                 echo "CURRENTLY RUNNING JOBS:"
 
@@ -329,7 +332,7 @@ function showTotalstatus(){
 
         showRunningJobs
 
-        echo "____________________________________________________________________________________"
+        echo $line1
 
         echo "JOBS: $(getLogfiles | wc -l ) .. RUNNING: $(getRunningfiles | wc -l ) .. ERRORS: $iErrJobs"
         echo
@@ -340,10 +343,10 @@ function showTotalstatus(){
 
 sCurrentServer=$(hostname -f)
 cat <<ENDOFHEAD
-____________________________________________________________________________________
+$line1
 
   AXELS CRONWRAPPER - Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
-_____________________________________________________________________________/ v$_version
+________________________________________________________________________/ v$_version
 ENDOFHEAD
 
 if [ "$1" = "-h" ]; then
