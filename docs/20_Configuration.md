@@ -10,19 +10,19 @@ The file needs read permissions for all users (0644).
 # -----------------------------------------------------------------------------
 
 # ----- shared values:
-LOGDIR=/var/tmp/cronlogs
+CW_LOGDIR=/var/tmp/cronlogs
 
 
 # ----- for cronwrapper
 # deny multiple execution of the same job? set 0 or 1
-SINGLEJOB=1
+CW_SINGLEJOB=1
 
 # directory with hooks
-HOOKDIR=./hooks
+CW_HOOKDIR=./hooks
 
 
 # ----- for sync of local logs
-TOUCHFILE=lastsync
+CW_TOUCHFILE=lastsync
 TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
 SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
 
@@ -37,21 +37,21 @@ REQUIREFQDN=0
 
 For the execution of all cronjobs on the server there is just one variable to define a place where to store output files.
 
-Variable  | type   | description
----       |---     |---
-LOGDIR    | string | Ouput dir of all logfiles when using cronwrapper.<br>It is used by status script and sync script to read data from here. Default: "/var/tmp/cronlogs"
-SINGLEJOB | int    | 0 or 1; 1=deny multiple execution of the same job (default)
-HOOKDIR   | string | set an absolute directory to the hooks directory; use it if you use a created a softlink for the cronwrapper to /usr/local/bin and want to point to the real install directory; default: ./hooks
+Variable     | type   | description
+---          |---     |---
+CW_LOGDIR    | string | Ouput dir of all logfiles when using cronwrapper.<br>It is used by status script and sync script to read data from here. Default: "/var/tmp/cronlogs"
+CW_SINGLEJOB | int    | 0 or 1; 1=deny multiple execution of the same job (default)
+CW_HOOKDIR   | string | set an absolute directory to the hooks directory; use it if you use a created a softlink for the cronwrapper to /usr/local/bin and want to point to the real install directory; default: ./hooks; changing it is not needed
 
 For an optional rsync script to collect all logs of all servers on a central server (see [Cronlog-Sync](40_More/50_Cronlog-Sync.md)):
 
-Variable    | type   | description
----         |---     |---
-TOUCHFILE   | string | sync: filename of touch file to mark a timestamp of the last sync (created in in $LOGDIR); eg. "lastsync"
-TARGET      | string | ssh target where to sync files from $LOGFILE with `sshuser@targethost:/path`<br>Default: `get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/\$( hostname -f )`
-SSHKEY      | string | filename to ssh private key to connect passwordless to $TARGET
-SYNCAFTER   | int    | time in sec; default: 3600 (1h); time before syncing the logdir even if it has noch change
-REQUIREFQDN | int    | 0 or 1; block sync if `hostname -f` has no FQDN
+Variable     | type   | description
+---          |---     |---
+CW_TOUCHFILE | string | sync: filename of touch file to mark a timestamp of the last sync (created in in $CW_LOGDIR); eg. "lastsync"
+TARGET       | string | ssh target where to sync files from $LOGFILE with `sshuser@targethost:/path`<br>Default: `get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/\$( hostname -f )`
+SSHKEY       | string | filename to ssh private key to connect passwordless to $TARGET
+SYNCAFTER    | int    | time in sec; default: 3600 (1h); time before syncing the logdir even if it has noch change
+REQUIREFQDN  | int    | 0 or 1; block sync if `hostname -f` has no FQDN
 
 ## Environment file
 
