@@ -82,7 +82,7 @@ This script is part of Axels cronwrapper.
 
 $(cw.helpsection "✨" "SYNTAX")
 
-  $_self [-h|LOGFILE|LABEL]
+  $_self [-h] [LOGFILE|LABEL]
 
 $(cw.helpsection "🔧" "OPTIONS")
 
@@ -342,12 +342,16 @@ function showTotalstatus(){
 # ----------------------------------------------------------------------
 
 sCurrentServer=$(hostname -f)
+cw.color head
 cat <<ENDOFHEAD
 $line1
 
+
   AXELS CRONWRAPPER - Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
-________________________________________________________________________/ v$_version
+$( printf "%78s" "v $_version" )
+$line1
 ENDOFHEAD
+cw.color reset
 
 if [ "$1" = "-h" ]; then
         showhelp
