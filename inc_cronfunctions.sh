@@ -184,8 +184,11 @@ function cw.cecho (){
 # param  string  emoji
 # param  string  headline text
 function cw.helpsection(){
-        echo "      ________________________________________________________________________"
-        echo "...../ $( cw.emoji "$1" )$2"
+        local _emoji="$( cw.emoji $1 )"
+        local _label="$2"
+        echo
+        echo "     ___________________"
+        printf "%s %1s %-13s %s\n" "..../" "$_emoji" "$_label" "\....................................................."
 }
 
 # ----- locking --------------------------------------------------------
