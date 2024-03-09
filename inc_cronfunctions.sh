@@ -84,9 +84,12 @@ function cw.exec() {
 
 # show a given emoji if its display is supported
 # param  string  emoji to show
+# param  string  alternative text for NO_COLOR=1 output
 function cw.emoji {
         if [ "$NO_COLOR" != "1" ]; then
                 test "$(echo -ne '\xE0\xA5\xA5' | wc -m)" -eq 1 && echo "$1 "
+        else 
+                echo "$2"
         fi
 }
 
@@ -184,7 +187,7 @@ function cw.cecho (){
 # param  string  emoji
 # param  string  headline text
 function cw.helpsection(){
-        local _emoji="$( cw.emoji $1 )"
+        local _emoji="$( cw.emoji $1 ' * ')"
         local _label="$2"
         echo
         echo "     ___________________"
