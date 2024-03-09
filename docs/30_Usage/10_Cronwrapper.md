@@ -98,13 +98,13 @@ To use my wrappper
 The cronjob above needs to be rewritten like that:
 
 ```bash
-12 3 * * * root /usr/local/bin/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
+12 3 * * * root /opt/cronwrapper/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
 ```
 
 To test it immediately run the cron command line with its user:
 
 ```bash
-/usr/local/bin/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
+/opt/cronwrapper/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
 ```
 
 You may ask: And what is the difference now?

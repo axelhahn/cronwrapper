@@ -50,26 +50,3 @@ To sync logfiles to a central log server there is script that detects new files 
 
 Linux system with installed Bash.
 Tested on CentOS, Debian, Manjaro, Ubuntu.
-
-## New in 2.0
-
-* ADDED: hooks - execute your own script before and after each cronjob
-* ADDED: Support for `NO_COLOR=1`
-* ADDED: emoji support (only if NO_COLOR is not 1 and is supported)
-* UPDATE: enhanced output for `cronstatus.sh`: show a table with last executions
-* UPDATE: renamed variables with prefix "CW_" (for cron wrapper)
-* UPDATE: keep stats of returncodes and execution time for custom time (before: 4 days [fixed]; now: 14 days [can be configured with CW_KEEPDAYS])
-* UPDATE: cronstatus.sh shows history of returncodes and execution times (max. 10) per job
-
-### Upgrade guide from former versions
-
-* Update your *cronwrapper.cfg* ... 
-  * add the prefix "CW_" for existing vars which are now
-    * CW_LOGDIR
-    * CW_SINGLEJOB
-    * CW_TOUCHFILE
-  * optional: add variables
-    * CW_KEEPDAYS=N where N ist the number of days to keep history of returncodes and execution time; default is 14 (days)
-    * CW_HOOKDIR 
-
-(or copy cronwrapper.cfg.dist to cronwrapper.cfg an update the values)

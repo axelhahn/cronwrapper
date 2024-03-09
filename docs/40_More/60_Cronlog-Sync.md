@@ -85,7 +85,7 @@ I suggest to use -s param for a random delay - otherwise all your servers maybe 
 A cronjob to start the sync every 5 min:
 
 ```txt
-*/5 * * * * copy-cronlogs /usr/local/bin/cronlog-sync.sh -s 20 > /home/copy-cronlogs/cronlog-sync.log 2>&2
+*/5 * * * * copy-cronlogs /opt/cronwrapper/cronlog-sync.sh -s 20 > /home/copy-cronlogs/cronlog-sync.log 2>&2
 ```
 
 ### As systemd service
@@ -123,7 +123,7 @@ Group=copy-cronlogs
 LimitNOFILE=4096
 LimitNPROC=23868
 SyslogIdentifier=cronjob-watcher
-ExecStart=/usr/local/bin/onfilechange.sh -f '/var/tmp/cronlogs/' -c '/usr/local/bin/cronlog-sync.sh -q' -s
+ExecStart=/usr/local/bin/onfilechange.sh -f '/var/tmp/cronlogs/' -c '/opt/cronwrapper/cronlog-sync.sh -q' -s
 [Install]
 WantedBy=multi-user.target
 ```

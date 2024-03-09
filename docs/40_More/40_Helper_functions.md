@@ -8,7 +8,7 @@ You need to source it in the beginning of your cronjob script.
 ```bash
 #!/bin/bash
 (...)
-. /usr/local/bin/inc_cronfunctions.sh
+. /opt/cronwrapper/inc_cronfunctions.sh
 (...)
 ```
 
@@ -91,7 +91,7 @@ cw.unlock
 
 ```bash
 #!/bin/bash
-. /usr/local/bin/inc_cronfunctions.sh
+. /opt/cronwrapper/inc_cronfunctions.sh
 
 cw.exec rsync -rav /my/source/dir/ /my/target/dir/
 

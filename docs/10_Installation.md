@@ -11,17 +11,9 @@ Or clone the repository
 
 `cd /opt/` and `git clone https://github.com/axelhahn/cronwrapper.git`
 
-# Copy shellscripts
+# Symlinks to /usr/local/bin
 
-You can copy all shellscript files somewhere:
-
-```text
-cronstatus.sh
-cronwrapper.sh
-inc_cronfunctions.sh
-```
-
-or create softlinks in /usr/local/bin.
+This is optional. If you love to use the cronwrapper.sh with /usr/local/bin/ instead of /opt/cronwrapper/ (because of optical reaons) you can create softlinks (as root):
 
 ```bash
 cd /usr/local/bin/
@@ -54,7 +46,7 @@ inc_cronfunctions.sh
 With an unpriviledged user start the command in a terminal:
 
 ```text
-axel@linux-pc ~> /usr/local/bin/cronwrapper.sh 1 ls
+axel@linux-pc ~> /opt/cronwrapper/cronwrapper.sh 1 ls
 ```
 
 ## Status
@@ -64,7 +56,7 @@ You don't get any outout. That is the wanted behaviour for cronjobs.
 Let's have a look to status of all started cronwrapper jobs:
 
 ```text
-axel@linux-pc ~> /usr/local/bin/cronstatus.sh 
+axel@linux-pc ~> /opt/cronwrapper/cronstatus.sh 
 ____________________________________________________________________________________
 
 CRONJOBS on [linux-pc]
@@ -84,7 +76,7 @@ ______________________________________________________________________________/ 
 If you wait more than a minute and repeat the command, you see 
 
 ```text
-axel@linux-pc ~> /usr/local/bin/cronstatus.sh
+axel@linux-pc ~> /opt/cronwrapper/cronstatus.sh
 ____________________________________________________________________________________
 
 CRONJOBS on [linux-pc]
@@ -106,6 +98,6 @@ ______________________________________________________________________________/ 
 You can start the *cronstatus.sh* and add a logfile to see a detailed log of the job:
 
 ```text
-/usr/local/bin/cronstatus.sh /var/tmp/cronlogs/linux-pc_ls.log
+/opt/cronwrapper/cronstatus.sh /var/tmp/cronlogs/linux-pc_ls.log
 ...
 ```

@@ -63,8 +63,9 @@ The exitcode of a hook script is not relevant. The returncode of the cronjob wil
 
 ### Send an email if a job failed
 
-Remark: 
-To send an email you need to install a mailer like sendmail or postfix locally and configure it to be able to send trusted emails via your smtp gateway.
+**Requirements**: 
+
+To send an email you need to install a MTA like sendmail or postfix locally and configure it to be able to send trusted emails via your smtp gateway.
 
 Create a script as root eg. `hooks/after/on-error/send_email.sh`.
 
