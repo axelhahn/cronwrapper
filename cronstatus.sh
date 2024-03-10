@@ -70,7 +70,7 @@ function getRunningfiles(){
 # show help
 # param  string  info or error message
 function showhelp(){
-        local _self="$( basename $0 )"
+        local _self; _self="$( basename $0 )"
 echo "
 
 Show the status of all local cronjobs that use the cronwrapper or a single job
@@ -154,20 +154,7 @@ function showStatus(){
 
         CW_LABELSTR=$( _getLabel "$CW_LOGFILE")
         local _showlog="$2"
-        echo
-        cw.cecho "head" "..... $( cw.emoji "📜" )$CW_LABELSTR"
-        echo
-        echo "    Logfile   : $CW_LOGFILE"
-        if [ -n "$_showlog" ]; then
-                cat "$CW_LOGFILE" \
-                        | sed -e "s/^REM.*/$( printf "\033[0;36m&\033[0m" )/g" \
-                                -e "s/^[A-Z]*/$( printf "\033[0;35m&\033[0m" )/g" \
-                                -e "s/=/$( printf "\033[0;32m&\033[0m" )/g" \
-                                -e "s/----- HOOK.*$/$( printf "\033[0;36m&\033[0m" )/g" \
-                                -e "s/^/    /g"
-                echo
-                echo "    Logfile   : $CW_LOGFILE"
-        fi
+
         typeset -i iErr=0
 
         # server=$(basename "$CW_LOGFILE" | cut -f 1 -d "_")
@@ -246,6 +233,17 @@ function showStatus(){
 
         # ----- OUTPUT
 
+        if [ $iErr -gt 0 ]; then
+                _jobstatus=$(cw.cecho "error" "$( cw.emoji "❌" )FAILED")
+                iErrJobs=$iErrJobs+1
+        else
+                _jobstatus=$(cw.cecho "ok" "$( cw.emoji "✔️" )OK")
+        fi
+        echo
+        echo -n "..... $_jobstatus "
+        cw.cecho "head" "... $( cw.emoji "📜" )$CW_LABELSTR"
+        echo
+
         echo "${sPre}command   : ${sCmd}"
         echo "${sPre}last start: ${sLastStart}"
         echo "${sPre}returncode: ${rc} ${statusRc}"
@@ -262,12 +260,25 @@ function showStatus(){
         test -n "${sServerCheck}" && cw.cecho "warning" "${sPre}${sServerCheck}"
 
 
-        if [ $iErr -gt 0 ]; then
-                cw.cecho "error" "${sPre}$( cw.emoji "❌" )CHECK FAILED"
-                iErrJobs=$iErrJobs+1
-        else
-                cw.cecho "ok" "${sPre}$( cw.emoji "✔️" )CHECK OK"
+        # cw.cecho "head" "..... $( cw.emoji "📜" )$CW_LABELSTR"
+        echo
+        echo "    Logfile   : $CW_LOGFILE"
+        if [ -n "$_showlog" ]; then
+                (
+                if [ "$NO_COLOR" != "1" ]; then
+                        cat "$CW_LOGFILE" \
+                        | sed -e "s/^REM.*/$(          printf "\033[0;36m&\033[0m" )/g" \
+                                -e "s/^[A-Z]*/$(       printf "\033[0;35m&\033[0m" )/g" \
+                                -e "s/=/$(             printf "\033[0;34m&\033[0m" )/g" \
+                                -e "s/----- HOOK.*$/$( printf "\033[0;36m&\033[0m" )/g"
+                else
+                        cat "$CW_LOGFILE" 
+                fi 
+                ) | sed "s/^/${sPre}${sPre}/g"              
+                echo "    Logfile   : $CW_LOGFILE"
         fi
+        echo
+
         _showLast "$CW_LABELSTR"
         echo
 }
@@ -347,7 +358,8 @@ cat <<ENDOFHEAD
 $line1
 
 
-  AXELS CRONWRAPPER - Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
+  AXELS CRONWRAPPER
+        Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
 $( printf "%78s" "v $_version" )
 $line1
 ENDOFHEAD
