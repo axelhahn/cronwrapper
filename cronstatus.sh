@@ -153,6 +153,13 @@ function showStatus(){
         test -f "$_label" || CW_LOGFILE="$CW_LOGDIR/$( hostname -f )_${_label}.log"
 
         CW_LABELSTR=$( _getLabel "$CW_LOGFILE")
+
+        if [ ! -f "$CW_LOGFILE" ]; then
+                echo
+                cw.cecho "error" "ERROR: Wrong logfile / label was given."
+                echo
+                exit 1
+        fi
         local _showlog="$2"
 
         typeset -i iErr=0
@@ -240,8 +247,8 @@ function showStatus(){
                 _jobstatus=$(cw.cecho "ok" "$( cw.emoji "✔️" )OK")
         fi
         echo
-        echo -n "..... $_jobstatus "
-        cw.cecho "head" "... $( cw.emoji "📜" )$CW_LABELSTR"
+        echo -n "..... $_jobstatus"
+        echo ": $CW_LABELSTR"
         echo
 
         echo "${sPre}command   : ${sCmd}"
@@ -260,7 +267,6 @@ function showStatus(){
         test -n "${sServerCheck}" && cw.cecho "warning" "${sPre}${sServerCheck}"
 
 
-        # cw.cecho "head" "..... $( cw.emoji "📜" )$CW_LABELSTR"
         echo
         echo "    Logfile   : $CW_LOGFILE"
         if [ -n "$_showlog" ]; then
@@ -276,8 +282,8 @@ function showStatus(){
                 fi 
                 ) | sed "s/^/${sPre}${sPre}/g"              
                 echo "    Logfile   : $CW_LOGFILE"
+                echo
         fi
-        echo
 
         _showLast "$CW_LABELSTR"
         echo
@@ -304,7 +310,6 @@ function showRunningJobs(){
                         typeset -i iTTL;   iTTL=$(getLogValue 'SCRIPTTTL')
                         if [ $iTTL -lt $iSince ]; then
                                 statusTtl="${statusERROR}: TTL=$iTTL min is lower than execution time of ${iSince} min"
-                                iErr+=1
                         fi
 
                         echo
@@ -319,7 +324,6 @@ function showRunningJobs(){
                                 else
                                         cw.cecho "error" "${sPre}ERROR     : The process $iPid does not exist anymore. The job was aborted."
                                         cw.cecho "error" "${sPre}            Check the log file and delete it."
-                                        iErr+=1
                                 fi
                         fi
 
