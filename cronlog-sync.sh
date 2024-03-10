@@ -31,13 +31,17 @@ CFGFILE=$(dirname $0)/cronwrapper.cfg
 # ----------------------------------------------------------------------
 
 function showHead(){
+    cw.color head
 cat <<ENDOFHEAD
-____________________________________________________________________________________
+______________________________________________________________________________
 
-  AXELS CRONWRAPPER - SYNC LOCAL LOGS OF $( cw.emoji "🖥️" )$( hostname -f )
-______________________________________________________________________________/ v$_version
+  AXELS CRONWRAPPER
+  SYNC LOCAL LOGS OF $( cw.emoji "🖥️" )$( hostname -f )
+$( printf "%78s" "v $_version" )
+______________________________________________________________________________
 
 ENDOFHEAD
+    cw.color reset
 }
 
 function showHelp(){
@@ -88,6 +92,7 @@ $(cw.helpsection "🧩" "EXAMPLES")
 
   $self -s 20 -t [TARGET]
                 Wait max. 20 sec before starting sync to a custom target
+
   $self -q -f 0
                 be more quiet and force sync (0 sec)
 
