@@ -26,8 +26,6 @@ CW_LOGFILE=
 LOGDIR=/var/tmp/cronlogs
 
 typeset -i REQUIREFQDN=0
-# outfile=/tmp/cronjob_status.$$.tmp
-# outfile=/tmp/cronjob_status.tmp
 
 test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh
@@ -35,6 +33,11 @@ test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
 typeset -i iMaxAge
 iMaxAge=$(date +%s)
 typeset -i iErrJobs=0
+
+typeset -i bShowDetails=1
+typeset -i bShowHistory=1
+typeset -i bShowRunning=1
+typeset -i bShowLogfile=1
 
 line1="______________________________________________________________________________"
 statusOK=$(cw.cecho ok "OK")
@@ -82,11 +85,17 @@ This script is part of Axels cronwrapper.
 
 $(cw.helpsection "✨" "SYNTAX")
 
-  $_self [-h] [LOGFILE|LABEL]
+  $_self [OPTIONS] [LOGFILE|LABEL]
 
 $(cw.helpsection "🔧" "OPTIONS")
 
-  -h       show this help and exit.
+  -h|--help        show this help and exit.
+
+  -d|--nodetails   hide deteiled meta infos
+  -l|--nolast      hide last executions
+  -o|--nooutput    hide logfile output (when adding a param for logfile|label)
+  -r|--norunning   hide running processes
+  -s|--short       short status; sortcut for '-d -l -r'
 
 $(cw.helpsection "🏷️" "PARAMETERS")
 
@@ -142,6 +151,7 @@ function _showLast(){
         else
                 echo "${sPre}(no other executions found)"
         fi
+        echo
 } 
 
 # show status of a single sob
@@ -246,30 +256,34 @@ function showStatus(){
         else
                 _jobstatus=$(cw.cecho "ok" "$( cw.emoji "✔️" )OK")
         fi
-        echo
-        echo -n "..... $_jobstatus"
-        echo ": $CW_LABELSTR"
-        echo
+        if [ $bShowDetails -ne 0 ]; then
+                echo -n "..... $_jobstatus"
+                echo ": $CW_LABELSTR"
+                echo
 
-        echo "${sPre}command   : ${sCmd}"
-        echo "${sPre}last start: ${sLastStart}"
-        echo "${sPre}returncode: ${rc} ${statusRc}"
-        if [ $rc -ne 0 ]; then
+                echo "${sPre}Command   : ${sCmd}"
+                echo "${sPre}Last start: ${sLastStart}"
+                echo "${sPre}Returncode: ${rc} ${statusRc}"
+                if [ $rc -ne 0 ]; then
+                        echo
+                        echo "${sPre}${sPre}Last lines in output:"
+                        getLogValue SCRIPTOUT | tail -20 | sed "s#^#${sPre}${sPre}#g"
+                        echo
+                fi
+                echo "${sPre}Duration  : ${iExectime} s"
+                echo "${sPre}Ttl       : ${statusTtl}"
+                echo "${sPre}Expires   : ${iJobExpire} ${statusExpire}"
+                test -n "${sFqdnCheck}"   && cw.cecho "warning" "${sPre}${sFqdnCheck}"
+                test -n "${sServerCheck}" && cw.cecho "warning" "${sPre}${sServerCheck}"
+
+
                 echo
-                echo "${sPre}${sPre}Last lines in output:"
-                getLogValue SCRIPTOUT | tail -20 | sed "s#^#${sPre}${sPre}#g"
-                echo
+                echo "    Logfile   : $CW_LOGFILE"
+        else
+                echo "$_jobstatus: $CW_LABELSTR"
         fi
-        echo "${sPre}duration  : ${iExectime} s"
-        echo "${sPre}ttl       : ${statusTtl}"
-        echo "${sPre}expires   : ${iJobExpire} ${statusExpire}"
-        test -n "${sFqdnCheck}"   && cw.cecho "warning" "${sPre}${sFqdnCheck}"
-        test -n "${sServerCheck}" && cw.cecho "warning" "${sPre}${sServerCheck}"
 
-
-        echo
-        echo "    Logfile   : $CW_LOGFILE"
-        if [ -n "$_showlog" ]; then
+        if [ -n "$_showlog" ] && [ "$bShowLogfile" -ne "0" ]; then
                 (
                 if [ "$NO_COLOR" != "1" ]; then
                         cat "$CW_LOGFILE" \
@@ -282,11 +296,9 @@ function showStatus(){
                 fi 
                 ) | sed "s/^/${sPre}${sPre}/g"              
                 echo "    Logfile   : $CW_LOGFILE"
-                echo
         fi
 
-        _showLast "$CW_LABELSTR"
-        echo
+        test "$bShowHistory" -ne "0" && _showLast "$CW_LABELSTR"
 }
 
 # show running jobs
@@ -345,12 +357,14 @@ function showTotalstatus(){
                 showStatus "$logfile"
         done
 
-        showRunningJobs
+        test "$bShowRunning" -ne "0" && showRunningJobs
 
-        echo $line1
+        test "$bShowDetails" -ne "0" && (
+                echo $line1
+                echo "JOBS: $(getLogfiles | wc -l ) .. RUNNING: $(getRunningfiles | wc -l ) .. ERRORS: $iErrJobs"
+                echo
+        )
 
-        echo "JOBS: $(getLogfiles | wc -l ) .. RUNNING: $(getRunningfiles | wc -l ) .. ERRORS: $iErrJobs"
-        echo
 }
 # ----------------------------------------------------------------------
 # MAIN
@@ -363,16 +377,29 @@ $line1
 
 
   AXELS CRONWRAPPER
-        Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
+  Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
 $( printf "%78s" "v $_version" )
 $line1
 ENDOFHEAD
 cw.color reset
 
-if [ "$1" = "-h" ]; then
-        showhelp
-        exit 0
-fi
+
+while [[ "$#" -gt 0 ]]; do case $1 in
+    -h|--help) showhelp; exit 0;;
+
+    -d|--nodetails) bShowDetails=0; shift;;
+    -l|--nolast)    bShowHistory=0; shift;;
+    -o|--nooutput)  bShowLogfile=0; shift;;
+    -r|--norunning) bShowRunning=0; shift;;
+    -s|--short)     bShowHistory=0; bShowDetails=0; bShowRunning=0; shift;;
+    *) if grep "^-" <<< "$1" >/dev/null ; then
+        echo; echo "ERROR: Unknown parameter: $1"; echo; showhelp; exit 2
+       fi
+       break;
+       ;;
+esac; done
+
+
 
 if [ -n "$1" ]; then
         showStatus "$1" 1
