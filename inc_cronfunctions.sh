@@ -166,6 +166,7 @@ function cw.color(){
                         ;;
                 "error") sColorcode="91" # red
                         ;;
+                *) echo "ERROR: unknown color keyword: $_color"; return 1
         esac
         if [ -n "${sColorcode}" ]; then
                 echo -ne "\e[${sColorcode}m"
@@ -190,8 +191,7 @@ function cw.helpsection(){
         local _emoji; _emoji="$( cw.emoji $1 '* ')"
         local _label="$2"
         echo
-        echo "     __________________"
-        printf "%s %1s%-13s %s\n" "..../" "$_emoji" "$_label" "\\\....................................................."
+        echo "####| ${_emoji}${_label} |####"
 }
 
 # ----- locking --------------------------------------------------------
