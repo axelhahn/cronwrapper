@@ -19,7 +19,7 @@
 # 2024-01-30  ahahn  2.0  update help; use cw.emoji; use label as parameter; show last executions
 # ------------------------------------------------------------
 
-_version=2.0pre
+_version=2.0
 
 CW_LABELSTR=
 CW_LOGFILE=
@@ -91,7 +91,7 @@ $(cw.helpsection "🔧" "OPTIONS")
 
   -h|--help        show this help and exit.
 
-  -d|--nodetails   hide deteiled meta infos
+  -d|--nodetails   hide detailed meta infos
   -l|--nolast      hide last executions
   -o|--nooutput    hide logfile output (when adding a param for logfile|label)
   -r|--norunning   hide running processes
