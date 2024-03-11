@@ -28,51 +28,71 @@ Use -h to show a help:
 ```text
 cronwrapper.sh -h
 
---------------------------------------------------------------------------------
+                                                                           | 
+    A  X  E  L  S                                                        --x--
+   ______                        ________                                  |
+  |      |.----.-----.-----.    |  |  |  |.----.---.-.-----.-----.-----.----.
+  |   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
+  |______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
+                                                     |__|  |__|
+                                                                       v 2.0
 
-AXELS CRONWRAPPER
-Puts control and comfort to cronjobs.
+  Puts control and comfort to your cronjobs.
 
-source: https://github.com/axelhahn/cronwrapper
-license: GNU GPL 3.0
+  📄 Source : https://github.com/axelhahn/cronwrapper
+  📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+  📜 License: GNU GPL 3.0
 
---------------------------------------------------------------------------------
-
-Showing help ...
+ERROR: missing parameters.
 
 
-SYNTAX: ./cronwrapper.sh TTL COMMAND [LABEL]
+####| ✨ SYNTAX |####
 
-PARAMETERS:
-    TTL       integer value in [min]
-              This value says how often your cronjob runs. It is used to verify
-              if a cronjob is out of date / does not run anymore.
+  ./cronwrapper.sh TTL COMMAND [LABEL]
 
-    COMMAND   command to execute
-              When using spaces or parameters then quote it.
-              Be strict: if your job is ok then exit wit returncode 0.
-              If an error occurs exit with returncode <> 0.
 
-    LABEL     optional: label to be used as output filename
-              If not set it will be detected from basename of executed command.
-              When you start a script with different parameters it is highly
-              recommended to set the label.
+####| 🏷 PRAMETERS |####
 
-REMARK:
-You don't need to redirect the output in a cron config file. STDOUT and
-STDERR will be fetched automaticly. 
-It also means: Generate as much output as you want and want to have to debug a
-job in error cases.
+  TTL     integer value in [min]
+          This value says how often your cronjob runs. It is used to verify
+          if a cronjob is out of date / does not run anymore.
+          As a fast help a few values:
+            60    - 1 hour
+            1440  - 1 day
+            10080 - 7 days
+  
+  COMMAND command to execute
+          When using spaces or parameters then quote it.
+          Be strict: if your job is ok then exit wit returncode 0.
+          If an error occurs exit with returncode <> 0.
+  
+  LABEL   optional: label to be used as output filename
+          If not set it will be detected from basename of executed command.
+          When you start a script with different parameters it is highly
+          recommended to set the label.
 
-OUTPUT:
-The output directory of all jobs executed by ./cronwrapper.sh is
-/var/tmp/cronlogs.
-The output logs are parseble with simple grep command.
 
-MONITORING:
-You can run ./cronstatus.sh to get a list of all cronjobs and its
-status. Check its source. Based on its logic you can create a check script for
-your server monitoring.
+####| 📝 REMARK |####
+
+  You don't need to redirect the output in a cron config file. STDOUT and
+  STDERR will be fetched automaticly. 
+  It also means: Generate as much output as you want and want to have to debug
+  a job in error cases.
+
+
+####| 🗨 MORE TO SAY |####
+
+  The output directory of all jobs executed by ./cronwrapper.sh is
+  /var/tmp/cronlogs.
+  The output logs are parseble with simple grep command.
+
+  You can run ./cronstatus.sh to get a list of all cronjobs and 
+  its status. Based on its output you can create a check script for your 
+  server monitoring.
+
+  You can sync all logfiles of all cronjobs to a defined server using
+  ./cronlog-sync.sh
+
 ```
 
 # Replace existing Cronjobs

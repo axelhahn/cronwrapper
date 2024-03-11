@@ -8,6 +8,7 @@
 * ADDED: Support for `NO_COLOR=1`
 * ADDED: emoji support (only if NO_COLOR is not 1 and is supported)
 * UPDATE: enhanced output for `cronstatus.sh`: show a table with last executions (max. 10 per job)
+* UPDATE: `cronstatus.sh` got a few cli parameter options
 * UPDATE: renamed variables with prefix "CW_" (for cron wrapper)
 * UPDATE: keep stats of returncodes and execution time for custom time (before: 4 days [fixed]; now: 14 days [can be configured with CW_KEEPDAYS])
 

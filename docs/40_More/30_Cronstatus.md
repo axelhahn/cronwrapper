@@ -7,26 +7,55 @@ By starting the helper script
 
 ```txt
 > cronstatus.sh -h
-____________________________________________________________________________________
+______________________________________________________________________________
 
-CRONJOBS on [linux-pc]
-______________________________________________________________________________/ v1.9
 
-SYNTAX: cronstatus.sh [OPTIONS|LOGFILE]
+  AXELS CRONWRAPPER
+  Jobstatus of cronjobs on 🖥 linux-pc
+                                                                         v 2.0
+______________________________________________________________________________
 
-OPTIONS:
-    -h       show this help and exit.
 
-PARAMETERS:
-    LOGFILE  filename or label to show details of a single logfile
-             Default: without any logfile you get a total overview of all 
-             cronjobs.
-EXAMPLES:
-    cronstatus.sh
-             show total overview over all jobs
+Show the status of all local cronjobs that use the cronwrapper or a single job
+by giving its logfile as parameter.
 
-    cronstatus.sh /var/tmp/cronlogs/myjobfile.log
-             show output of a single job
+This script is part of Axels cronwrapper.
+  📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+  📜 License: GNU GPL 3.0
+
+
+####| ✨ SYNTAX |####
+
+  cronstatus.sh [OPTIONS] [LOGFILE|LABEL]
+
+
+####| 🔧 OPTIONS |####
+
+  -h|--help        show this help and exit.
+
+  -d|--nodetails   hide detailed meta infos
+  -l|--nolast      hide last executions
+  -o|--nooutput    hide logfile output (when adding a param for logfile|label)
+  -r|--norunning   hide running processes
+  -s|--short       short status; sortcut for '-d -l -r'
+
+
+####| 🏷 PARAMETERS |####
+
+  LOGFILE  filename to show details of a single logfile
+  LABEL    label of a job
+
+  Default: without any logfile/ label you get a total overview of all
+           cronjobs.
+
+
+####| 🧩 EXAMPLES |####
+
+  cronstatus.sh
+           show total overview over all jobs
+
+  cronstatus.sh /var/tmp/cronlogs/myjobfile.log
+           show output of a single job
 
 ```
 
