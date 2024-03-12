@@ -1,19 +1,22 @@
-# Get the files
+## Get the files
 
-## Download
+### Git clone
+
+Clone the repository.   
+
+```bash
+cd /opt/
+git clone https://github.com/axelhahn/cronwrapper.git
+```
+
+### Download
 
 Go to https://github.com/axelhahn/cronwrapper and download the archive and extract it
 in `/opt/cronwrapper/`
 
-## Git clone
+## Symlinks to /usr/local/bin
 
-Or clone the repository
-
-`cd /opt/` and `git clone https://github.com/axelhahn/cronwrapper.git`
-
-# Symlinks to /usr/local/bin
-
-This is optional. If you love to use the cronwrapper.sh with /usr/local/bin/ instead of /opt/cronwrapper/ (because of optical reaons) you can create softlinks (as root):
+This is optional. If you love to use the cronwrapper.sh with /usr/local/bin/ instead of /opt/cronwrapper/ (because of optical or compatibility reaons) you can create softlinks (as root):
 
 ```bash
 cd /usr/local/bin/
@@ -22,7 +25,7 @@ ln -s /opt/cronwrapper/cronwrapper.sh
 ln -s /opt/cronwrapper/inc_cronfunctions.sh
 ```
 
-# Permissions
+## Permissions
 
 In a fresh download / git clone it is not needed to change something. This is just for documentation.
 
@@ -39,9 +42,9 @@ We need `0644` permission (readable for all) on the file that will be sourced:
 inc_cronfunctions.sh
 ```
 
-# A first test
+## A first test
 
-## Run a job
+### Run a job
 
 With an unpriviledged user start the command in a terminal:
 
@@ -49,7 +52,7 @@ With an unpriviledged user start the command in a terminal:
 axel@linux-pc ~> /opt/cronwrapper/cronwrapper.sh 1 ls
 ```
 
-## Status
+### Status
 
 This starts the ls command and sets a ttl value of 1 minute.
 You don't get any outout. That is the wanted behaviour for cronjobs.

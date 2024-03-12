@@ -1,4 +1,4 @@
-# Hooks
+## Hooks
 
 Hooks are points during the cronjob process where you can execute custom scripts at the beginning, at the end and during the process.
 
@@ -18,11 +18,11 @@ hooks
     `-- always
 ```
 
-## “before” actions
+### “before” actions
 
 They don’t know an execution status of something. They can execute only scripts that are located in “always” subdirectory.
 
-## “after” actions
+### “after” actions
 
 The “afterwards” added hooks know the execution status of the last action. That’s why in the hook directory we have additionally the subdirs
 
@@ -31,13 +31,13 @@ The “afterwards” added hooks know the execution status of the last action. T
 
 After execution of the scripts of “on-ok” or “on-error” folder. Then additionally the found scripts of “always” folder will be executed.
 
-## Order of multiple scripts
+### Order of multiple scripts
 
 You can place multiple scripts into the subdirs on-ok|on-error|always. To be executed a file must have execution permissions.
 
 Their order for execution is alphabetic (by using the sort command). Suggestion is to add numbers in front of a script name.
 
-## What variables you can access..
+### What variables you can access..
 
 Your hooks maybe want to access a few information to send a notification or whatever.
 These data may help you to generate a message.
@@ -55,13 +55,13 @@ These data may help you to generate a message.
 | iExectime       | {int}    | execution time in seconds (for after/*/*)|
 | rc              | {int}    | resturncode of the failed job (for after/on-error/*)|
 
-## Exitcode
+### Exitcode
 
 The exitcode of a hook script is not relevant. The returncode of the cronjob will be preserved.
 
-## Example
+### Example
 
-### Send an email if a job failed
+#### Send an email if a job failed
 
 **Requirements**: 
 

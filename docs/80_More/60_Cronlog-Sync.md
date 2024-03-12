@@ -1,6 +1,6 @@
-# Cronlog-Sync
+## Cronlog-Sync
 
-## Introduction
+### Introduction
 
 The helper script can sync new local logfiles of the cronwrapper
 output directory to central system by using rsync.
@@ -27,7 +27,7 @@ on local system:
 * test ssh connect as user copy-cronlogs `ssh get-cronlogs@logserver.example.com echo OK`
 * update values CW_SSHKEY and CW_TARGET in `cronstatus.cfg`
 
-## Show help
+### Show help
 
 Use -h to show a help:
 
@@ -69,14 +69,15 @@ EXAMPLES:
 
 ```
 
-## Automation of the sync
+### Automation of the sync
 
-### As cronjob
+#### As cronjob
 
 Cronlog-sync saves the last successful sync with a touched file.
 If does not connect to the target if no newer logfile exists. So it can prevent unneeded ssh commands.
 
 [+] simple setup
+
 [-] stupid polling each N minutes - logs arrive with a delay on target logserver
 
 You need to start the `cronlog-sync.sh` with user *copy-cronlogs*.
@@ -88,13 +89,14 @@ A cronjob to start the sync every 5 min:
 */5 * * * * copy-cronlogs /opt/cronwrapper/cronlog-sync.sh -s 20 > /home/copy-cronlogs/cronlog-sync.log 2>&2
 ```
 
-### As systemd service
+#### As systemd service
 
 To sync changed logfiles directly after a cronjob is finished
 I used a service that watches for changes on the log directory
 using the `stat` command.
 
 [+] low delay time
+
 [-] extra installation needed
 
 (1) 

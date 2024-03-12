@@ -1,5 +1,4 @@
-
-# Introduction
+## Introduction
 
 This Bash script `inc_cronfunctions.sh` contains a few helpful functions for your cronjob scripts. If you write them as Bash scripts too.
 
@@ -14,7 +13,7 @@ You need to source it in the beginning of your cronjob script.
 
 This adds a variable rcAll and a few functions.
 
-# functions
+## Functions
 
 After sourcing inc_cronfunctions.sh you get a list of available function with `cw.help`.
 
@@ -87,7 +86,7 @@ cw.unlock
 
 ```
 
-## example script
+### example script
 
 ```bash
 #!/bin/bash

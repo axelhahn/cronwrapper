@@ -1,7 +1,6 @@
+## Cronstatus
 
-# Cronstatus
-
-## Show help
+### Show help
 
 By starting the helper script 
 
@@ -59,7 +58,7 @@ This script is part of Axels Cronwrapper.
 
 ```
 
-## Execute without parameter
+### Execute without parameter
 
 It loops over all logfiles to see the last status of all your jobs (that were executed with the cronwrapper).
 
@@ -120,7 +119,7 @@ CURRENTLY RUNNING JOBS:
 If the job was aborted - maybe because of a reboot while the job was running) you get a line `ERROR: The process NNNNN does not exist anymore.` 
 Then you should check the file content and delete it, eg by using `./cronstatus.sh [logfile]` (see below)
 
-### Exitcode
+#### Exitcode
 
 The exit status of the cronstatus is the count of found jobs with error.
 It is zero if all jobs are OK.
@@ -137,7 +136,7 @@ Example for Icinga2:
 https://git-repo.iml.unibe.ch/iml-open-source/icinga-checks/-/blob/master/check_cronstatus
 
 
-### Example output on error
+#### Example output on error
 
 On Error you get the last lines of the output with tail command.
 It is a try to help - if the log is a bit bigger you need to open the log.
@@ -157,7 +156,7 @@ It is a try to help - if the log is a bit bigger you need to open the log.
     CHECK FAILED
 ```
 
-## View detail
+### View detail
 
 If you add a logfile as parameter you get a highlighted output of the log and the analysis section for this job.
 

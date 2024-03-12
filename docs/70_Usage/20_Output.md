@@ -1,4 +1,4 @@
-# Logged data
+## Logged data
 
 Have look into the directory after your first job was run.
 
@@ -14,11 +14,9 @@ The wrapper stores 3 information in different files
 
 The filenames contain the hostname (taken from `hostname -f`) and the label of the job (which is generated or given as 3rd param).
 
-## Logfile
+### Logfile
 
-### Output
-
-Show the created output of a cronjob:
+The created output of a cronjob look like this:
 
 ```bash
 cat /var/tmp/cronlogs/[your-logfile]*.log
@@ -47,7 +45,7 @@ REM ----------------------------------------------------------------------------
 REM /opt/cronwrapper/cronwrapper.sh finished at Do 22 Sep 2022 09:48:58 CEST
 ```
 
-### Syntax
+#### Syntax
 
 You see lines with
 
@@ -70,7 +68,7 @@ grep "^SCRIPTRC" /var/tmp/cronlogs/*.log
 
 The last command tests the returncode only. 
 
-### Variables
+#### Variables
 
 To detect outdated jobs see section for cronstatus.sh on the next page.
 
@@ -87,14 +85,14 @@ To detect outdated jobs see section for cronstatus.sh on the next page.
 | SCRIPTRC        | integer  | returncode of the executed commandline |
 | SCRIPTOUT       | string   | Output of the executed command. This value can be repeated in the log on multiline outputs
 
-## flagfile
+### flagfile
 
 The flagfile is a zero byte file with a generated filename from label, expiration time and hostname.
 The label correspondents to a log file.
 
 The flagfile will be touched if a cronjob was finished.
 
-## joblog
+### joblog
 
 The daily joblog exists for jobs that run several / many times per day. It stores the Label of a job, the starting time and a result code.
 

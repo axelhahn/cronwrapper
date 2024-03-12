@@ -1,4 +1,4 @@
-# Introduction
+## Introduction
 
 The cronwrapper.sh is a script to wrap your (existing) cronjob. 
 
@@ -21,7 +21,7 @@ It does a few small and helpful things:
     script detects with it if a cronjob log is outdated
 * all metadata and the output will be written in a log file with parsable
 
-# Show help
+## Show help
 
 Use -h to show a help:
 
@@ -95,7 +95,7 @@ ERROR: missing parameters.
 
 ```
 
-# Replace existing Cronjobs
+## Replace existing Cronjobs
 
 I am sure you already have some cronjobs on your systems :-)
 
