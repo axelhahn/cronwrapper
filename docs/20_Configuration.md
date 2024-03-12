@@ -23,14 +23,14 @@ CW_HOOKDIR=./hooks
 
 # ----- for sync of local logs
 CW_TOUCHFILE=lastsync
-TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
-SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
+CW_TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
+CW_SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
 
 # force rsync even if no change was found - time in sec
-SYNCAFTER=3600
+CW_SYNCAFTER=3600
 
 # disallow hosts that have no domain in hostname -f; set 0 or 1
-REQUIREFQDN=0
+CW_REQUIREFQDN=0
 
 # -----------------------------------------------------------------------------
 ```
@@ -48,10 +48,10 @@ For an optional rsync script to collect all logs of all servers on a central ser
 Variable     | type   | description
 ---          |---     |---
 CW_TOUCHFILE | string | sync: filename of touch file to mark a timestamp of the last sync (created in in $CW_LOGDIR); eg. "lastsync"
-TARGET       | string | ssh target where to sync files from $LOGFILE with `sshuser@targethost:/path`<br>Default: `get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/\$( hostname -f )`
-SSHKEY       | string | filename to ssh private key to connect passwordless to $TARGET
-SYNCAFTER    | int    | time in sec; default: 3600 (1h); time before syncing the logdir even if it has noch change
-REQUIREFQDN  | int    | 0 or 1; block sync if `hostname -f` has no FQDN
+CW_TARGET    | string | ssh target where to sync files from $LOGFILE with `sshuser@targethost:/path`<br>Default: `get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/\$( hostname -f )`
+CW_SSHKEY       | string | filename to ssh private key to connect passwordless to $TARGET
+CW_SYNCAFTER    | int    | time in sec; default: 3600 (1h); time before syncing the logdir even if it has noch change
+CW_REQUIREFQDN  | int    | 0 or 1; block sync if `hostname -f` has no FQDN
 
 ## Environment file
 

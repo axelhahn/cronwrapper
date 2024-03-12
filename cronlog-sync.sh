@@ -14,12 +14,12 @@
 # 2024-01-23  v1.6  ahahn                     update help; use cw.emoji; update exitcodes
 # ======================================================================
 
-_version=1.6
+_version=2.0
 CW_LOGDIR=/var/tmp/cronlogs
-TARGET=
-SSHKEY=
-typeset -i SYNCAFTER=3600
-typeset -i REQUIREFQDN=0
+CW_TARGET=
+CW_SSHKEY=
+typeset -i CW_SYNCAFTER=3600
+typeset -i CW_REQUIREFQDN=0
 typeset -i VERBOSE=1
 
 . $( dirname $0)/inc_cronfunctions.sh
@@ -53,7 +53,7 @@ This script syncs local cronlogs to a target.
 It should be used as cronjob in /etc/cron.d/ and/ or triggered
 whem any cronwrapper script was fisnished.
 
-This script is part of Axels cronwrapper.
+This script is part of Axels Cronwrapper.
   $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   $( cw.emoji "📜" )License: GNU GPL 3.0
 
@@ -65,13 +65,13 @@ $(cw.helpsection "🔧" "OPTIONS")
 
   -f [integer]  time in sec when to force symc without new logs
                 value 0 forces sync
-                current value: [$SYNCAFTER]
+                current value: [$CW_SYNCAFTER]
 
   -h            show this help
 
   -i [string]   path to ssh private key file
                 current value:
-                [$SSHKEY]
+                [$CW_SSHKEY]
 
   -l [string]   local log dir of cronjobs
                 current value:[$CW_LOGDIR]
@@ -82,7 +82,7 @@ $(cw.helpsection "🔧" "OPTIONS")
 
   -t [string]   target dir (local or remote like rsync syntax)
                 current value: 
-                [$TARGET]
+                [$CW_TARGET]
 
 $(cw.helpsection "🔷" "DEFAULTS")
 
@@ -123,10 +123,10 @@ do
             exit 0
             ;;
         f)
-            SYNCAFTER=$OPTARG
+            CW_SYNCAFTER=$OPTARG
             ;;
         i)
-            SSHKEY=$OPTARG
+            CW_SSHKEY=$OPTARG
             ;;
         l)
             CW_LOGDIR=$OPTARG
@@ -140,7 +140,7 @@ do
             sleep $iSleep
             ;;
         t)
-            TARGET=$OPTARG
+            CW_TARGET=$OPTARG
             ;;
         :)
             cw.cecho error "ERROR: Option -$OPTARG requires an argument." >&2
@@ -157,18 +157,18 @@ done
 test $VERBOSE -ne 0 && showHead
 
 if ! hostname -f | grep "\." >/dev/null; then
-    test "$REQUIREFQDN" != "0" && cw.cecho error "ERROR: hostname [$( hostname -f )] is not a FQDN - there is no domain behind the host."
-    test "$REQUIREFQDN" != "0" && exit 3
+    test "$CW_REQUIREFQDN" != "0" && cw.cecho error "ERROR: hostname [$( hostname -f )] is not a FQDN - there is no domain behind the host."
+    test "$CW_REQUIREFQDN" != "0" && exit 3
 fi
 
-if [ -z "$TARGET" ]; then
+if [ -z "$CW_TARGET" ]; then
   cw.cecho error ERROR: no target was set. use -t >&2
   echo
   showHelp
   exit 4
 fi
 
-if grep "example.com" <<< "$TARGET"; then
+if grep "example.com" <<< "$CW_TARGET"; then
     echo
     echo "ABORT: target is 'example.com'. You need to modify the configuration"
     echo "       file ${CFGFILE} and set the target to your own system."
@@ -189,8 +189,8 @@ if ls -ltr "${CW_LOGDIR}" | tail -1 | grep "$CW_TOUCHFILE" >/dev/null
 then
     echo -n "NO newer logs. "
     typeset -i age=$(($(date +%s) - $(date +%s -r "${CW_LOGDIR}/${CW_TOUCHFILE}")))
-    echo -n "last sync was $age sec ago (limit: $SYNCAFTER sec). "
-    if test $age -gt $SYNCAFTER
+    echo -n "last sync was $age sec ago (limit: $CW_SYNCAFTER sec). "
+    if test $age -gt $CW_SYNCAFTER
     then
         echo "Force sync because last sync is older the given limit."
     else 
@@ -201,15 +201,15 @@ else
     echo "Need to sync: new files were not synced yet."
 fi
 
-test $VERBOSE -ne 0 && echo && echo "----- sync to ${TARGET}"
+test $VERBOSE -ne 0 && echo && echo "----- sync to ${CW_TARGET}"
 
 moreparams=
-if test -n "$SSHKEY"; then
-    # moreparams="-e 'ssh -i $SSHKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
-    moreparams="-e ssh -i ${SSHKEY} -o StrictHostKeyChecking=no"
+if test -n "$CW_SSHKEY"; then
+    # moreparams="-e 'ssh -i $CW_SSHKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
+    moreparams="-e ssh -i ${CW_SSHKEY} -o StrictHostKeyChecking=no"
 fi
 
-if /usr/bin/rsync --delete -rvt "${moreparams}" "${CW_LOGDIR}/" "${TARGET}"
+if /usr/bin/rsync --delete -rvt "${moreparams}" "${CW_LOGDIR}/" "${CW_TARGET}"
 then 
     echo "OK, files were synced"
     touch "${CW_LOGDIR}/${CW_TOUCHFILE}" && chmod 666 "${CW_LOGDIR}/${CW_TOUCHFILE}"

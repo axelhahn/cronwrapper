@@ -25,7 +25,7 @@ on local system:
 * create a ssh keypair for this user by ssh-keygen
 * copy the public key (id_rsa.pub) to target /home/get-cronlogs/.ssh/authorized_keys
 * test ssh connect as user copy-cronlogs `ssh get-cronlogs@logserver.example.com echo OK`
-* update values SSHKEY and TARGET in `cronstatus.cfg`
+* update values CW_SSHKEY and CW_TARGET in `cronstatus.cfg`
 
 ## Show help
 

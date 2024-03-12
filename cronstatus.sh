@@ -25,7 +25,7 @@ CW_LABELSTR=
 CW_LOGFILE=
 LOGDIR=/var/tmp/cronlogs
 
-typeset -i REQUIREFQDN=0
+typeset -i CW_REQUIREFQDN=0
 
 test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh
@@ -79,7 +79,7 @@ echo "
 Show the status of all local cronjobs that use the cronwrapper or a single job
 by giving its logfile as parameter.
 
-This script is part of Axels cronwrapper.
+This script is part of Axels Cronwrapper.
   $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   $( cw.emoji "📜" )License: GNU GPL 3.0
 
@@ -195,7 +195,7 @@ function showStatus(){
         sFqdnCheck=
         sServerCheck=
 
-        if test "$REQUIREFQDN" != "0" && ! echo "$sServer" | grep "\." >/dev/null; then
+        if test "$CW_REQUIREFQDN" != "0" && ! echo "$sServer" | grep "\." >/dev/null; then
                 sFqdnCheck="WARNING   : No FQDN in filename - only the short hostname: [$sServer]"
                 iErr+=1
         fi

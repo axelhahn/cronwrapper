@@ -20,12 +20,12 @@ CW_HOOKDIR=./hooks
 
 CW_TOUCHFILE=lastsync
 TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
-SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
+CW_SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
 
 # force rsync even if no change was found - time in sec
-SYNCAFTER=3600
+CW_SYNCAFTER=3600
 
 # disallow hosts that have no domain in hostname -f; set 0 or 1
-REQUIREFQDN=0
+CW_REQUIREFQDN=0
 
 # -----------------------------------------------------------------------------

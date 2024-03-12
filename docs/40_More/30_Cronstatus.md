@@ -19,7 +19,7 @@ ______________________________________________________________________________
 Show the status of all local cronjobs that use the cronwrapper or a single job
 by giving its logfile as parameter.
 
-This script is part of Axels cronwrapper.
+This script is part of Axels Cronwrapper.
   📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   📜 License: GNU GPL 3.0
 
