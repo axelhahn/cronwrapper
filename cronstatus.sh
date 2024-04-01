@@ -16,19 +16,20 @@
 # 2023-07-14  ahahn  1.8  add support for REQUIREFQDN
 # 2023-07-14  ahahn  1.9  added check if process still runs
 # 2024-01-04  ahahn  1.10 update error messages
-# 2024-01-30  ahahn  2.0  update help; use cw.emoji; use label as parameter; show last executions
+# 2024-01-30  ahahn  WIP  update help; use cw.emoji; use label as parameter; show last executions
+# 2024-04-02  ahahn  2.0  add CW_LOGDIR; update bashdoc
 # ------------------------------------------------------------
 
 _version=2.0
 
 CW_LABELSTR=
 CW_LOGFILE=
-LOGDIR=/var/tmp/cronlogs
+CW_LOGDIR=/var/tmp/cronlogs
 
 typeset -i CW_REQUIREFQDN=0
 
 test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
-. $( dirname $0)/inc_cronfunctions.sh
+. $( dirname $0)/inc_cronfunctions.sh || exit 1
 
 typeset -i iMaxAge
 iMaxAge=$(date +%s)
@@ -48,30 +49,42 @@ sPre="    "
 # FUNCTIONS
 # ----------------------------------------------------------------------
 
-# get a value from logfile (everything behind "=")
-# param: label
-# global: $CW_LOGFILE
+# Get a value from logfile (everything behind "=")
+#
+# global  string  $CW_LOGFILE  logfile of the cronjob
+#
+# param   string  label to search for
 function getLogValue(){
         grep "^$1=" "$CW_LOGFILE" | cut -f 2- -d "="
 }
 
-# get logfiles of all cronwrapper cronjobs
+# Get logfiles of all cronwrapper cronjobs
+# No parameter is needed.
+#
+# global  string  $CW_LOGDIR  directory where the logfiles are stored
 function getLogfiles(){
-        ls -1t "$LOGDIR"/*log | grep -Fv "/__"        
+        ls -1t "$CW_LOGDIR"/*log | grep -Fv "/__"        
 }
 
-# get logfiles of all cronwrapper cronjobs
+# Get logfiles of all cronwrapper cronjobs
+# No parameter is needed.
 function _getLabel(){
         echo "$1" | rev | cut -f 1- -d '/' | rev | cut -f 2- -d '_' | sed "s,\.log.*,," 
 }
 
-# get logfiles of all cronwrapper cronjobs
+# Get logfiles of all cronwrapper cronjobs
+# No parameter is needed.
+#
+# global  string  $CW_LOGDIR  directory where the logfiles are stored
 function getRunningfiles(){
-        ls -1t "$LOGDIR"/*log.running* 2>/dev/null
+        ls -1t "$CW_LOGDIR"/*log.running* 2>/dev/null
 }
 
-# show help
-# param  string  info or error message
+# Show help
+#
+# global  string  $CW_LOGDIR  directory where the logfiles are stored
+#
+# param   string  optional: info or error message
 function showhelp(){
         local _self; _self="$( basename $0 )"
 echo "
@@ -80,8 +93,8 @@ Show the status of all local cronjobs that use the cronwrapper or a single job
 by giving its logfile as parameter.
 
 This script is part of Axels Cronwrapper.
-  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   $( cw.emoji "📜" )License: GNU GPL 3.0
+  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
 
 $(cw.helpsection "✨" "SYNTAX")
 
@@ -110,13 +123,16 @@ $(cw.helpsection "🧩" "EXAMPLES")
   $_self
            show total overview over all jobs
 
-  $_self $LOGDIR/myjobfile.log
+  $_self $CW_LOGDIR/myjobfile.log
            show output of a single job
 
 "
 }
 
 # show last executions of the same job in the last few days (*done files)
+#
+# global  string  $CW_LOGDIR  directory where the logfiles are stored
+#
 # param  string  label
 function _showLast(){
         local _label="$1"
@@ -155,8 +171,14 @@ function _showLast(){
 } 
 
 # show status of a single sob
-# param  string  filename of cronwrapper logfile OR label of cronjob
-# param  bool    flag: show logfile content; default: empty (=do not sohow log)
+#
+# global  string  $CW_LABELSTR  label of the cronjob
+# global  string  $CW_LOGDIR    directory where the logfiles are stored
+# global  string  $CW_LOGFILE   logfile of the cronjob
+# global  string  $NO_COLOR     no color output
+#
+# param   string  filename of cronwrapper logfile OR label of cronjob
+# param   bool    flag: show logfile content; default: empty (=do not sohow log)
 function showStatus(){
         local _label="$1"
         test -f "$_label" && CW_LOGFILE="$_label"
@@ -301,7 +323,11 @@ function showStatus(){
         test "$bShowHistory" -ne "0" && _showLast "$CW_LABELSTR"
 }
 
-# show running jobs
+# Show running jobs
+# No parameter is needed.
+#
+# global  string  $CW_LABELSTR  label of the cronjob
+# global  string  $CW_LOGFILE   logfile of the cronjob
 function showRunningJobs(){
         local sCmd
         local sLastStart
@@ -351,7 +377,9 @@ function showRunningJobs(){
 }
 
 # show total overview of all jobs
+# No parameter is needed.
 function showTotalstatus(){
+        echo
         for logfile in $( getLogfiles )
         do
                 showStatus "$logfile"

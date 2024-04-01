@@ -6,12 +6,13 @@
 # source the script and call cw.help
 # 
 # ----------------------------------------------------------------------
-# 2022-03-09  ahahn  added cw.* functions; others marked as deprecated
-# 2022-05-18  ahahn  update cw.lock
-# 2023-12-29  ahahn  remove deprecated functions; shellfixes
-# 2024-01-23  ahahn  added cw.emoji
-# 2024-01-31  ahahn  support for NOCOLOR=1
-# 2024-03-05  ahahn  add function cw.helpsection  for help text in scripts
+# 2022-03-09  ahahn        added cw.* functions; others marked as deprecated
+# 2022-05-18  ahahn        update cw.lock
+# 2023-12-29  ahahn        remove deprecated functions; shellfixes
+# 2024-01-23  ahahn        added cw.emoji
+# 2024-01-31  ahahn        support for NOCOLOR=1
+# 2024-03-05  ahahn        add function cw.helpsection  for help text in scripts
+# 2024-04-02  ahahn  2.0   update bashdoc
 # ======================================================================
 
 # Handling of exitocdes
@@ -22,9 +23,11 @@ typeset -i rcAll=0  # sum of all collected exitcodes
 export CW_timer_start
 export CW_lockfile
 
+_version=2.0
+
 # ----------------------------------------------------------------------
 
-# show help for available cw.* functions
+# Show help for available cw.* functions
 # no parameter required
 function cw.help(){
         local _self="${BASH_SOURCE[0]}"
@@ -32,34 +35,37 @@ function cw.help(){
         local _iLine; typeset -i _iLine
 
         echo
-        cw.cecho head "HELP FOR CRONWRAPPER FUNCTIONS"
+        cw.cecho head "HELP FOR CRONWRAPPER FUNCTIONS * v$_version"
         cw.cecho head "auto generated list of implemented cw.* functions"
         echo
-        grep "^function\ cw\.[a-z][a-z]*" "$_self" | cut -f 2 -d " " | cut -f 1 -d '(' | sort | while read -r fktname
+        grep "^function cw\.[a-z][a-z]*" "$_self" | cut -f 2 -d " " | cut -f 1 -d '(' | sort | while read -r fktname
         do 
                 cw.cecho cmd "$fktname"
                 
-                _linestart=$( grep -En "function\ $fktname\ *\(" "$_self" | cut -f 1 -d ':' )
+                _linestart=$( grep -En "function $fktname *\(" "$_self" | cut -f 1 -d ':' )
 
                 _iLine=$_linestart-1
                 while [ $_iLine -gt 0 ]; do
                         line="$( sed -n ${_iLine},${_iLine}p $_self )"
                         if echo "$line" | grep '^#' >/dev/null
                         then                                
-                                echo "$line" | grep -v "\-\-\-\-\-" | cut -c 3- | sed "s#^#    #g"
+                                echo "$line" | grep -v -- "-----" | cut -c 3- | sed "s#^#    #g"
                                 _iLine=$_iLine-1
                         else
                                 _iLine=0
                         fi
                 done | tac
                 echo
+                echo
         done
 }
 
 # ----------------------------------------------------------------------
 
-# get last exitcode and store it in global var $rc
+# Get last exitcode and store it in global var $rc
 # no parameter is required
+#
+# global  integer  $rcAll  sum of retuncodes of all commands
 function cw.fetchRc(){
         rc=$?
         local _color
@@ -72,8 +78,8 @@ function cw.fetchRc(){
         rcAll+=$rc
 }
 
-# execute a given command, show return code (and add it to final exit code)
-# param  string(s)  command line to execute 
+# Execute a given command, show return code (and add it to final exit code)
+# param   string  command line to execute 
 function cw.exec() {
         echo $*
         cw.color cmd 
@@ -82,10 +88,16 @@ function cw.exec() {
 
 }
 
-# show a given emoji if its display is supported
-# param  string  emoji to show
-# param  string  alternative text for NO_COLOR=1 output
-function cw.emoji {
+# Show a given emoji if its display is supported
+#
+# Example
+#   echo $( cw.emoji "📜" )License: GNU GPL 3.0
+#
+# global  integer  $NO_COLOR  value 1 means: no color please; see http://no-color.org/
+#
+# param   string  emoji to show
+# param   string  alternative text for NO_COLOR=1 output
+function cw.emoji() {
         if [ "$NO_COLOR" != "1" ]; then
                 test "$(echo -ne '\xE0\xA5\xA5' | wc -m)" -eq 1 && echo "$1 "
         else 
@@ -93,13 +105,10 @@ function cw.emoji {
         fi
 }
 
-# sleep for a random time
+# Sleep for a random time
+#
 # param  integer  time to randomize in sec
 # param  integer  optional: minimal time to sleep in sec; default: 0
-#
-# Example: 
-# cw.randomsleep 60     sleeps for a random time between 0..60 sec
-# cw.randomsleep 60 30  sleeps for a random time between 30..90 sec
 function cw.randomsleep(){
         local _iRnd; typeset -i _iRnd=$1
         local _iMintime; typeset -i _iMintime=$2
@@ -108,7 +117,10 @@ function cw.randomsleep(){
         sleep $_iSleep
 }
 
-# get time in sec and milliseconds since start
+# Get time in sec and milliseconds since start
+#
+# global  integer  $CW_timer_start  start time in sec
+#
 # no parameter is required
 function cw.timer(){
         local timer_end; timer_end=$( date +%s.%N ) 
@@ -122,7 +134,10 @@ function cw.timer(){
         echo "$sec_time.$ms_time sec"
 } 
 
-# quit script with showing the total exitcode.
+# Quit script with showing the total exitcode.
+#
+# global  integer  $rcAll  sum of retuncodes of all commands
+#
 # no parameter is required
 function cw.quit(){
         local _color
@@ -138,13 +153,15 @@ function cw.quit(){
 
 # ----- coloring -------------------------------------------------------
 
-# set a terminal color by a keyword
-# param  string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
-#
+# Set a terminal color by a keyword
 # Example:
-# cw.color cmd
-# ls -l 
-# color reset
+#   cw.color cmd
+#   ls -l 
+#   color reset
+#
+# global  integer  $NO_COLOR  value 1 means: no color please; see http://no-color.org/
+#
+# param   string  keyword to set a color; one of reset | head|cmd|input | ok|warning|error
 function cw.color(){
         local _color; _color=$1
         local sColorcode=""
@@ -173,38 +190,43 @@ function cw.color(){
         fi    
 }
 
-# colored echo output using color and reset color afterwards
-# param  string  color code ... see cw.color
-# param  string  text to display
+# Colored echo output using color and reset color afterwards
+# see also: cw.color
 #
 # Example:
-# cw.cecho ok "Action was successful."
+#   cw.cecho ok "Action was successful."
+#
+# param   string  color code ... see cw.color
+# param   string  text to display
 function cw.cecho (){
         local _color=$1; shift 1
         cw.color "$_color"; echo -n "$*"; cw.color reset; echo
 }
 
-# print a headline for a help section
-# param  string  emoji
-# param  string  headline text
+# Print a headline for a help section
+# param   string  emoji
+# param   string  headline text
 function cw.helpsection(){
-        local _emoji; _emoji="$( cw.emoji $1 '* ')"
+        local _emoji; _emoji="$( cw.emoji "$1" '* ')"
         local _label="$2"
         echo
-        echo "####| ${_emoji}${_label} |####"
+        cw.cecho head "####| ${_emoji}${_label} |####"
 }
 
 # ----- locking --------------------------------------------------------
 
-# helper function: generate a filename for locking
+# Helper function: generate a filename for locking
 function cw._getlockfilename(){
         echo "/tmp/_lock__${*//[^a-zA-Z0-9]/_}"
 }
 
-# verify locking and create one if no active lock was found
-# param  string  optional: string to create sonething uniq if your script can 
+# Verify locking and create one if no active lock was found
+# see also: cw.lockstatus, cw.unlock
+#
+# global  string  $CW_lockfile  filename of the lockfile
+#
+# param   string  optional: string to create sonething uniq if your script can 
 #                be started with multiple parameters
-# see cw.lockstatus, cw.unlock
 function cw.lock(){
 
         if [ -f "${CW_lockfile}" ]; then
@@ -241,17 +263,22 @@ function cw.lock(){
         fi
 }
 
-# check status of locking
+# Check status of locking
 # exit code is 0 if locking is active
+# see also: cw.lock, cw.unlock
+#
 # Example: if cw.lockstatus; then echo Lock is ACTIVE; else echo NO LOCKING; fi
-# see cw.lock, cw.unlock
+#
+# global  string  CW_lockfile  filename for locking
 function cw.lockstatus(){
         [ -n "${CW_lockfile}" ] && [ -f "${CW_lockfile}" ]
 }
 
-# remove an existing locking
+# Remove an existing locking
 # no parameter is required
-# see cw.lock, cw.lockstatus
+# see also: cw.lock, cw.lockstatus
+#
+# global  string  CW_lockfile  filename for locking
 function cw.unlock(){
         echo -n "[${FUNCNAME[0]}] "
         if cw.lockstatus

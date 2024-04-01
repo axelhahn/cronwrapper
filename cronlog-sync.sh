@@ -12,6 +12,7 @@
 # 2022-09-23  v1.4  <axel.hahn@iml.unibe.ch>  option -q is more quiet and -f to set SYNCAFTER
 # 2023-07-21  v1.5  <axel.hahn@iml.unibe.ch>  fix typo in header
 # 2024-01-23  v1.6  ahahn                     update help; use cw.emoji; update exitcodes
+# 2024-04-02  v2.0  ahahn                     update bashdoc
 # ======================================================================
 
 _version=2.0
@@ -22,7 +23,7 @@ typeset -i CW_SYNCAFTER=3600
 typeset -i CW_REQUIREFQDN=0
 typeset -i VERBOSE=1
 
-. $( dirname $0)/inc_cronfunctions.sh
+. $( dirname $0)/inc_cronfunctions.sh | exit 1
 CFGFILE=$(dirname $0)/cronwrapper.cfg
 . "${CFGFILE}"
 
@@ -30,6 +31,9 @@ CFGFILE=$(dirname $0)/cronwrapper.cfg
 # FUNCTIONS
 # ----------------------------------------------------------------------
 
+# Show a headerfor the current script
+#
+# global  string  $_version  version number
 function showHead(){
     cw.color head
 cat <<ENDOFHEAD
@@ -44,6 +48,12 @@ ENDOFHEAD
     cw.color reset
 }
 
+# Show a help for the current script
+#
+# global  string   $CW_LOGDIR      path to local log dir
+# global  string   $CW_SSHKEY      path to ssh private key file
+# global  integer  $CW_SYNCAFTER  time in sec when to force symc without new logs
+# global  string   $CW_TARGET      target of sync
 function showHelp(){
     showHead
     local self=$( basename $0)
@@ -54,8 +64,8 @@ It should be used as cronjob in /etc/cron.d/ and/ or triggered
 whem any cronwrapper script was fisnished.
 
 This script is part of Axels Cronwrapper.
-  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   $( cw.emoji "📜" )License: GNU GPL 3.0
+  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
 
 $(cw.helpsection "✨" "SYNTAX")
 

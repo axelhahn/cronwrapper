@@ -41,7 +41,8 @@
 # 2022-07-14  ahahn  1.24  added: deny multiple execution of the same job
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
-# 2024-01-23  ahahn  2.0   add hooks; update help; use cw.emoji
+# 2024-01-23  ahahn  WIP   add hooks; update help; use cw.emoji
+# 2024-04-02  ahahn  2.0   update bashdoc
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -49,10 +50,9 @@
 # ------------------------------------------------------------
 
 _version="2.0"
-
-
 line1="------------------------------------------------------------------------------"
-. $( dirname $0)/inc_cronfunctions.sh
+
+. "$( dirname "$0")/inc_cronfunctions.sh"
 
 # ------------------------------------------------------------
 # FUNCTIONS
@@ -60,6 +60,7 @@ line1="-------------------------------------------------------------------------
 
 # helper script: detect the current script path evn if it is a softlink
 # return: path of the script
+# No parameters needed
 function getRealScriptPath(){
   local _source;
   _source=${BASH_SOURCE[0]}
@@ -73,6 +74,11 @@ function getRealScriptPath(){
 
 # show help
 # param  string  info or error message
+# No parameters needed
+#
+# global  string  $_version    version of the script
+# global  string  $CW_DIRSELF  directory of the script
+# global s tring  $CW_LOGDIR   directory of the logfiles
 function showhelp(){
         cw.color head
         cat <<ENDOFHEAD
@@ -84,16 +90,17 @@ function showhelp(){
   |   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
   |______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
                                                      |__|  |__|
+$( printf "%76s" "v $_version" )
 ENDOFHEAD
 cw.color reset
 cat <<ENDOFHELP
-$( printf "%76s" "v $_version" )
+
 
   Puts control and comfort to your cronjobs.
 
   $( cw.emoji "📄" )Source : https://github.com/axelhahn/cronwrapper
-  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   $( cw.emoji "📜" )License: GNU GPL 3.0
+  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
 
 $(test -n "$1" && ( cw.color error; echo "$1"; cw.color reset; echo; echo ))
 $(cw.helpsection "✨" "SYNTAX")
@@ -133,25 +140,31 @@ $(cw.helpsection "🗨️" "MORE TO SAY")
   ${CW_LOGDIR}.
   The output logs are parseble with simple grep command.
 
-  You can run $(dirname $0)/cronstatus.sh to get a list of all cronjobs and 
+  You can run $( cw.cecho cmd $CW_DIRSELF/cronstatus.sh ) to get a list of all cronjobs and 
   its status. Based on its output you can create a check script for your 
   server monitoring.
 
   You can sync all logfiles of all cronjobs to a defined server using
-  $(dirname $0)/cronlog-sync.sh
+  $( cw.cecho cmd $CW_DIRSELF/cronlog-sync.sh )
   
 ENDOFHELP
 }
 
 # helper function - append a line to output file
-# param  string   text to write
+#
+# global  string  $CW_OUTFILE  output file of the current job
+#
+# param   string  text to write
 function w() {
         echo "$*" >>"$CW_OUTFILE"
 }
 
 # execute hook skripts in a given directory in alphabetic order
-# param  string   name of hook directory
-# param  string   optional: integer of existcode or "" for non-on-result hook
+#
+# global  string   $CW_HOOKDIR  directory of the hook scripts
+#
+# param   string   name of hook directory
+# param   string   optional: integer of existcode or "" for non-on-result hook
 function runHooks(){
         local _hookbase="$1"
         local _exitcode="$2"

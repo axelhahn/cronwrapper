@@ -1,2 +1,8 @@
 cronwrapper.cfg
 cronwrapper.env
+.vscode/*
+static/*
+hooks/after/always/10_example_bye.sh
+hooks/after/on-ok/10_example_ok.sh
+hooks/after/on-error/10_example_error.sh
+hooks/before/always/10_example_hello.sh
