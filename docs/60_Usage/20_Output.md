@@ -103,21 +103,31 @@ axel@linux-pc /v/t/cronlogs> pwd
 /var/tmp/cronlogs
 
 axel@linux-pc /v/t/cronlogs> ls -1 *joblog*
-linux-pc_joblog_Fri.done*
-linux-pc_joblog_Sat.done*
-linux-pc_joblog_Sun.done*
-linux-pc_joblog_Thu.done*
-linux-pc_joblog_Tue.done*
-linux-pc_joblog_Wed.done*
+linux-pc_joblog_20240317-Sun.done*
+linux-pc_joblog_20240318-Mon.done*
+linux-pc_joblog_20240319-Tue.done*
+linux-pc_joblog_20240320-Wed.done*
+linux-pc_joblog_20240321-Thu.done*
+linux-pc_joblog_20240322-Fri.done*
+linux-pc_joblog_20240323-Sat.done*
+linux-pc_joblog_20240324-Sun.done*
+linux-pc_joblog_20240325-Mon.done*
+linux-pc_joblog_20240326-Tue.done*
+linux-pc_joblog_20240327-Wed.done*
+linux-pc_joblog_20240328-Thu.done*
+linux-pc_joblog_20240329-Fri.done*
+linux-pc_joblog_20240330-Sat.done*
+linux-pc_joblog_20240331-Sun.done*
+linux-pc_joblog_20240401-Mon.done*
 ```
 
 Let's have look to it:
 
 ```txt
-axel@linux-pc /v/t/cronlogs> head -3 linux-pc_joblog_Sun.done
-job=restic-backup:host=linux-pc:start=1689458821:end=1689458905:exectime=84:ttl=60:rc=0
-job=restic-backup:host=linux-pc:start=1689502021:end=1689502113:exectime=92:ttl=60:rc=0
-job=restic-backup:host=linux-pc:start=1689505621:end=1689505708:exectime=87:ttl=60:rc=0
+axel@linux-pc /v/t/cronlogs> head -3 linux-pc_joblog_20240401-Mon.done
+job=restic-backup:host=linux-pc:start=1711922820:end=1711922937:exectime=117:ttl=60:rc=0
+job=restic-backup:host=linux-pc:start=1711926420:end=1711926532:exectime=112:ttl=60:rc=0
+job=restic-backup:host=linux-pc:start=1711973220:end=1711973399:exectime=179:ttl=60:rc=0
 ```
 
 With a delimter `:` you see these data (values like in the job logs)

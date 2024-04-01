@@ -33,39 +33,77 @@ Use -h to show a help:
 
 ```text
 > ./cronlog-sync.sh -h
-____________________________________________________________________________________
+______________________________________________________________________________
 
-SYNC LOCAL LOGS OF www.example.com
-______________________________________________________________________________/ v1.5
+  AXELS CRONWRAPPER
+  SYNC LOCAL LOGS OF 🖥 linux-pc
+                                                                         v 2.0
+______________________________________________________________________________
 
-HELP:
-    This script syncs local cronlogs to a target.
-    It should be used as cronjob in /etc/cron.d/ and/ or triggered
-    whem any cronwrapper script was fisnished.
 
-SYNTAX:
-    cronlog-sync.sh [OPTIONS]
+This script syncs local cronlogs to a target.
+It should be used as cronjob in /etc/cron.d/ and/ or triggered
+whem any cronwrapper script was fisnished.
 
-PRAMETERS:
-    -f [integer]  time in sec when to force symc without new logs
-                  value 0 forces sync
-                  current value: [3600]
-    -h            show this help
-    -i [string]   path to ssh private key file
-                  current value: [/home/copy-cronlogs/.ssh/id_rsa@logserver.example.com]
-    -l [string]   local  log dir of cronjobs
-                  current value: [/var/tmp/cronlogs]
-    -q            be more quiet
-    -s [integer]  sleep random time .. maximum is given value in seconds
-    -t [string]   target dir (local or remote like rsync syntax)
-                  current value: [get-cronlogs@logserver.example.com:/var/tmp/allcronlogs/www.example.com]
+This script is part of Axels Cronwrapper.
+  📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
+  📜 License: GNU GPL 3.0
 
-DEFAULTS:
-    see also /opt/cronwrapper/cronwrapper.cfg
 
-EXAMPLES:
-    cronlog-sync.sh -s 20 -t [TARGET]   wait max 20 sec before starting sync
-    cronlog-sync.sh -q -f 0             be more quiet and force sync (0 sec)
+####| ✨ SYNTAX |####
+
+  cronlog-sync.sh [OPTIONS]
+
+
+####| 🔧 OPTIONS |####
+
+  -f [integer]  time in sec when to force symc without new logs
+                value 0 forces sync
+                current value: [3600]
+
+  -h            show this help
+
+  -i [string]   path to ssh private key file
+                current value:
+                [/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com]
+
+  -l [string]   local log dir of cronjobs
+                current value:[/var/tmp/cronlogs]
+
+  -q            be more quiet
+
+  -s [integer]  sleep random time .. maximum is given value in seconds
+
+  -t [string]   target dir (local or remote like rsync syntax)
+                current value: 
+                [get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/linux-pc]
+
+
+####| 🔷 DEFAULTS |####
+
+  see ./cronwrapper.cfg
+
+
+####| 🧩 EXAMPLES |####
+
+  cronlog-sync.sh -s 20 -t [TARGET]
+                Wait max. 20 sec before starting sync to a custom target
+
+  cronlog-sync.sh -q -f 0
+                be more quiet and force sync (0 sec)
+
+
+####| ❌ EXITCODES |####
+
+  0             OK. Action ended as expected. No sync needed or sync was done.
+
+  1             Missing parameter
+  2             Invalid option
+  3             No FQDN was found in hostname
+  4             No target was set in configuration
+  5             Target is still example.com
+  6             Logdir with files to sync was not found
+  7             rsync of local logs to target failed
 
 ```
 

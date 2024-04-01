@@ -72,32 +72,42 @@ In this example I have 2 cronjobs using the cronwrapper and both are OK. In that
 
 ```text
 > cronstatus.sh 
-____________________________________________________________________________________
+______________________________________________________________________________
 
-CRONJOBS on [www.example.com]
-______________________________________________________________________________/ v1.7
 
---- /var/tmp/cronlogs/www.example.com_scheduler.sh.log
-    command   : /opt/imlbackup/client/scheduler.sh
-    last start: 2022-01-12 11:45:01, 1641984301
-    returncode: 0 OK
-    duration  : 0 s
-    ttl       : 5 min OK
-    expires   : 1641985021 2022-01-12 11:57:01 OK
-    CHECK OK
+  AXELS CRONWRAPPER
+  Jobstatus of cronjobs on 🖥 linux-pc
+                                                                         v 2.0
+______________________________________________________________________________
+..... ✔ OK: restic-backup
 
---- /var/tmp/cronlogs/www.example.com_imlpgcleanup.log
-    command   : /opt/imlpgcleanup/walarchivecleanup.sh -p /tmp -a 10
-    last start: 2022-01-12 04:12:01, 1641957121
-    returncode: 0 OK
-    duration  : 0 s
-    ttl       : 1440 - 24 h OK
-    expires   : 1642047121 2022-01-13 05:12:01 OK
-    CHECK OK
+    Command   : /home/axel/skripte/iml-backup/backup.sh
+    Last start: 2024-04-01 21:07:00, 1711998420
+    Returncode: 0 OK
+    Duration  : 241 s
+    Ttl       : 60 min OK
+    Expires   : 1712005620 2024-04-01 23:07:00 OK
+
+    Logfile   : /var/tmp/cronlogs/linux-pc_restic-backup.log
+
+    Last executions:
+
+        Result      Start time             rc    Execution time
+        ---------   -------------------   ---   ---------------
+        OK         2024-04-01 21:07:00     0            241 s
+        OK         2024-04-01 20:07:00     0            141 s
+        OK         2024-04-01 19:07:00     0            119 s
+        OK         2024-04-01 18:07:00     0            127 s
+        OK         2024-04-01 17:07:00     0            203 s
+        OK         2024-04-01 16:07:00     0            120 s
+        OK         2024-04-01 15:07:00     0            197 s
+        OK         2024-04-01 14:07:00     0            179 s
+        OK         2024-04-01 01:07:00     0            112 s
+        OK         2024-04-01 00:07:00     0            117 s
 
 There is no running job.
 ____________________________________________________________________________________
-JOBS: 1 .. RUNNING: 1 .. ERRORS: 0
+JOBS: 1 .. RUNNING: 0 .. ERRORS: 0
 
 ```
 
@@ -108,10 +118,10 @@ If a job is currently running you get a shorter info block with the time how lon
 ____________________________________________________________________________________
 CURRENTLY RUNNING JOBS:
 
-    --- for 2 min - /var/tmp/cronlogs/my-laptop_iml-backup.log.running.NNNNN
+    --- ⏳ for 2 min - /var/tmp/cronlogs/linux-pc_restic-backup.log.running.NNNNN
         command   : /home/axel/skripte/client/backup.sh
-        last start: 2023-05-22 13:44:40, 1684755880
-        ttl       : 1440
+        last start: 2024-06-01 22:07:01, ...
+        ttl       : 60
         OK - still running
 (...)
 ```
