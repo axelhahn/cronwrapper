@@ -19,7 +19,7 @@ CW_HOOKDIR=./hooks
 # see https://www.axel-hahn.de/docs/cronwrapper/Usage/Cronlog_Sync.html
 
 CW_TOUCHFILE=lastsync
-TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
+CW_TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
 CW_SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
 
 # force rsync even if no change was found - time in sec
