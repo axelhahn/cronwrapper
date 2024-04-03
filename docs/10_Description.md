@@ -1,23 +1,3 @@
-Axels
-
-```text
- ______                        ________                                    
-|      |.----.-----.-----.    |  |  |  |.----.---.-.-----.-----.-----.----.
-|   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
-|______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
-                                                   |__|  |__|              
-```
-
-Unix shell scripts in Bash for easier handling of cronjobs.\
-A little idea that offers more possibilities.
-
-Free software and Open source.
-
-👤 Author: Axel Hahn \
-📄 Source: <https://github.com/axelhahn/cronwrapper> \
-📜 License: GNU GPL 3.0 \
-📗 Docs: see [www.axel-hahn.de/docs](https://www.axel-hahn.de/docs/cronwrapper/)
-
 ## Introduction
 
 Default Unix and linux cronjobs are quite basic stuff. Mostly you create
@@ -50,3 +30,5 @@ To sync logfiles to a central log server there is script that detects new files 
 
 Linux system with installed Bash.
 Tested on CentOS, Debian, Manjaro, Ubuntu.
+
+I would say it runs on every system with GNU Bash. Non-GNU Bash was not tested.

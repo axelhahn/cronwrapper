@@ -11,18 +11,19 @@
 # 2022-09-23  v1.3  <axel.hahn@iml.unibe.ch>  fix exitcode on no sync and failed sync
 # 2022-09-23  v1.4  <axel.hahn@iml.unibe.ch>  option -q is more quiet and -f to set SYNCAFTER
 # 2023-07-21  v1.5  <axel.hahn@iml.unibe.ch>  fix typo in header
+# 2024-01-23  v1.6  ahahn                     update help; use cw.emoji; update exitcodes
+# 2024-04-03  v2.0  ahahn                     update bashdoc
 # ======================================================================
 
-_version=1.5
-
-LOGDIR=/var/tmp/cronlogs
-TARGET=
-SSHKEY=
-typeset -i SYNCAFTER=3600
-typeset -i REQUIREFQDN=0
+_version=2.0
+CW_LOGDIR=/var/tmp/cronlogs
+CW_TARGET=
+CW_SSHKEY=
+typeset -i CW_SYNCAFTER=3600
+typeset -i CW_REQUIREFQDN=0
 typeset -i VERBOSE=1
 
-. $( dirname $0)/inc_cronfunctions.sh
+. $( dirname $0)/inc_cronfunctions.sh | exit 1
 CFGFILE=$(dirname $0)/cronwrapper.cfg
 . "${CFGFILE}"
 
@@ -30,48 +31,92 @@ CFGFILE=$(dirname $0)/cronwrapper.cfg
 # FUNCTIONS
 # ----------------------------------------------------------------------
 
+# Show a headerfor the current script
+#
+# global  string  $_version  version number
 function showHead(){
+    cw.color head
 cat <<ENDOFHEAD
-____________________________________________________________________________________
+______________________________________________________________________________
 
-SYNC LOCAL LOGS OF $( hostname -f )
-______________________________________________________________________________/ v$_version
+  AXELS CRONWRAPPER
+  SYNC LOCAL LOGS OF $( cw.emoji "🖥️" )$( hostname -f )
+$( printf "%78s" "v $_version" )
+______________________________________________________________________________
 
 ENDOFHEAD
+    cw.color reset
 }
 
+# Show a help for the current script
+#
+# global  string   $CW_LOGDIR      path to local log dir
+# global  string   $CW_SSHKEY      path to ssh private key file
+# global  integer  $CW_SYNCAFTER  time in sec when to force symc without new logs
+# global  string   $CW_TARGET      target of sync
 function showHelp(){
     showHead
     local self=$( basename $0)
 cat <<ENDOFHELP
-HELP:
-    This script syncs local cronlogs to a target.
-    It should be used as cronjob in /etc/cron.d/ and/ or triggered
-    whem any cronwrapper script was fisnished.
 
-SYNTAX:
-    $self [OPTIONS]
+This script syncs local cronlogs to a target.
+It should be used as cronjob in /etc/cron.d/ and/ or triggered
+whem any cronwrapper script was fisnished.
 
-PRAMETERS:
-    -f [integer]  time in sec when to force symc without new logs
-                  value 0 forces sync
-                  current value: [$SYNCAFTER]
-    -h            show this help
-    -i [string]   path to ssh private key file
-                  current value: [$SSHKEY]
-    -l [string]   local  log dir of cronjobs
-                  current value: [$LOGDIR]
-    -q            be more quiet
-    -s [integer]  sleep random time .. maximum is given value in seconds
-    -t [string]   target dir (local or remote like rsync syntax)
-                  current value: [$TARGET]
+This script is part of Axels Cronwrapper.
+  $( cw.emoji "📜" )License: GNU GPL 3.0
+  $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
 
-DEFAULTS:
-    see also ${CFGFILE}
+$(cw.helpsection "✨" "SYNTAX")
 
-EXAMPLES:
-    $self -s 20 -t [TARGET]   wait max 20 sec before starting sync
-    $self -q -f 0             be more quiet and force sync (0 sec)
+  $self [OPTIONS]
+
+$(cw.helpsection "🔧" "OPTIONS")
+
+  -f [integer]  time in sec when to force symc without new logs
+                value 0 forces sync
+                current value: [$CW_SYNCAFTER]
+
+  -h            show this help
+
+  -i [string]   path to ssh private key file
+                current value:
+                [$CW_SSHKEY]
+
+  -l [string]   local log dir of cronjobs
+                current value:[$CW_LOGDIR]
+
+  -q            be more quiet
+
+  -s [integer]  sleep random time .. maximum is given value in seconds
+
+  -t [string]   target dir (local or remote like rsync syntax)
+                current value: 
+                [$CW_TARGET]
+
+$(cw.helpsection "🔷" "DEFAULTS")
+
+  see ${CFGFILE}
+
+$(cw.helpsection "🧩" "EXAMPLES")
+
+  $self -s 20 -t [TARGET]
+                Wait max. 20 sec before starting sync to a custom target
+
+  $self -q -f 0
+                be more quiet and force sync (0 sec)
+
+$(cw.helpsection "❌" "EXITCODES")
+
+  0             OK. Action ended as expected. No sync needed or sync was done.
+
+  1             Missing parameter
+  2             Invalid option
+  3             No FQDN was found in hostname
+  4             No target was set in configuration
+  5             Target is still example.com
+  6             Logdir with files to sync was not found
+  7             rsync of local logs to target failed
 
 ENDOFHELP
 }
@@ -88,13 +133,13 @@ do
             exit 0
             ;;
         f)
-            SYNCAFTER=$OPTARG
+            CW_SYNCAFTER=$OPTARG
             ;;
         i)
-            SSHKEY=$OPTARG
+            CW_SSHKEY=$OPTARG
             ;;
         l)
-            LOGDIR=$OPTARG
+            CW_LOGDIR=$OPTARG
             ;;
         q)
             VERBOSE=0
@@ -105,7 +150,7 @@ do
             sleep $iSleep
             ;;
         t)
-            TARGET=$OPTARG
+            CW_TARGET=$OPTARG
             ;;
         :)
             cw.cecho error "ERROR: Option -$OPTARG requires an argument." >&2
@@ -115,39 +160,47 @@ do
         *)
             cw.cecho error "ERROR: $opt is unknown." >&2
             showHelp
-            exit 1
+            exit 2
     esac
 done
 
 test $VERBOSE -ne 0 && showHead
 
 if ! hostname -f | grep "\." >/dev/null; then
-    test "$REQUIREFQDN" != "0" && cw.cecho error "ERROR: hostname [$( hostname -f )] is not a FQDN - there is no domain behind the host."
-    test "$REQUIREFQDN" != "0" && exit
+    test "$CW_REQUIREFQDN" != "0" && cw.cecho error "ERROR: hostname [$( hostname -f )] is not a FQDN - there is no domain behind the host."
+    test "$CW_REQUIREFQDN" != "0" && exit 3
 fi
 
-if [ -z "$TARGET" ]; then
+if [ -z "$CW_TARGET" ]; then
   cw.cecho error ERROR: no target was set. use -t >&2
   echo
   showHelp
-  exit 2
+  exit 4
+fi
+
+if grep "example.com" <<< "$CW_TARGET"; then
+    echo
+    echo "ABORT: target is 'example.com'. You need to modify the configuration"
+    echo "       file ${CFGFILE} and set the target to your own system."
+    echo
+    exit 5
 fi
 
 if [ $VERBOSE -ne 0 ]; then
-    echo "----- local data in ${LOGDIR}" && ls -l "${LOGDIR}" || exit 3
+    echo "----- local data in ${CW_LOGDIR}" && ls -l "${CW_LOGDIR}" || exit 6
     echo
     echo "----- test for files to sync"
 else
-    ls -l "${LOGDIR}" >/dev/null || exit 3
+    ls -l "${CW_LOGDIR}" >/dev/null || exit 6
 fi
 
 
-if ls -ltr "${LOGDIR}" | tail -1 | grep "$TOUCHFILE" >/dev/null
+if ls -ltr "${CW_LOGDIR}" | tail -1 | grep "$CW_TOUCHFILE" >/dev/null
 then
     echo -n "NO newer logs. "
-    typeset -i age=$(($(date +%s) - $(date +%s -r "${LOGDIR}/${TOUCHFILE}")))
-    echo -n "last sync was $age sec ago (limit: $SYNCAFTER sec). "
-    if test $age -gt $SYNCAFTER
+    typeset -i age=$(($(date +%s) - $(date +%s -r "${CW_LOGDIR}/${CW_TOUCHFILE}")))
+    echo -n "last sync was $age sec ago (limit: $CW_SYNCAFTER sec). "
+    if test $age -gt $CW_SYNCAFTER
     then
         echo "Force sync because last sync is older the given limit."
     else 
@@ -158,22 +211,22 @@ else
     echo "Need to sync: new files were not synced yet."
 fi
 
-test $VERBOSE -ne 0 && echo && echo "----- sync to ${TARGET}"
+test $VERBOSE -ne 0 && echo && echo "----- sync to ${CW_TARGET}"
 
 moreparams=
-if test -n "$SSHKEY"; then
-    # moreparams="-e 'ssh -i $SSHKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
-    moreparams="-e ssh -i ${SSHKEY} -o StrictHostKeyChecking=no"
+if test -n "$CW_SSHKEY"; then
+    # moreparams="-e 'ssh -i $CW_SSHKEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
+    moreparams="-e ssh -i ${CW_SSHKEY} -o StrictHostKeyChecking=no"
 fi
 
-if /usr/bin/rsync --delete -rvt "${moreparams}" "${LOGDIR}/" "${TARGET}"
+if /usr/bin/rsync --delete -rvt "${moreparams}" "${CW_LOGDIR}/" "${CW_TARGET}"
 then 
     echo "OK, files were synced"
-    touch "${LOGDIR}/${TOUCHFILE}" && chmod 666 "${LOGDIR}/${TOUCHFILE}"
+    touch "${CW_LOGDIR}/${CW_TOUCHFILE}" && chmod 666 "${CW_LOGDIR}/${CW_TOUCHFILE}"
 else
     echo "ERROR while syncing files. Next run will try to sync again."
-    rm -f "${LOGDIR}/$TOUCHFILE" 2>/dev/null
-    exit 2
+    rm -f "${CW_LOGDIR}/$CW_TOUCHFILE" 2>/dev/null
+    exit 7
 fi
 
 # ----------------------------------------------------------------------
