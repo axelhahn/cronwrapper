@@ -23,7 +23,7 @@ typeset -i CW_SYNCAFTER=3600
 typeset -i CW_REQUIREFQDN=0
 typeset -i VERBOSE=1
 
-. $( dirname $0)/inc_cronfunctions.sh | exit 1
+. $( dirname $0)/inc_cronfunctions.sh || exit 1
 CFGFILE=$(dirname $0)/cronwrapper.cfg
 . "${CFGFILE}"
 
