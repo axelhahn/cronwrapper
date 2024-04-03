@@ -1,6 +1,6 @@
 ## 2024
 
-### 2024-03-NN - v2.0
+### 2024-04-03 - v2.0
 
 **Changes**
 
@@ -15,7 +15,7 @@
 **Upgrade guide from former versions**
 
 * Update your *cronwrapper.cfg* ... (or copy cronwrapper.cfg.dist to cronwrapper.cfg an update the values)
-  * add the prefix "CW_" for existing vars which are now
+  * add the prefix "CW_" for existing vars which are now, eg.
     * CW_LOGDIR
     * CW_SINGLEJOB
     * CW_TOUCHFILE
