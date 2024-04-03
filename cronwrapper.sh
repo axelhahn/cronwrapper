@@ -42,7 +42,7 @@
 # 2022-07-16  ahahn  1.25  FIX: outfile of running job is a uniq file
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
 # 2024-01-23  ahahn  WIP   add hooks; update help; use cw.emoji
-# 2024-04-02  ahahn  2.0   update bashdoc
+# 2024-04-03  ahahn  2.0   update bashdoc
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------

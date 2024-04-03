@@ -12,7 +12,7 @@
 # 2024-01-23  ahahn        added cw.emoji
 # 2024-01-31  ahahn        support for NOCOLOR=1
 # 2024-03-05  ahahn        add function cw.helpsection  for help text in scripts
-# 2024-04-02  ahahn  2.0   update bashdoc
+# 2024-04-03  ahahn  2.0   update bashdoc
 # ======================================================================
 
 # Handling of exitocdes

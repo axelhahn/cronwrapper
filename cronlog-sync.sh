@@ -12,7 +12,7 @@
 # 2022-09-23  v1.4  <axel.hahn@iml.unibe.ch>  option -q is more quiet and -f to set SYNCAFTER
 # 2023-07-21  v1.5  <axel.hahn@iml.unibe.ch>  fix typo in header
 # 2024-01-23  v1.6  ahahn                     update help; use cw.emoji; update exitcodes
-# 2024-04-02  v2.0  ahahn                     update bashdoc
+# 2024-04-03  v2.0  ahahn                     update bashdoc
 # ======================================================================
 
 _version=2.0

@@ -17,7 +17,7 @@
 # 2023-07-14  ahahn  1.9  added check if process still runs
 # 2024-01-04  ahahn  1.10 update error messages
 # 2024-01-30  ahahn  WIP  update help; use cw.emoji; use label as parameter; show last executions
-# 2024-04-02  ahahn  2.0  add CW_LOGDIR; update bashdoc
+# 2024-04-03  ahahn  2.0  add CW_LOGDIR; update bashdoc
 # ------------------------------------------------------------
 
 _version=2.0
