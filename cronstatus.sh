@@ -18,9 +18,12 @@
 # 2024-01-04  ahahn  1.10 update error messages
 # 2024-01-30  ahahn  WIP  update help; use cw.emoji; use label as parameter; show last executions
 # 2024-04-03  ahahn  2.0  add CW_LOGDIR; update bashdoc
+# 2024-04-04  ahahn  2.1  harden against bash pipefail option; added: skip intro header (-i)
 # ------------------------------------------------------------
 
-_version=2.0
+_version=2.1
+
+set -eu -o pipefail
 
 CW_LABELSTR=
 CW_LOGFILE=
@@ -39,6 +42,7 @@ typeset -i bShowDetails=1
 typeset -i bShowHistory=1
 typeset -i bShowRunning=1
 typeset -i bShowLogfile=1
+typeset -i bShowHead=1
 
 line1="______________________________________________________________________________"
 statusOK=$(cw.cecho ok "OK")
@@ -80,6 +84,26 @@ function getRunningfiles(){
         ls -1t "$CW_LOGDIR"/*log.running* 2>/dev/null
 }
 
+# show introblock
+# No parameter is needed.
+#
+# global  string  $sCurrentServer  name of local machine
+# global  string  $_version        version number of this script
+# global  string  $line1           line
+function showIntroblock(){
+        cw.color head
+        cat <<ENDOFHEAD
+$line1
+
+
+  AXELS CRONWRAPPER
+  Jobstatus of cronjobs on $( cw.emoji "🖥️" )${sCurrentServer}
+$( printf "%78s" "v $_version" )
+$line1
+ENDOFHEAD
+        cw.color reset
+}
+
 # Show help
 #
 # global  string  $CW_LOGDIR  directory where the logfiles are stored
@@ -87,7 +111,8 @@ function getRunningfiles(){
 # param   string  optional: info or error message
 function showhelp(){
         local _self; _self="$( basename $0 )"
-echo "
+        showIntroblock
+        echo "
 
 Show the status of all local cronjobs that use the cronwrapper or a single job
 by giving its logfile as parameter.
@@ -105,10 +130,11 @@ $(cw.helpsection "🔧" "OPTIONS")
   -h|--help        show this help and exit.
 
   -d|--nodetails   hide detailed meta infos
+  -i|--nointro     hide starting header
   -l|--nolast      hide last executions
   -o|--nooutput    hide logfile output (when adding a param for logfile|label)
   -r|--norunning   hide running processes
-  -s|--short       short status; sortcut for '-d -l -r'
+  -s|--short       short status; sortcut for '-d -i -l -r'
 
 $(cw.helpsection "🏷️" "PARAMETERS")
 
@@ -122,6 +148,12 @@ $(cw.helpsection "🧩" "EXAMPLES")
 
   $_self
            show total overview over all jobs
+
+  $_self -s
+           Show tiny status for all jobs without intro header or details
+
+  $_self myjob
+           show output of a single job
 
   $_self $CW_LOGDIR/myjobfile.log
            show output of a single job
@@ -167,15 +199,15 @@ function _showLast(){
         else
                 echo "${sPre}(no other executions found)"
         fi
-        echo
 } 
 
 # show status of a single sob
 #
-# global  string  $CW_LABELSTR  label of the cronjob
-# global  string  $CW_LOGDIR    directory where the logfiles are stored
-# global  string  $CW_LOGFILE   logfile of the cronjob
-# global  string  $NO_COLOR     no color output
+# global  string  $CW_LABELSTR     label of the cronjob
+# global  string  $CW_LOGDIR       directory where the logfiles are stored
+# global  string  $CW_LOGFILE      logfile of the cronjob
+# global  string  $NO_COLOR        no color output
+# global  string  $sCurrentServer  name of local machine
 #
 # param   string  filename of cronwrapper logfile OR label of cronjob
 # param   bool    flag: show logfile content; default: empty (=do not sohow log)
@@ -192,7 +224,7 @@ function showStatus(){
                 echo
                 exit 1
         fi
-        local _showlog="$2"
+        local _showlog="${2:-}"
 
         typeset -i iErr=0
 
@@ -217,7 +249,7 @@ function showStatus(){
         sFqdnCheck=
         sServerCheck=
 
-        if test "$CW_REQUIREFQDN" != "0" && ! echo "$sServer" | grep "\." >/dev/null; then
+        if test "$CW_REQUIREFQDN" != "0" && ! echo "$sServer" | grep -q "\."; then
                 sFqdnCheck="WARNING   : No FQDN in filename - only the short hostname: [$sServer]"
                 iErr+=1
         fi
@@ -279,6 +311,7 @@ function showStatus(){
                 _jobstatus=$(cw.cecho "ok" "$( cw.emoji "✔️" )OK")
         fi
         if [ $bShowDetails -ne 0 ]; then
+                echo    
                 echo -n "..... $_jobstatus"
                 echo ": $CW_LABELSTR"
                 echo
@@ -379,7 +412,6 @@ function showRunningJobs(){
 # show total overview of all jobs
 # No parameter is needed.
 function showTotalstatus(){
-        echo
         for logfile in $( getLogfiles )
         do
                 showStatus "$logfile"
@@ -399,27 +431,17 @@ function showTotalstatus(){
 # ----------------------------------------------------------------------
 
 sCurrentServer=$(hostname -f)
-cw.color head
-cat <<ENDOFHEAD
-$line1
-
-
-  AXELS CRONWRAPPER
-  Jobstatus of cronjobs on $( cw.emoji "🖥️" )$( hostname -f )
-$( printf "%78s" "v $_version" )
-$line1
-ENDOFHEAD
-cw.color reset
-
 
 while [[ "$#" -gt 0 ]]; do case $1 in
     -h|--help) showhelp; exit 0;;
+
+    -i|--nointro)   bShowHead=0; shift;;
 
     -d|--nodetails) bShowDetails=0; shift;;
     -l|--nolast)    bShowHistory=0; shift;;
     -o|--nooutput)  bShowLogfile=0; shift;;
     -r|--norunning) bShowRunning=0; shift;;
-    -s|--short)     bShowHistory=0; bShowDetails=0; bShowRunning=0; shift;;
+    -s|--short)     bShowHead=0; bShowHistory=0; bShowDetails=0; bShowRunning=0; shift;;
     *) if grep "^-" <<< "$1" >/dev/null ; then
         echo; echo "ERROR: Unknown parameter: $1"; echo; showhelp; exit 2
        fi
@@ -427,9 +449,8 @@ while [[ "$#" -gt 0 ]]; do case $1 in
        ;;
 esac; done
 
-
-
-if [ -n "$1" ]; then
+test "$bShowHead" -eq "1" && showIntroblock
+if [ -n "${1:-}" ]; then
         showStatus "$1" 1
         echo
 else
