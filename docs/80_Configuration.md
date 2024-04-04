@@ -2,7 +2,9 @@
 
 To create a custom configuration file copy cronwrapper.cfg.dist to cronwrapper.cfg.
 
-The file needs read permissions for all users (0644).
+For local running cronjobs and watching their status by cronstatus.sh there is no real need to touch it.
+
+If you want to use a sync of a changed logfile with cronlog-sync.sh then you need to watch the lower section.
 
 ```txt
 # -----------------------------------------------------------------------------
