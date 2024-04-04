@@ -22,6 +22,8 @@ _version=2.1
 typeset -i rc=0     # the last detected exitcode of a command
 typeset -i rcAll=0  # sum of all collected exitcodes
 
+# set -eu -o pipefail
+
 # set a start time
 export CW_timer_start
 export CW_lockfile

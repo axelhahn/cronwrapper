@@ -43,13 +43,14 @@
 # 2022-07-16  ahahn  1.26  FIX: singlejob option was broken in 1.25
 # 2024-01-23  ahahn  WIP   add hooks; update help; use cw.emoji
 # 2024-04-03  ahahn  2.0   update bashdoc
+# 2024-04-04  ahahn  2.1   harden against bash pipefail option
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # CONFIG
 # ------------------------------------------------------------
 
-_version="2.0"
+_version="2.1"
 line1="------------------------------------------------------------------------------"
 
 . "$( dirname "$0")/inc_cronfunctions.sh"
@@ -201,9 +202,9 @@ function runHooks(){
 # ------------------------------------------------------------
 
 # --- set vars with required cli params
-typeset -i TTL=$1 2>/dev/null
-CW_CALLSCRIPT=$2
-CW_LABELSTR=$3
+typeset -i TTL=${1:-} 2>/dev/null
+CW_CALLSCRIPT=${2:-}
+CW_LABELSTR=${3:-}
 
 test -z "${CW_LABELSTR}" && CW_LABELSTR=$(basename "${CW_CALLSCRIPT}" | cut -f 1 -d " " )
 

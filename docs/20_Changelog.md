@@ -1,5 +1,10 @@
 ## 2024
 
+### 2024-04-04 - v2.1
+
+* ADDED: cronstatus.sh - skip intro header (-i)
+* UPDATE: harden against bash pipefail option
+
 ### 2024-04-03 - v2.0
 
 **Changes**

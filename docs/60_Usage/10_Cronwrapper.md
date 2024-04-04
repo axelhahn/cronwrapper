@@ -104,12 +104,12 @@ You don't need to rewrite anything - we add the wrapper only.
 As an example ... if you have a daily cronjob like this starting at 3:12 am:
 
 ```bash
-12 3 * * * root /usr/local/bin/my-database-dumper.sh >/tmp/dump.log 2>&1
+7 * * * * root /opt/mybackup/backup.sh >/var/log/cronjobs/my-backup.log 2>&1
 ```
 
 To use my wrappper
 
-* you add the wrapper in front
+* add the wrapper in front
 * add a TTL (in minutes) as first param. It defines how often this job is called. This will let us detect if a job is out of date.
 * add the command as third param - if you use arguments, then you need to quote it
 * optional: add a label for the output file (it overrides the default naming convention of the log)
@@ -118,13 +118,15 @@ To use my wrappper
 The cronjob above needs to be rewritten like that:
 
 ```bash
-12 3 * * * root /opt/cronwrapper/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
+12 3 * * * root /opt/cronwrapper/cronwrapper.sh 60 /opt/mybackup/backup.sh "my-backup"
 ```
+
+![Rewrite an existing cronjob](images/rewrite_a_cronjob.drawio.png)
 
 To test it immediately run the cron command line with its user:
 
 ```bash
-/opt/cronwrapper/cronwrapper.sh 1440 /usr/local/bin/my-database-dumper.sh
+/opt/cronwrapper/cronwrapper.sh 60 /opt/mybackup/backup.sh "my-backup"
 ```
 
 You may ask: And what is the difference now?

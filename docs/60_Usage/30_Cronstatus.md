@@ -11,7 +11,7 @@ ______________________________________________________________________________
 
   AXELS CRONWRAPPER
   Jobstatus of cronjobs on 🖥 linux-pc
-                                                                         v 2.0
+                                                                         v 2.1
 ______________________________________________________________________________
 
 
@@ -19,8 +19,8 @@ Show the status of all local cronjobs that use the cronwrapper or a single job
 by giving its logfile as parameter.
 
 This script is part of Axels Cronwrapper.
-  📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   📜 License: GNU GPL 3.0
+  📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
 
 
 ####| ✨ SYNTAX |####
@@ -33,10 +33,11 @@ This script is part of Axels Cronwrapper.
   -h|--help        show this help and exit.
 
   -d|--nodetails   hide detailed meta infos
+  -i|--nointro     hide starting header
   -l|--nolast      hide last executions
   -o|--nooutput    hide logfile output (when adding a param for logfile|label)
   -r|--norunning   hide running processes
-  -s|--short       short status; sortcut for '-d -l -r'
+  -s|--short       short status; sortcut for '-d -i -l -r'
 
 
 ####| 🏷 PARAMETERS |####
@@ -52,6 +53,12 @@ This script is part of Axels Cronwrapper.
 
   cronstatus.sh
            show total overview over all jobs
+
+  cronstatus.sh -s
+           Show tiny status for all jobs without intro header or details
+
+  cronstatus.sh myjob
+           show output of a single job
 
   cronstatus.sh /var/tmp/cronlogs/myjobfile.log
            show output of a single job
