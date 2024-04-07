@@ -19,9 +19,8 @@
 # 2024-01-30  ahahn  WIP  update help; use cw.emoji; use label as parameter; show last executions
 # 2024-04-03  ahahn  2.0  add CW_LOGDIR; update bashdoc
 # 2024-04-04  ahahn  2.1  harden against bash pipefail option; added: skip intro header (-i)
+# 2024-04-07  ahahn  2.2  update bash docs; define local vars
 # ------------------------------------------------------------
-
-_version=2.1
 
 set -eu -o pipefail
 
@@ -33,6 +32,8 @@ typeset -i CW_REQUIREFQDN=0
 
 test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh || exit 1
+
+_version="2.2"
 
 typeset -i iMaxAge
 iMaxAge=$(date +%s)
@@ -163,7 +164,10 @@ $(cw.helpsection "🧩" "EXAMPLES")
 
 # show last executions of the same job in the last few days (*done files)
 #
-# global  string  $CW_LOGDIR  directory where the logfiles are stored
+# global  string  $CW_LOGDIR    directory where the logfiles are stored
+# global  string  $statusERROR  short status for error
+# global  string  $statusOK     short status for OK
+# global  string  $sPre         prefix spacing for output
 #
 # param  string  label
 function _showLast(){
@@ -173,6 +177,7 @@ function _showLast(){
         local iRc
         local iExectime
         local sStatus
+        local line
 
         local iCount; typeset -i iCount; iCount=$( cat $CW_LOGDIR/*done | grep -c "job=${_label}:" )
         echo
@@ -208,11 +213,36 @@ function _showLast(){
 # global  string  $CW_LOGFILE      logfile of the cronjob
 # global  string  $NO_COLOR        no color output
 # global  string  $sCurrentServer  name of local machine
+# global  integer $iMaxAge         current time in sec (Unix timestamp)
+# global  string  $statusERROR     short status for error
+# global  string  $statusOK        short status for OK
+# global  string  $sPre            prefix spacing for output
+# global  string  $bShowDetails    show details if <> 0
+# global  string  $bShowHistory    show history of last executions if <> 0
 #
 # param   string  filename of cronwrapper logfile OR label of cronjob
 # param   bool    flag: show logfile content; default: empty (=do not sohow log)
 function showStatus(){
         local _label="$1"
+
+        local iErr
+        local _showlog
+        local sCmd
+        local sLastStart
+        local iJobExpire
+        local rc
+        local iExectime
+        local sTTL
+        local sServer
+        local sFqdnCheck
+        local sServerCheck
+        local statusRc
+        local iTTL
+        local iTTLsec
+        local statusTtl
+        local statusExpire
+        local _jobstatus
+
         test -f "$_label" && CW_LOGFILE="$_label"
         test -f "$_label" || CW_LOGFILE="$CW_LOGDIR/$( hostname -f )_${_label}.log"
 
@@ -224,7 +254,7 @@ function showStatus(){
                 echo
                 exit 1
         fi
-        local _showlog="${2:-}"
+        _showlog="${2:-}"
 
         typeset -i iErr=0
 
@@ -333,7 +363,7 @@ function showStatus(){
 
 
                 echo
-                echo "    Logfile   : $CW_LOGFILE"
+                echo "${sPre}Logfile   : $CW_LOGFILE"
         else
                 echo "$_jobstatus: $CW_LABELSTR"
         fi
@@ -350,10 +380,12 @@ function showStatus(){
                         cat "$CW_LOGFILE" 
                 fi 
                 ) | sed "s/^/${sPre}${sPre}/g"              
-                echo "    Logfile   : $CW_LOGFILE"
+                echo "${sPre}Logfile   : $CW_LOGFILE"
         fi
 
-        test "$bShowHistory" -ne "0" && _showLast "$CW_LABELSTR"
+        if [ "$bShowHistory" -ne "0" ]; then
+                _showLast "$CW_LABELSTR"
+        fi
 }
 
 # Show running jobs
@@ -361,12 +393,16 @@ function showStatus(){
 #
 # global  string  $CW_LABELSTR  label of the cronjob
 # global  string  $CW_LOGFILE   logfile of the cronjob
+# global  string  $statusERROR  short status for error
+# global  string  $sPre         prefix spacing for output
+#
 function showRunningJobs(){
         local sCmd
         local sLastStart
         local iSince
         local iTTL
         local iPid
+        local statusTtl
         if getRunningfiles >/dev/null 2>&1 ; then
                 echo $line1
                 echo
@@ -410,11 +446,18 @@ function showRunningJobs(){
 }
 
 # show total overview of all jobs
+#
+# global  string  $bShowDetails  show details if <> 0
+# global  string  $bShowRunning  show running jobs if <> 0
+# global  integer $iErrJobs      number of errors
+#
 # No parameter is needed.
 function showTotalstatus(){
-        for logfile in $( getLogfiles )
+        local _logfile
+
+        for _logfile in $( getLogfiles )
         do
-                showStatus "$logfile"
+                showStatus "$_logfile"
         done
 
         test "$bShowRunning" -ne "0" && showRunningJobs
@@ -436,7 +479,6 @@ while [[ "$#" -gt 0 ]]; do case $1 in
     -h|--help) showhelp; exit 0;;
 
     -i|--nointro)   bShowHead=0; shift;;
-
     -d|--nodetails) bShowDetails=0; shift;;
     -l|--nolast)    bShowHistory=0; shift;;
     -o|--nooutput)  bShowLogfile=0; shift;;
