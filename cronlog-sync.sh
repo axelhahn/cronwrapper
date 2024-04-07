@@ -15,7 +15,6 @@
 # 2024-04-03  v2.0  ahahn                     update bashdoc
 # ======================================================================
 
-_version=2.0
 CW_LOGDIR=/var/tmp/cronlogs
 CW_TARGET=
 CW_SSHKEY=
@@ -26,6 +25,8 @@ typeset -i VERBOSE=1
 . $( dirname $0)/inc_cronfunctions.sh || exit 1
 CFGFILE=$(dirname $0)/cronwrapper.cfg
 . "${CFGFILE}"
+
+_version=2.0
 
 # ----------------------------------------------------------------------
 # FUNCTIONS

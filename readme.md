@@ -1,11 +1,13 @@
 Axels
 
 ```text
- ______                        ________                                    
-|      |.----.-----.-----.    |  |  |  |.----.---.-.-----.-----.-----.----.
-|   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
-|______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
-                                                   |__|  |__|              
+                                                                           | 
+    A  X  E  L  S                                                        --x--
+   ______                        ________                                  |
+  |      |.----.-----.-----.    |  |  |  |.----.---.-.-----.-----.-----.----.
+  |   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
+  |______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
+                                                     |__|  |__|
 ```
 
 Unix shell scripts in Bash for easier handling of cronjobs.\
@@ -37,16 +39,4 @@ My simple approach:
 By just adding a wrapper in front of your current command 
 breaks tons of limits! Suddenly a simple action opens so many possibilities.
 
-This repository contains scripts and helpers for local cronjobs
-
-* cronwrapper.sh - a wrapper script to call cronjob scripts
-* inc_cronfunctions.sh - an include file that can be sourced in your bash scripts
-* cronstatus.sh - ist shows status of all local cronjobs (and use cronwrapper.sh)
-* cronlog-sync.sh - syncs logfiles to a central log server
-
-To sync logfiles to a central log server there is script that detects new files in the logdir since the last sync.
-
-## Requirements
-
-Linux system with installed Bash.
-Tested on CentOS, Debian, Manjaro, Ubuntu.
+![Cronstatus overview](docs/images/cronstatus_overview.png)
