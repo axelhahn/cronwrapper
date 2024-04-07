@@ -11,7 +11,7 @@ ______________________________________________________________________________
 
   AXELS CRONWRAPPER
   Jobstatus of cronjobs on 🖥 linux-pc
-                                                                         v 2.1
+                                                                         v 2.2
 ______________________________________________________________________________
 
 
@@ -152,7 +152,6 @@ Example for Icinga2:
 
 https://git-repo.iml.unibe.ch/iml-open-source/icinga-checks/-/blob/master/check_cronstatus
 
-
 #### Example output on error
 
 On Error you get the last lines of the output with tail command.
@@ -171,6 +170,16 @@ It is a try to help - if the log is a bit bigger you need to open the log.
     ttl       : 30 min OK
     expires   : 1663838128 2022-09-22 11:15:28 OK
     CHECK FAILED
+```
+
+### View short info
+
+With parameter `-s` you get a minimalistic view: it shows OK or ERROR per cronjob
+
+```text
+> ./cronstatus.sh -s
+✔ OK: restic-backup
+❌ FAILED: ls
 ```
 
 ### View detail
