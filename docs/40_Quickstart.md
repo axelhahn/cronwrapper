@@ -4,9 +4,14 @@
 
 Git clone the repository in /opt
 
+```shell
+cd /opt
+git clone https://github.com/axelhahn/cronwrapper.git
+```
+
 ### First test run
 
-Start a simple command like `ls`:<br> `/opt/cronwraper/cronwrapper.sh 1 ls` 
+Let's start a simple command like `ls`:<br> `/opt/cronwraper/cronwrapper.sh 1 ls` 
 
 There was no output - because this is what we want in linux cronjobs.
 
