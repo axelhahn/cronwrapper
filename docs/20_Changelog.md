@@ -1,5 +1,15 @@
 ## 2024
 
+### 2024-04-08 - v2.3
+
+* FIX/ UPDATE: remove `set -eu -o pipefail` because of unexpected behaviours
+* UPDATE: use version number of inc_cronfunctions.sh in all scripts
+
+### 2024-04-04 - v2.2
+
+* ADDED: cronstatus.sh - skip intro header (-i)
+* UPDATE: harden against bash pipefail option
+
 ### 2024-04-04 - v2.1
 
 * ADDED: cronstatus.sh - skip intro header (-i)
