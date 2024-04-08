@@ -5,14 +5,15 @@
 #
 # ----------------------------------------------------------------------
 # This script makes an rsync to monitor target
-# 2019-09-12  v1.0  <axel.hahn@iml.unibe.ch>  first lines
-# 2022-09-21  v1.1  <axel.hahn@iml.unibe.ch>  add ssh key
-# 2022-09-22  v1.2  <axel.hahn@iml.unibe.ch>  optional: stop if hostname has no domain
-# 2022-09-23  v1.3  <axel.hahn@iml.unibe.ch>  fix exitcode on no sync and failed sync
-# 2022-09-23  v1.4  <axel.hahn@iml.unibe.ch>  option -q is more quiet and -f to set SYNCAFTER
-# 2023-07-21  v1.5  <axel.hahn@iml.unibe.ch>  fix typo in header
-# 2024-01-23  v1.6  ahahn                     update help; use cw.emoji; update exitcodes
-# 2024-04-03  v2.0  ahahn                     update bashdoc
+# 2019-09-12  <axel.hahn@iml.unibe.ch>  1.0  first lines
+# 2022-09-21  <axel.hahn@iml.unibe.ch>  1.1  add ssh key
+# 2022-09-22  <axel.hahn@iml.unibe.ch>  1.2  optional: stop if hostname has no domain
+# 2022-09-23  <axel.hahn@iml.unibe.ch>  1.3  fix exitcode on no sync and failed sync
+# 2022-09-23  <axel.hahn@iml.unibe.ch>  1.4  option -q is more quiet and -f to set SYNCAFTER
+# 2023-07-21  <axel.hahn@iml.unibe.ch>  1.5  fix typo in header
+# 2024-01-23  ahahn  1.6  update help; use cw.emoji; update exitcodes
+# 2024-04-03  ahahn  2.0  update bashdoc
+# 2024-04-08  ahahn  2.3  use version number _version from inc_cronfunctions.sh
 # ======================================================================
 
 CW_LOGDIR=/var/tmp/cronlogs
@@ -25,8 +26,6 @@ typeset -i VERBOSE=1
 . $( dirname $0)/inc_cronfunctions.sh || exit 1
 CFGFILE=$(dirname $0)/cronwrapper.cfg
 . "${CFGFILE}"
-
-_version=2.0
 
 # ----------------------------------------------------------------------
 # FUNCTIONS

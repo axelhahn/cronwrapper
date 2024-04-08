@@ -44,6 +44,7 @@
 # 2024-01-23  ahahn  WIP   add hooks; update help; use cw.emoji
 # 2024-04-03  ahahn  2.0   update bashdoc
 # 2024-04-04  ahahn  2.1   harden against bash pipefail option
+# 2024-04-08  ahahn  2.3   use version number _version from inc_cronfunctions.sh
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -53,8 +54,6 @@
 line1="------------------------------------------------------------------------------"
 
 . "$( dirname "$0")/inc_cronfunctions.sh"
-
-_version="2.1"
 
 # ------------------------------------------------------------
 # FUNCTIONS
