@@ -20,9 +20,10 @@
 # 2024-04-03  ahahn  2.0  add CW_LOGDIR; update bashdoc
 # 2024-04-04  ahahn  2.1  harden against bash pipefail option; added: skip intro header (-i)
 # 2024-04-07  ahahn  2.2  update bash docs; define local vars
+# 2024-04-08  ahahn  2.3  remove "set -eu -o pipefail"; use version number _version from inc_cronfunctions.sh
 # ------------------------------------------------------------
 
-set -eu -o pipefail
+# set -eu -o pipefail
 
 CW_LABELSTR=
 CW_LOGFILE=
@@ -32,8 +33,6 @@ typeset -i CW_REQUIREFQDN=0
 
 test -f $( dirname $0)/cronwrapper.cfg && . $( dirname $0)/cronwrapper.cfg
 . $( dirname $0)/inc_cronfunctions.sh || exit 1
-
-_version="2.2"
 
 typeset -i iMaxAge
 iMaxAge=$(date +%s)

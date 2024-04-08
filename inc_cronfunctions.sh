@@ -14,9 +14,10 @@
 # 2024-03-05  ahahn        add function cw.helpsection  for help text in scripts
 # 2024-04-03  ahahn  2.0   update bashdoc
 # 2024-04-04  ahahn  2.1   define NO_COLOR to prevent unbound variable
+# 2024-04-08  ahahn  2.3   FIX NO_COLOR; _version is shown in all scripts
 # ======================================================================
 
-_version=2.1
+_version=2.3
 
 # Handling of exitocdes
 typeset -i rc=0     # the last detected exitcode of a command
@@ -28,7 +29,7 @@ typeset -i rcAll=0  # sum of all collected exitcodes
 export CW_timer_start
 export CW_lockfile
 
-NO_COLOR=${NOCOLOR:-0}
+NO_COLOR=${NO_COLOR:-0}
 
 # ----------------------------------------------------------------------
 
