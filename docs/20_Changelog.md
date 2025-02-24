@@ -1,3 +1,10 @@
+## 2025
+
+### 2025-02-24 - v2.4
+
+* FIX: cronstatus - Hide error of missing logfile before 1st job was executed
+* UPDATE: bashdoc in cronstatus
+
 ## 2024
 
 ### 2024-04-08 - v2.3
