@@ -6,21 +6,22 @@
 # Show status for all cronjobs using the cronwrapper
 #
 # ------------------------------------------------------------
-# 2022-01-12  ahahn  1.1  fixes based on shellcheck
-# 2022-03-09  ahahn  1.2  added cw.* functions
-# 2022-09-21  ahahn  1.3  added colored OK or ERROR texts
-# 2022-09-22  ahahn  1.4  add last output lines; add total status; exitstatus > 0 on error 
-# 2022-10-27  ahahn  1.5  add 2 checks for hostname: is it a fqdn + filename matches hostname -f
-# 2023-01-31  ahahn  1.6  add param support; analyze a single log
-# 2023-05-22  ahahn  1.7  show running jobs
-# 2023-07-14  ahahn  1.8  add support for REQUIREFQDN
-# 2023-07-14  ahahn  1.9  added check if process still runs
-# 2024-01-04  ahahn  1.10 update error messages
-# 2024-01-30  ahahn  WIP  update help; use cw.emoji; use label as parameter; show last executions
-# 2024-04-03  ahahn  2.0  add CW_LOGDIR; update bashdoc
-# 2024-04-04  ahahn  2.1  harden against bash pipefail option; added: skip intro header (-i)
-# 2024-04-07  ahahn  2.2  update bash docs; define local vars
-# 2024-04-08  ahahn  2.3  remove "set -eu -o pipefail"; use version number _version from inc_cronfunctions.sh
+# 2022-01-12  ahahn  1.1   fixes based on shellcheck
+# 2022-03-09  ahahn  1.2   added cw.* functions
+# 2022-09-21  ahahn  1.3   added colored OK or ERROR texts
+# 2022-09-22  ahahn  1.4   add last output lines; add total status; exitstatus > 0 on error 
+# 2022-10-27  ahahn  1.5   add 2 checks for hostname: is it a fqdn + filename matches hostname -f
+# 2023-01-31  ahahn  1.6   add param support; analyze a single log
+# 2023-05-22  ahahn  1.7   show running jobs
+# 2023-07-14  ahahn  1.8   add support for REQUIREFQDN
+# 2023-07-14  ahahn  1.9   added check if process still runs
+# 2024-01-04  ahahn  1.10  update error messages
+# 2024-01-30  ahahn  WIP   update help; use cw.emoji; use label as parameter; show last executions
+# 2024-04-03  ahahn  2.0   add CW_LOGDIR; update bashdoc
+# 2024-04-04  ahahn  2.1   harden against bash pipefail option; added: skip intro header (-i)
+# 2024-04-07  ahahn  2.2   update bash docs; define local vars
+# 2024-04-08  ahahn  2.3   remove "set -eu -o pipefail"; use version number _version from inc_cronfunctions.sh
+# 2025-02-24  ahahn  2.4   Hide error of missing logfile before 1st job was executed
 # ------------------------------------------------------------
 
 # set -eu -o pipefail
@@ -67,16 +68,16 @@ function getLogValue(){
 #
 # global  string  $CW_LOGDIR  directory where the logfiles are stored
 function getLogfiles(){
-        ls -1t "$CW_LOGDIR"/*log | grep -Fv "/__"        
+        ls -1t "$CW_LOGDIR"/*log 2>/dev/null | grep -Fv "/__"        
 }
 
-# Get logfiles of all cronwrapper cronjobs
+# Get label from logfiles filename
 # No parameter is needed.
 function _getLabel(){
         echo "$1" | rev | cut -f 1- -d '/' | rev | cut -f 2- -d '_' | sed "s,\.log.*,," 
 }
 
-# Get logfiles of all cronwrapper cronjobs
+# Get logfiles of running cronwrapper cronjobs
 # No parameter is needed.
 #
 # global  string  $CW_LOGDIR  directory where the logfiles are stored
