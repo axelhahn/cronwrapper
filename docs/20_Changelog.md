@@ -1,5 +1,9 @@
 ## 2025
 
+### 2025-05-06 - v2.5
+
+* FIX: cronstatus - ignore false binary detection of grep
+
 ### 2025-02-24 - v2.4
 
 * FIX: cronstatus - Hide error of missing logfile before 1st job was executed
