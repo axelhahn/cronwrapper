@@ -16,9 +16,10 @@
 # 2024-04-04  ahahn  2.1   define NO_COLOR to prevent unbound variable
 # 2024-04-08  ahahn  2.3   FIX NO_COLOR; _version is shown in all scripts
 # 2025-02-24  ahahn  2.4   Hide error in cronstatus of missing logfile before 1st job was executed
+# 2025-05-06  ahahn  2.5   cronstatus - ignore false binary detection of grep
 # ======================================================================
 
-_version=2.4
+_version=2.5
 
 # Handling of exitocdes
 typeset -i rc=0     # the last detected exitcode of a command

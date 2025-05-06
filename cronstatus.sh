@@ -22,6 +22,7 @@
 # 2024-04-07  ahahn  2.2   update bash docs; define local vars
 # 2024-04-08  ahahn  2.3   remove "set -eu -o pipefail"; use version number _version from inc_cronfunctions.sh
 # 2025-02-24  ahahn  2.4   Hide error of missing logfile before 1st job was executed
+# 2025-05-06  ahahn  2.5   getLogValue - ignore false binary detection of grep
 # ------------------------------------------------------------
 
 # set -eu -o pipefail
@@ -60,7 +61,7 @@ sPre="    "
 #
 # param   string  label to search for
 function getLogValue(){
-        grep "^$1=" "$CW_LOGFILE" | cut -f 2- -d "="
+        grep --binary-files=text "^$1=" "$CW_LOGFILE" | cut -f 2- -d "="
 }
 
 # Get logfiles of all cronwrapper cronjobs
