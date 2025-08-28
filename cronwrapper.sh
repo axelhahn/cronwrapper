@@ -87,8 +87,8 @@ function showError(){
         # do not write to tty in cronjob
         if [ -n "$1" ] && [ "$isShell" = "0" ]
         then
-                echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_START:exectime=0:ttl=${TTL}:rc=255:error=$sErromessage" >>"$CW_JOBLOG"
-                return 0
+                echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_START:exectime=0:ttl=${TTL}:rc=$iExit:error=$sErromessage" >>"$CW_JOBLOG"
+                exit $iExit
         fi
 
         cw.color error; echo -n "ERROR: $sErromessage"; cw.color reset; echo
