@@ -10,8 +10,8 @@ ______________________________________________________________________________
 
 
   AXELS CRONWRAPPER
-  Jobstatus of cronjobs on 🖥 linux-pc
-                                                                         v 2.2
+  Jobstatus of cronjobs on 🖥 axels-laptop
+                                                                         v 2.7
 ______________________________________________________________________________
 
 
@@ -39,6 +39,9 @@ This script is part of Axels Cronwrapper.
   -r|--norunning   hide running processes
   -s|--short       short status; sortcut for '-d -i -l -r'
 
+  -c|--cleanup     Clenup old logs (with extension 'running')
+  -w|--wipe LABEL  Delete log files for given label; see 'cronstatus.sh -s'
+
 
 ####| 🏷 PARAMETERS |####
 
@@ -62,6 +65,11 @@ This script is part of Axels Cronwrapper.
 
   cronstatus.sh /var/tmp/cronlogs/myjobfile.log
            show output of a single job
+
+  Cleanup:
+
+  cronstatus.sh -c
+  cronstatus.sh -w myoldjob
 
 ```
 
@@ -196,3 +204,26 @@ In this example I executed a dummy cronjob: `ls` with a ttl of 10 min. This show
 * ERROR for the expired job (log is now older than 10 min)
 
 ![Screenshot: detail view of a single logfile](/images/cronstatus_detail.png)
+
+### Cleamup
+
+#### Delete old "running" files
+
+Each start of a job produces a logfile with the process id.
+If the job aborts the files stay to have the posiibility to find a troublemaker.
+
+To delete all outdated "running" files where the process does not existin anymore you can use the `--cleanup` option.
+
+`./cronstatus.sh --cleanup`
+
+#### Delete old job logs
+
+If you you deleted a cronjob you can use `--wipe` to delete all files for this cronjob.
+
+```txt
+> ./cronstatus.sh -w something
+Wiping data for job 'something' ...
+ls: cannot access '/var/tmp/cronlogs/_flag-something_*': No such file or directory
+ls: cannot access '/var/tmp/cronlogs/axels-laptop_something.log*': No such file or directory
+Done.
+```
