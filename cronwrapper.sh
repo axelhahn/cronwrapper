@@ -45,6 +45,7 @@
 # 2024-04-03  ahahn  2.0   update bashdoc
 # 2024-04-04  ahahn  2.1   harden against bash pipefail option
 # 2024-04-08  ahahn  2.3   use version number _version from inc_cronfunctions.sh
+# 2025-08-28  ahahn  2.6   Don't write error to stdout on crnwrapper init as cronjob
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -73,13 +74,36 @@ function getRealScriptPath(){
   cd -P "$( dirname "$_source" )" >/dev/null 2>&1 && pwd
 }
 
+# Show error message and quit
+# param  integer exitcode
+# param  string  error message
+function showError(){
+        local iExit=${1}
+        local sErromessage="${2}"
+
+        local isShell
+        isShell=$( ps | grep -Eq "(csh|bash|dash|fish|tcsh|zsh)" && echo 1 || echo 0 ) 
+        
+        # do not write to tty in cronjob
+        if [ -n "$1" ] && [ "$isShell" = "0" ]
+        then
+                echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_START:exectime=0:ttl=${TTL}:rc=255:error=$sErromessage" >>"$CW_JOBLOG"
+                return 0
+        fi
+
+        cw.color error; echo -n "ERROR: $sErromessage"; cw.color reset; echo
+        echo "Start '$0 -h' to see help."
+        exit $iExit
+}
+
+
 # show help
 # param  string  info or error message
 # No parameters needed
 #
 # global  string  $_version    version of the script
 # global  string  $CW_DIRSELF  directory of the script
-# global s tring  $CW_LOGDIR   directory of the logfiles
+# global  string  $CW_LOGDIR   directory of the logfiles
 function showhelp(){
         cw.color head
         cat <<ENDOFHEAD
@@ -103,7 +127,6 @@ cat <<ENDOFHELP
   $( cw.emoji "📜" )License: GNU GPL 3.0
   $( cw.emoji "📗" )Docs   : https://www.axel-hahn.de/docs/cronwrapper/
 
-$(test -n "$1" && ( cw.color error; echo "$1"; cw.color reset; echo; echo ))
 $(cw.helpsection "✨" "SYNTAX")
 
   $0 TTL COMMAND [LABEL]
@@ -218,7 +241,7 @@ CW_LOGFILE=/tmp/call_any_script_$$.log
 CW_LOGDIR="/var/tmp/cronlogs"
 CW_HOOKDIR=${CW_DIRSELF}/hooks
 CW_KEEPDAYS=14
-CW_MYHOST=$( hostname -f )
+CW_MYHOST=$( hostname -f 2>/dev/null )
 
 # --- log executions of the whole day
 CW_JOBBLOGBASE=${CW_MYHOST}_joblog_
@@ -246,16 +269,13 @@ if [ "$1" = "-?" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 	exit 1
 fi
 if [ $# -lt 2 ]; then
-	showhelp "ERROR: missing parameters."
-	exit 1
+	showError 1 "Missing parameters."
 fi
 if [ $TTL -eq 0 ]; then
-	showhelp "ERROR: TTL must be integer and greater zero."
-	exit 1
+	showError 1 "TTL must be integer and greater zero."
 fi
 if [ -z "${CW_MYHOST}" ]; then
-	showhelp "ERROR: hostname -f did not return any hostname."
-	exit 1
+	showError 1 "Command 'hostname -f' did not return a hostname."
 fi
 
 test -d $CW_LOGDIR || mkdir $CW_LOGDIR 2>/dev/null

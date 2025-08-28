@@ -19,7 +19,7 @@
 # 2025-05-06  ahahn  2.5   cronstatus - ignore false binary detection of grep
 # ======================================================================
 
-_version=2.5
+_version=2.6
 
 # Handling of exitocdes
 typeset -i rc=0     # the last detected exitcode of a command
@@ -189,7 +189,7 @@ function cw.color(){
                         ;;
                 "warning") sColorcode="33" # yellow
                         ;;
-                "error") sColorcode="91" # red
+                "error") sColorcode="\033[41" # red
                         ;;
                 *) echo "ERROR: unknown color keyword: $_color"; return 1
         esac
