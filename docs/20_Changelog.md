@@ -1,5 +1,15 @@
 ## 2025
 
+### 2025-08-31 - v2.7
+
+* ADD: cronstatus got 2 cleanup functions:
+  * delete outdated *.running files
+  * wipe log of a removed cronjob
+
+### 2025-08-28 - v2.6
+
+* FIX: cronwrapper - Do not echo init error message when cronwraper was started as cronjob
+
 ### 2025-05-06 - v2.5
 
 * FIX: cronstatus - ignore false binary detection of grep

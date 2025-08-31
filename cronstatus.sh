@@ -23,6 +23,7 @@
 # 2024-04-08  ahahn  2.3   remove "set -eu -o pipefail"; use version number _version from inc_cronfunctions.sh
 # 2025-02-24  ahahn  2.4   Hide error of missing logfile before 1st job was executed
 # 2025-05-06  ahahn  2.5   getLogValue - ignore false binary detection of grep
+# 2025-08-31  ahahn  2.7   add params for cleanup and wipe
 # ------------------------------------------------------------
 
 # set -eu -o pipefail
@@ -138,6 +139,9 @@ $(cw.helpsection "🔧" "OPTIONS")
   -r|--norunning   hide running processes
   -s|--short       short status; sortcut for '-d -i -l -r'
 
+  -c|--cleanup     Clenup old logs (with extension 'running')
+  -w|--wipe LABEL  Delete log files for given label; see '$_self -s'
+
 $(cw.helpsection "🏷️" "PARAMETERS")
 
   LOGFILE  filename to show details of a single logfile
@@ -160,6 +164,11 @@ $(cw.helpsection "🧩" "EXAMPLES")
   $_self $CW_LOGDIR/myjobfile.log
            show output of a single job
 
+  Cleanup:
+
+  $_self -c
+  $_self -w myoldjob
+           
 "
 }
 
@@ -206,6 +215,7 @@ function _showLast(){
                 echo "${sPre}(no other executions found)"
         fi
 } 
+
 
 # show status of a single sob
 #
@@ -397,7 +407,9 @@ function showStatus(){
 # global  string  $statusERROR  short status for error
 # global  string  $sPre         prefix spacing for output
 #
+# param   int     do cleanup; 1=yes; default: 0 (=no)
 function showRunningJobs(){
+        local doCleanup=${1:-0}
         local sCmd
         local sLastStart
         local iSince
@@ -430,8 +442,16 @@ function showRunningJobs(){
                                 if ps $iPid >/dev/null 2>&1; then
                                         cw.cecho "ok" "${sPre}OK - still running"
                                 else
-                                        cw.cecho "error" "${sPre}ERROR     : The process $iPid does not exist anymore. The job was aborted."
-                                        cw.cecho "error" "${sPre}            Check the log file and delete it."
+                                        if [ "$doCleanup" = "1" ]; then
+                                                if rm -f "$CW_LOGFILE"; then
+                                                        cw.cecho "ok" "${sPre}            OK - file was deleted"
+                                                else
+                                                        cw.cecho "error" "${sPre}            Deletion failed."
+                                                fi
+                                        else
+                                                cw.cecho "error" "${sPre}ERROR     : The process $iPid does not exist anymore. The job was aborted."
+                                                cw.cecho "error" "${sPre}            Check the log file and delete it."
+                                        fi
                                 fi
                         fi
 
@@ -470,6 +490,37 @@ function showTotalstatus(){
         )
 
 }
+
+
+# Wipe Logs for a given label. If no label  is given then you get an 
+# interactive selection.
+# param  string  optional:label of the cronjob
+function wipeLogs(){
+        local _label="$1"
+
+        if [ -z "$_label" ]; then
+                cw.cecho "head" "..... Select a a job to wipe"
+                bShowHead=0; bShowHistory=0; bShowDetails=0; bShowRunning=0;
+                showTotalstatus
+                read -p " > " _label
+                if [ -z "$_label" ]; then
+                        echo "Doing nothing."
+                        exit 0
+                fi
+        fi
+        cw.cecho "head" "..... Wiping data for job '$_label' ..."
+        if [ -z "$_label" ]; then
+                cw.cecho "error" "ERROR: missing label of an existing job. See '$0 -s'"
+                exit 1
+        fi
+        ls -l $CW_LOGDIR/_flag-${_label}_*
+        ls -l $CW_LOGDIR/$( hostname -f )_${_label}.log*
+
+        rm -f $CW_LOGDIR/_flag-${_label}_*
+        rm -f $CW_LOGDIR/$( hostname -f )_${_label}.log*
+        echo "Done."
+}
+
 # ----------------------------------------------------------------------
 # MAIN
 # ----------------------------------------------------------------------
@@ -478,6 +529,9 @@ sCurrentServer=$(hostname -f)
 
 while [[ "$#" -gt 0 ]]; do case $1 in
     -h|--help) showhelp; exit 0;;
+
+    -c|--cleanup) showRunningJobs "1"; exit 0;;
+    -w|--wipe) wipeLogs "$2"; exit 0;;
 
     -i|--nointro)   bShowHead=0; shift;;
     -d|--nodetails) bShowDetails=0; shift;;

@@ -27,6 +27,7 @@ Use -h to show a help:
 
 ```text
 cronwrapper.sh -h
+./cronwrapper.sh -h
 
                                                                            | 
     A  X  E  L  S                                                        --x--
@@ -35,15 +36,14 @@ cronwrapper.sh -h
   |   ---||   _|  _  |     |    |  |  |  ||   _|  _  |  _  |  _  |  -__|   _|
   |______||__| |_____|__|__|    |________||__| |___._|   __|   __|_____|__|  
                                                      |__|  |__|
-                                                                       v 2.0
+                                                                       v 2.7
+
 
   Puts control and comfort to your cronjobs.
 
   📄 Source : https://github.com/axelhahn/cronwrapper
-  📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
   📜 License: GNU GPL 3.0
-
-ERROR: missing parameters.
+  📗 Docs   : https://www.axel-hahn.de/docs/cronwrapper/
 
 
 ####| ✨ SYNTAX |####
@@ -86,12 +86,12 @@ ERROR: missing parameters.
   /var/tmp/cronlogs.
   The output logs are parseble with simple grep command.
 
-  You can run ./cronstatus.sh to get a list of all cronjobs and 
+  You can run /opt/cronwrapper/cronstatus.sh to get a list of all cronjobs and 
   its status. Based on its output you can create a check script for your 
   server monitoring.
 
   You can sync all logfiles of all cronjobs to a defined server using
-  ./cronlog-sync.sh
+  /opt/cronwrapper/cronlog-sync.sh
 
 ```
 
