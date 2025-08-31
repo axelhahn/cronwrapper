@@ -1,6 +1,6 @@
 ## 2025
 
-### 2025-08-28 - v2.7
+### 2025-08-31 - v2.7
 
 * ADD: cronstatus got 2 cleanup functions:
   * delete outdated *.running files

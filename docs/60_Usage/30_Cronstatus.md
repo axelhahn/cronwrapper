@@ -212,13 +212,13 @@ In this example I executed a dummy cronjob: `ls` with a ttl of 10 min. This show
 Each start of a job produces a logfile with the process id.
 If the job aborts the files stay to have the posiibility to find a troublemaker.
 
-To delete all outdated "running" files where the process does not existin anymore you can use the `--cleanup` option.
+To delete all outdated "running" files where the process does not existing anymore you can use the `--cleanup` option.
 
 `./cronstatus.sh --cleanup`
 
 #### Delete old job logs
 
-If you you deleted a cronjob you can use `--wipe` to delete all files for this cronjob.
+If you you deleted a cronjob you can use `--wipe` to delete all files for a given cronjob.
 
 ```txt
 > ./cronstatus.sh -w something
@@ -227,3 +227,17 @@ ls: cannot access '/var/tmp/cronlogs/_flag-something_*': No such file or directo
 ls: cannot access '/var/tmp/cronlogs/axels-laptop_something.log*': No such file or directory
 Done.
 ```
+
+If you don't give a job label you get a list of all jobs and a prompt to enter a job label.
+
+```txt
+./cronstatus.sh -w
+..... Select a a job to wipe
+❌ FAILED: test-to-delete
+✔ OK: restic-backup
+✔ OK: system-update
+ > 
+```
+
+If you just press return you get the message "Doing nothing".
+Otherwise the script tries to delete flag and log file.

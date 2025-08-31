@@ -23,6 +23,7 @@
 # 2024-04-08  ahahn  2.3   remove "set -eu -o pipefail"; use version number _version from inc_cronfunctions.sh
 # 2025-02-24  ahahn  2.4   Hide error of missing logfile before 1st job was executed
 # 2025-05-06  ahahn  2.5   getLogValue - ignore false binary detection of grep
+# 2025-08-31  ahahn  2.7   add params for cleanup and wipe
 # ------------------------------------------------------------
 
 # set -eu -o pipefail
@@ -408,7 +409,7 @@ function showStatus(){
 #
 # param   int     do cleanup; 1=yes; default: 0 (=no)
 function showRunningJobs(){
-        local doCleanup={$1:-0}
+        local doCleanup=${1:-0}
         local sCmd
         local sLastStart
         local iSince
@@ -442,7 +443,7 @@ function showRunningJobs(){
                                         cw.cecho "ok" "${sPre}OK - still running"
                                 else
                                         if [ "$doCleanup" = "1" ]; then
-                                                if rm "$CW_LOGFILE"; then
+                                                if rm -f "$CW_LOGFILE"; then
                                                         cw.cecho "ok" "${sPre}            OK - file was deleted"
                                                 else
                                                         cw.cecho "error" "${sPre}            Deletion failed."
@@ -491,12 +492,23 @@ function showTotalstatus(){
 }
 
 
-# Wipe Logs for a given label
-# param  string  label of the cronjob
+# Wipe Logs for a given label. If no label  is given then you get an 
+# interactive selection.
+# param  string  optional:label of the cronjob
 function wipeLogs(){
         local _label="$1"
-        echo "Wiping data for job '$_label' ..."
 
+        if [ -z "$_label" ]; then
+                cw.cecho "head" "..... Select a a job to wipe"
+                bShowHead=0; bShowHistory=0; bShowDetails=0; bShowRunning=0;
+                showTotalstatus
+                read -p " > " _label
+                if [ -z "$_label" ]; then
+                        echo "Doing nothing."
+                        exit 0
+                fi
+        fi
+        cw.cecho "head" "..... Wiping data for job '$_label' ..."
         if [ -z "$_label" ]; then
                 cw.cecho "error" "ERROR: missing label of an existing job. See '$0 -s'"
                 exit 1
