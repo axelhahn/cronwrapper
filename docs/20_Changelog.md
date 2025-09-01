@@ -1,5 +1,9 @@
 ## 2025
 
+### 2025-09-01 - v2.8
+
+* ADDED: define file permissions for log firectory and daily logs
+
 ### 2025-08-31 - v2.7
 
 * ADD: cronstatus got 2 cleanup functions:
