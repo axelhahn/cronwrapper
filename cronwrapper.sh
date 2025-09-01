@@ -46,6 +46,7 @@
 # 2024-04-04  ahahn  2.1   harden against bash pipefail option
 # 2024-04-08  ahahn  2.3   use version number _version from inc_cronfunctions.sh
 # 2025-08-28  ahahn  2.6   Don't write error to stdout on crnwrapper init as cronjob
+# 2025-09-01  ahahn  2.9   configure file permissions for log firectory and daily logs
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -88,6 +89,7 @@ function showError(){
         if [ -n "$1" ] && [ "$isShell" = "0" ]
         then
                 echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_START:exectime=0:ttl=${TTL}:rc=$iExit:error=$sErromessage" >>"$CW_JOBLOG"
+                chmod "${CW_LOGFILE_PERMS}" "$CW_JOBLOG" 2>/dev/null
                 exit $iExit
         fi
 
@@ -246,7 +248,8 @@ CW_MYHOST=$( hostname -f 2>/dev/null )
 # --- log executions of the whole day
 CW_JOBBLOGBASE=${CW_MYHOST}_joblog_
 CW_SINGLEJOB=1
-
+CW_LOGDIR_PERMS=777
+CW_LOGFILE_PERMS=777
 
 test -f "${CW_DIRSELF}/cronwrapper.env" && . "${CW_DIRSELF}/cronwrapper.env"
 test -f "${CW_DIRSELF}/cronwrapper.cfg" && . "${CW_DIRSELF}/cronwrapper.cfg"
@@ -279,7 +282,7 @@ if [ -z "${CW_MYHOST}" ]; then
 fi
 
 test -d $CW_LOGDIR || mkdir $CW_LOGDIR 2>/dev/null
-chmod 777 $CW_LOGDIR 2>/dev/null
+chmod "${CW_LOGDIR_PERMS}" $CW_LOGDIR 2>/dev/null
 
 # ------------------------------------------------------------
 # prevent multiple execution ... if configured
@@ -389,7 +392,7 @@ w "REM $line1"
 
 # write a log for execution of a cronjob
 echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_END:exectime=$iExectime:ttl=${TTL}:rc=$rc" >>"$CW_JOBLOG"
-chmod 777 "$CW_JOBLOG" 2>/dev/null
+chmod "${CW_LOGFILE_PERMS}" "$CW_JOBLOG" 2>/dev/null
 find $CW_LOGDIR -name "${CW_JOBBLOGBASE}*" -type f -mtime +$CW_KEEPDAYS -exec rm -f {} \;
 
 runHooks "after" $rc >>"${CW_LOGFILE}" 2>&1

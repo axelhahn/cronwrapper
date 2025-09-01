@@ -19,7 +19,7 @@
 # 2025-05-06  ahahn  2.5   cronstatus - ignore false binary detection of grep
 # ======================================================================
 
-_version=2.7
+_version=2.8
 
 # Handling of exitocdes
 typeset -i rc=0     # the last detected exitcode of a command

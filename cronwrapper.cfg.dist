@@ -14,6 +14,11 @@ CW_SINGLEJOB=1
 # directory with hooks - only change it if you know what you are doing
 CW_HOOKDIR=./hooks
 
+# permission on log directory and daily logfiles
+# - for root only jobs: 0700 for directory and 0600 for files
+# - when mixed users execute cronwrapper: 0777
+CW_LOGDIR_PERMS=777
+CW_LOGFILE_PERMS=777
 
 # ----- for sync of local logs
 # see https://www.axel-hahn.de/docs/cronwrapper/Usage/Cronlog_Sync.html

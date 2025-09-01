@@ -22,6 +22,11 @@ CW_SINGLEJOB=1
 # directory with hooks
 CW_HOOKDIR=./hooks
 
+# permission on logfiles
+# - for root only jobs: 0600
+# - for mixed user: 0777
+CW_LOGFILE_PERMS=777
+
 
 # ----- for sync of local logs
 CW_TOUCHFILE=lastsync
@@ -39,11 +44,19 @@ CW_REQUIREFQDN=0
 
 For the execution of all cronjobs on the server there is just one variable to define a place where to store output files.
 
-Variable     | type   | description
----          |---     |---
-CW_LOGDIR    | string | Ouput dir of all logfiles when using cronwrapper.<br>It is used by status script and sync script to read data from here. Default: "/var/tmp/cronlogs"
-CW_SINGLEJOB | int    | 0 or 1; 1=deny multiple execution of the same job (default)
-CW_HOOKDIR   | string | set an absolute directory to the hooks directory; use it if you use a created a softlink for the cronwrapper to /usr/local/bin and want to point to the real install directory; default: ./hooks; changing it is not needed
+Variable         | type   | description
+---              |---     |---
+CW_LOGDIR        | string | Ouput dir of all logfiles when using cronwrapper.<br>It is used by status script and sync script to read data from here. Default: "/var/tmp/cronlogs"
+CW_SINGLEJOB     | int    | 0 or 1; 1=deny multiple execution of the same job (default)
+CW_HOOKDIR       | string | Set an absolute directory to the hooks directory; use it if you use a created a softlink for the cronwrapper to /usr/local/bin and want to point to the real install directory; default: ./hooks; changing it is not needed
+CW_LOGDIR_PERMS  | string | Set file permission on log directory; default: 777
+CW_LOGFILE_PERMS | string | Set file permission on written logfiles; default: 777
+
+On log files you can set permission on log directory and daily logfiles. These variables were introduces with v2.8. The very open default of 777 was used for backward compatibility. Try to run cronjobs as root or a sudo user to harden the file for a single user permissions.
+
+* for root only jobs (or if all your jobs run with the same user): `0700` for directory and `0600` for files
+* when mixed users execute cronwrapper: use `0777` for directory and files to allow writing all users updating its status in daily job logs.
+
 
 For an optional rsync script to collect all logs of all servers on a central server (see [Cronlog-Sync](40_More/50_Cronlog-Sync.md)):
 
