@@ -14,6 +14,7 @@
 # 2024-01-23  ahahn  1.6  update help; use cw.emoji; update exitcodes
 # 2024-04-03  ahahn  2.0  update bashdoc
 # 2024-04-08  ahahn  2.3  use version number _version from inc_cronfunctions.sh
+# 2026-01-15  ahahn  2.4  Remove chmod that created a world writable file
 # ======================================================================
 
 CW_LOGDIR=/var/tmp/cronlogs
@@ -222,7 +223,7 @@ fi
 if /usr/bin/rsync --delete -rvt "${moreparams}" "${CW_LOGDIR}/" "${CW_TARGET}"
 then 
     echo "OK, files were synced"
-    touch "${CW_LOGDIR}/${CW_TOUCHFILE}" && chmod 666 "${CW_LOGDIR}/${CW_TOUCHFILE}"
+    touch "${CW_LOGDIR}/${CW_TOUCHFILE}"
 else
     echo "ERROR while syncing files. Next run will try to sync again."
     rm -f "${CW_LOGDIR}/$CW_TOUCHFILE" 2>/dev/null

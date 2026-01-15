@@ -9,26 +9,29 @@ If you want to use a sync of a changed logfile with cronlog-sync.sh then you nee
 ```txt
 # -----------------------------------------------------------------------------
 # CRONWRAPPER * config
+# see https://www.axel-hahn.de/docs/cronwrapper/Configuration.html
 # -----------------------------------------------------------------------------
 
 # ----- shared values:
 CW_LOGDIR=/var/tmp/cronlogs
-
+CW_KEEPDAYS=14
 
 # ----- for cronwrapper
 # deny multiple execution of the same job? set 0 or 1
 CW_SINGLEJOB=1
 
-# directory with hooks
+# directory with hooks - only change it if you know what you are doing
 CW_HOOKDIR=./hooks
 
-# permission on logfiles
-# - for root only jobs: 0600
-# - for mixed user: 0777
+# permission on log directory and daily logfiles
+# - for root only jobs: 0700 for directory and 0600 for files
+# - when mixed users execute cronwrapper: 0777
+CW_LOGDIR_PERMS=777
 CW_LOGFILE_PERMS=777
 
-
 # ----- for sync of local logs
+# see https://www.axel-hahn.de/docs/cronwrapper/Usage/Cronlog_Sync.html
+
 CW_TOUCHFILE=lastsync
 CW_TARGET=get-cronlogs@cronlogviewer.example.com:/var/tmp/allcronlogs/$( hostname -f )
 CW_SSHKEY=/root/.ssh/id_rsa_get-cronlogs@cronlogviewer.example.com
@@ -39,7 +42,7 @@ CW_SYNCAFTER=3600
 # disallow hosts that have no domain in hostname -f; set 0 or 1
 CW_REQUIREFQDN=0
 
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------8
 ```
 
 For the execution of all cronjobs on the server there is just one variable to define a place where to store output files.
