@@ -46,7 +46,8 @@
 # 2024-04-04  ahahn  2.1   harden against bash pipefail option
 # 2024-04-08  ahahn  2.3   use version number _version from inc_cronfunctions.sh
 # 2025-08-28  ahahn  2.6   Don't write error to stdout on crnwrapper init as cronjob
-# 2025-09-01  ahahn  2.9   configure file permissions for log firectory and daily logs
+# 2025-09-01  ahahn  2.8   configure file permissions for log firectory and daily logs
+# 2026-05-20  axel.hahn@unibe.ch  2.9   hide stderr message in grep in *.running files
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -291,7 +292,7 @@ if [ "$CW_SINGLEJOB" != "0" ]; then
         for otheroutfile in $( ls -1 $CW_OUTFILEBASE.* 2>/dev/null )
         do
                 typeset -i runningProcessid; 
-                runningProcessid=$(grep "SCRIPTPROCESS" "$otheroutfile" | cut -f 2 -d '=')
+                runningProcessid=$(grep "SCRIPTPROCESS" "$otheroutfile" 2>/dev/null | cut -f 2 -d '=')
                 if [ $runningProcessid -gt 0 ]; then
                         if ps $runningProcessid >/dev/null; then
                                 echo "job=${CW_LABELSTR}:host=$CW_MYHOST:start=$CW_TIMER_START:end=$CW_TIMER_START:exectime=0:ttl=${TTL}:rc=1:blockingpid=$runningProcessid" >>"$CW_JOBLOG"
