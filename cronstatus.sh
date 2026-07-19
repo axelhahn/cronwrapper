@@ -24,6 +24,7 @@
 # 2025-02-24  ahahn  2.4   Hide error of missing logfile before 1st job was executed
 # 2025-05-06  ahahn  2.5   getLogValue - ignore false binary detection of grep
 # 2025-08-31  ahahn  2.7   add params for cleanup and wipe
+# 2026-07-19  ahahn  2.10  add desktop notification (-n)
 # ------------------------------------------------------------
 
 # set -eu -o pipefail
@@ -46,6 +47,7 @@ typeset -i bShowHistory=1
 typeset -i bShowRunning=1
 typeset -i bShowLogfile=1
 typeset -i bShowHead=1
+typeset -i bNotify=0
 
 line1="______________________________________________________________________________"
 statusOK=$(cw.cecho ok "OK")
@@ -135,6 +137,7 @@ $(cw.helpsection "🔧" "OPTIONS")
   -d|--nodetails   hide detailed meta infos
   -i|--nointro     hide starting header
   -l|--nolast      hide last executions
+  -n|--notify      show short status (see -s) as desktop notification
   -o|--nooutput    hide logfile output (when adding a param for logfile|label)
   -r|--norunning   hide running processes
   -s|--short       short status; sortcut for '-d -i -l -r'
@@ -536,6 +539,7 @@ while [[ "$#" -gt 0 ]]; do case $1 in
     -i|--nointro)   bShowHead=0; shift;;
     -d|--nodetails) bShowDetails=0; shift;;
     -l|--nolast)    bShowHistory=0; shift;;
+    -n|--notify)    bShowHead=0; bShowHistory=0; bShowDetails=0; bShowRunning=0; bNotify=1; shift;;
     -o|--nooutput)  bShowLogfile=0; shift;;
     -r|--norunning) bShowRunning=0; shift;;
     -s|--short)     bShowHead=0; bShowHistory=0; bShowDetails=0; bShowRunning=0; shift;;
@@ -551,7 +555,13 @@ if [ -n "${1:-}" ]; then
         showStatus "$1" 1
         echo
 else
-        showTotalstatus
+        if [ $bNotify -eq 1 ]; then
+                out="$( showTotalstatus )"
+                iErrJobs="$( grep -c 'FAILED' <<< "$out" )"
+                cw.notify "Cronjob status" "$out" $iErrJobs
+        else
+                showTotalstatus
+        fi
 fi
 exit $iErrJobs
 

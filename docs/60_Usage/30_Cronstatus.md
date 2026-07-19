@@ -11,7 +11,7 @@ ______________________________________________________________________________
 
   AXELS CRONWRAPPER
   Jobstatus of cronjobs on 🖥 axels-laptop
-                                                                         v 2.7
+                                                                        v 2.10
 ______________________________________________________________________________
 
 
@@ -35,6 +35,7 @@ This script is part of Axels Cronwrapper.
   -d|--nodetails   hide detailed meta infos
   -i|--nointro     hide starting header
   -l|--nolast      hide last executions
+  -n|--notify      show short status (see -s) as desktop notification
   -o|--nooutput    hide logfile output (when adding a param for logfile|label)
   -r|--norunning   hide running processes
   -s|--short       short status; sortcut for '-d -i -l -r'
@@ -182,13 +183,30 @@ It is a try to help - if the log is a bit bigger you need to open the log.
 
 ### View short info
 
-With parameter `-s` you get a minimalistic view: it shows OK or ERROR per cronjob
+With parameter `-s` or `--short` you get a minimalistic view: it shows OK or ERROR per cronjob
 
 ```text
 > ./cronstatus.sh -s
 ✔ OK: restic-backup
 ❌ FAILED: ls
 ```
+
+### View short info as desktop notification
+
+With parameter `-n` or `--notify` you get the like in -s as desktop notification.
+
+This command
+```text
+> ./cronstatus.sh -n
+```
+
+... creates a notification by using `notify-send`:
+
+![Cronstatus as notification](../images/cronstatus_notification.png)
+
+If your cronjobs are OK the message disappears after a few seconds.
+If there is an error it stays on the screen until you close it.
+
 
 ### View detail
 
