@@ -16,10 +16,10 @@
 # 2024-04-04  ahahn  2.1   define NO_COLOR to prevent unbound variable
 # 2024-04-08  ahahn  2.3   FIX NO_COLOR; _version is shown in all scripts
 # 2025-02-24  ahahn  2.4   Hide error in cronstatus of missing logfile before 1st job was executed
-# 2025-05-06  ahahn  2.5   cronstatus - ignore false binary detection of grep
+# 2026-07-19  ahahn  2.10  cronstatus - add desktop notification (-n)
 # ======================================================================
 
-_version=2.9
+_version=2.10
 
 # Handling of exitocdes
 typeset -i rc=0     # the last detected exitcode of a command
@@ -174,7 +174,7 @@ function cw.color(){
         local _color; _color=$1
         local sColorcode=""
         if [ "$NO_COLOR" = "1" ]; then
-                _color="reset"
+                return 0
         fi
         case $_color in
                 "reset") sColorcode="0"
@@ -300,6 +300,42 @@ function cw.unlock(){
         else
                 cw.cecho warning "SKIP: no lock was found"
         fi
+}
+
+# source https://unix.stackexchange.com/questions/111899/how-to-strip-color-codes-out-of-stdout-and-pipe-to-file-and-stdout
+function _decolor(){
+        sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" 
+}
+
+# Show a desktop notification using notify-send
+# param  string   summary (aka title)
+# param  string   message text
+# paran  integer  optional: exitcode; if set it adds a prefix OK or ERRROR on summary and sets urgency on error
+function cw.notify(){
+  local _summary="$1"
+  local _body; _body="$( date +%H:%M:%S )\n$( echo "$2" | _decolor )"
+  local _rc="$3"
+
+  if which notify-send >/dev/null 2>&1; then
+    if [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
+
+      local _urgency="normal"
+      if [ -n "$_rc" ]; then
+        if [ "$_rc" = "0" ]; then
+          _summary="OK: ${_summary}"
+        else
+          _summary="ERROR: ${_summary}"
+          _urgency="critical"
+        fi
+      fi
+
+      if [ -n "$SUDO_USER" ]; then
+        su "$SUDO_USER" -c "notify-send --urgency=${_urgency} '${_summary}' '${_body}'"
+      else
+        notify-send --urgency=${_urgency} "${_summary}" "${_body}"
+      fi
+    fi
+  fi
 }
 
 # ----------------------------------------------------------------------
